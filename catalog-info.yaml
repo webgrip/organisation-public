@@ -11,20 +11,10 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: Location
 metadata:
-  name: webgrip-users
-  namespace: webgrip
-  description: A collection of all the users within the WebGrip organisation
-spec:
-  targets:
-    - ./catalog/groups/ryangr0-user.yaml
----
-apiVersion: backstage.io/v1alpha1
-kind: Location
-metadata:
   name: webgrip-domains
   namespace: webgrip
   description: A collection of all the domains within the WebGrip organisation
 spec:
   targets:
-    - ./domains/operations-domain.yaml
-    - ./domains/telemetry-domain.yaml
+    - ./catalog/domains/operations-domain.yaml
+    - ./catalog/domains/telemetry-domain.yaml
