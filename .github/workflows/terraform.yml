@@ -11,11 +11,6 @@ on:
         required: true
   workflow_dispatch:
 
-name: Terraform CI/CD
-
-on:
-  workflow_dispatch:
-
 jobs:
   terraform:
     name: Terraform Plan and Apply
