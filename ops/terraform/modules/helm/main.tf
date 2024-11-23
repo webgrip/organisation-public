@@ -1,11 +1,11 @@
 provider "helm" {
   kubernetes {
-    host                   = var.kubeconfig["host"]
-    cluster_ca_certificate = base64decode(var.kubeconfig["cluster_ca_certificate"])
+    host                   = var.kubeconfig.host
+    cluster_ca_certificate = base64decode(var.kubeconfig.cluster_ca_certificate)
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "aws"
-      args        = ["eks", "get-token", "--cluster-name", var.cluster_name]
+      args        = ["eks", "get-token", "--cluster-name", var.kubeconfig.cluster_name]
     }
   }
 }
@@ -20,6 +20,5 @@ resource "helm_release" "app" {
 
   values = var.values
 
-  # Define dependencies and other advanced features
-  depends_on = [aws_eks_cluster.this]
+  depends_on = [var.dependency]
 }

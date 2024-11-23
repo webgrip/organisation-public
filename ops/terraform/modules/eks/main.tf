@@ -10,9 +10,9 @@ resource "aws_eks_cluster" "this" {
 
   vpc_config {
     subnet_ids              = var.private_subnets
-    endpoint_private_access = true
-    endpoint_public_access  = true
-    public_access_cidrs     = ["0.0.0.0/0"]
+    endpoint_private_access = var.endpoint_private_access
+    endpoint_public_access  = var.endpoint_public_access
+    public_access_cidrs     = var.public_access_cidrs
   }
 
   encryption_config {
@@ -23,12 +23,11 @@ resource "aws_eks_cluster" "this" {
     }
   }
 
-  # Enable logging
-  enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
-
-  depends_on = [aws_iam_role_policy_attachment.eks_cluster_role_attachment]
+  enabled_cluster_log_types = var.enabled_cluster_log_types
 
   tags = var.tags
+
+  depends_on = [aws_iam_role_policy_attachment.eks_cluster_role_attachment]
 }
 
 resource "aws_eks_node_group" "this" {
@@ -46,14 +45,14 @@ resource "aws_eks_node_group" "this" {
   ami_type       = "AL2_x86_64"
   instance_types = var.instance_types
 
-  tags = var.tags
-
-  depends_on = [aws_eks_cluster.this]
+  disk_size = var.node_disk_size
 
   labels = {
     environment = var.environment
     role        = "worker"
   }
 
-  disk_size = var.node_disk_size
+  tags = var.tags
+
+  depends_on = [aws_eks_cluster.this]
 }

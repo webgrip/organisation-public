@@ -16,27 +16,25 @@ module "iam" {
 module "eks" {
   source = "../../modules/eks"
 
-  providers = {
-    eks = eks
-  }
-
-  cluster_name        = var.cluster_name
-  cluster_role_arn    = module.iam.eks_cluster_role_arn
-  node_group_role_arn = module.iam.eks_node_group_role_arn
-  private_subnets     = module.vpc.private_subnets
-  desired_capacity    = var.desired_capacity
-  min_capacity        = var.min_capacity
-  max_capacity        = var.max_capacity
-  instance_types      = var.instance_types
-  tags                = var.tags
+  cluster_name          = var.cluster_name
+  cluster_role_arn      = module.iam.eks_cluster_role_arn
+  node_group_role_arn   = module.iam.eks_node_group_role_arn
+  private_subnets       = module.vpc.private_subnets
+  kubernetes_version    = var.kubernetes_version
+  desired_capacity      = var.desired_capacity
+  min_capacity          = var.min_capacity
+  max_capacity          = var.max_capacity
+  instance_types        = var.instance_types
+  node_disk_size        = var.node_disk_size
+  environment           = var.environment
+  tags                  = var.tags
+  endpoint_public_access  = var.endpoint_public_access
+  endpoint_private_access = var.endpoint_private_access
+  public_access_cidrs     = var.public_access_cidrs
 }
 
 module "helm" {
   source = "../../modules/helm"
-
-  providers = {
-    helm = helm
-  }
 
   kubeconfig = {
     host                   = module.eks.cluster_endpoint
@@ -51,13 +49,3 @@ module "helm" {
   namespace        = "my-app-namespace"
   values           = [file("${path.module}/helm-values/my-app-values.yaml")]
 }
-
-# module "monitoring" {
-#   source = "../../modules/monitoring"
-#   # Module variables
-# }
-#
-# module "logging" {
-#   source = "../../modules/logging"
-#   # Module variables
-# }

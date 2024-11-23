@@ -44,7 +44,6 @@ data "aws_iam_policy_document" "eks_node_group_assume_role_policy" {
   }
 }
 
-
 resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
   role       = aws_iam_role.eks_node_group_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"

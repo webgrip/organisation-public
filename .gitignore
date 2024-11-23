@@ -1,1 +1,21 @@
 .idea/
+.env
+
+# Terraform state files
+terraform.tfstate
+terraform.tfstate.backup
+
+# Terraform variables files
+*.tfvars
+
+# Terraform modules directory
+**/*/.terraform/
+
+# Ignore crash logs
+crash.log
+
+# Ignore override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json

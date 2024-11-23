@@ -1,9 +1,9 @@
 terraform {
   backend "s3" {
-    bucket         = "my-terraform-state-bucket"
-    key            = "${terraform.workspace}/terraform.tfstate"
+    bucket         = "webgrip-terraform-state-0002"   # Replace with the bucket name from bootstrap output
+    key            = "${var.environment}/terraform.tfstate"
     region         = "eu-west-1"
-    dynamodb_table = "terraform-state-lock"
+    dynamodb_table = "webgrip-terraform-lock-0002"  # Replace with the table name from bootstrap output
     encrypt        = true
   }
 }

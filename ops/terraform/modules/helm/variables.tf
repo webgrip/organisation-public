@@ -37,3 +37,9 @@ variable "values" {
   type        = list(string)
   default     = []
 }
+
+variable "dependency" {
+  description = "Resource dependencies for Helm release."
+  type        = any
+  default     = null
+}
