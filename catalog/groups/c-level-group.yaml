@@ -1,3 +1,4 @@
+# !!! This is directly imported with location in the backstage app-config.yaml, for security reasons.
 apiVersion: backstage.io/v1alpha1
 kind: Group
 metadata:

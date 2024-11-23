@@ -1,16 +1,6 @@
 apiVersion: backstage.io/v1alpha1
 kind: Location
 metadata:
-  name: webgrip-groups
-  namespace: webgrip
-  description: A collection of all the domains within the WebGrip organisation
-spec:
-  targets:
-    - ./catalog/groups/c-level-group.yaml
----
-apiVersion: backstage.io/v1alpha1
-kind: Location
-metadata:
   name: webgrip-domains
   namespace: webgrip
   description: A collection of all the domains within the WebGrip organisation
