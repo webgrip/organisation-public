@@ -1,0 +1,30 @@
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: c-level-group
+  namespace: webgrip
+  title: C-Level
+  description: The C-Level group is responsible for the overall strategy and direction of the company.
+  labels:
+    tier: "1"
+  annotations:
+    github.com/project-slug: webgrip/organisation-public
+    simpleicons.org/icon-slug: protodotio
+  tags:
+    - c-level
+    - management
+    - strategy
+    - direction
+    - leadership
+  links:
+    - url: https://webgrip.nl/
+      title: Website
+      icon: website
+      type: website
+spec:
+  type: department
+  profile:
+    displayName: C-Level
+    email: ryan@webgrip.nl
+    picture: https://api.dicebear.com/7.x/identicon/svg?seed=Fluffy&backgroundColor=ffdfbf
+  children: ['group:webgrip/infrastructure']
