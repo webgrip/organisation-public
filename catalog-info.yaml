@@ -6,7 +6,7 @@ metadata:
   description: A collection of all the domains within the WebGrip organisation
 spec:
   targets:
-    - ./catalog/groups/clevel-domain.yaml
+    - ./catalog/groups/c-level-group.yaml
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Location
