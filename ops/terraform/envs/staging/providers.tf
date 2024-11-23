@@ -19,8 +19,6 @@ terraform {
 
 provider "aws" {
   region     = var.region
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
 }
 
 provider "kubernetes" {
@@ -30,11 +28,6 @@ provider "kubernetes" {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
     args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
-    env {
-      AWS_ACCESS_KEY_ID     = var.aws_access_key
-      AWS_SECRET_ACCESS_KEY = var.aws_secret_key
-      AWS_DEFAULT_REGION    = var.region
-    }
   }
 }
 
@@ -46,11 +39,6 @@ provider "helm" {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "aws"
       args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
-      env {
-        AWS_ACCESS_KEY_ID     = var.aws_access_key
-        AWS_SECRET_ACCESS_KEY = var.aws_secret_key
-        AWS_DEFAULT_REGION    = var.region
-      }
     }
   }
 }
