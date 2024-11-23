@@ -11,7 +11,7 @@ metadata:
   annotations:
     github.com/project-slug: webgrip/organisation-public
     simpleicons.org/icon-slug: protodotio
-  tags:
+  tags: []
   links:
     - url: https://webgrip.nl/
       title: Website
