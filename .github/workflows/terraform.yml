@@ -1,0 +1,53 @@
+on:
+  workflow_call:
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        description: 'AWS Access Key ID'
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        description: 'AWS Secret Access Key'
+        required: true
+      AWS_ROLE_ARN:
+        description: 'AWS Role ARN'
+        required: true
+      AWS_REGION:
+        description: 'AWS Region'
+        required: true
+  workflow_dispatch:
+
+
+jobs:
+  terraform:
+    name: Terraform Plan and Apply
+    runs-on: ubuntu-latest
+    environment: ${{ matrix.environment }}
+
+    strategy:
+      matrix:
+        environment: [staging, production]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Terraform Init
+        working-directory: envs/${{ matrix.environment }}
+        run: terraform init -backend-config="key=terraform/${{ matrix.environment }}.tfstate"
+
+      - name: Terraform Plan
+        working-directory: envs/${{ matrix.environment }}
+        run: terraform plan -out=tfplan -input=false
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[deploy]')
+        working-directory: envs/${{ matrix.environment }}
+        run: terraform apply -input=false tfplan
