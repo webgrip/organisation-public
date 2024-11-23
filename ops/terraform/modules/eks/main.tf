@@ -26,8 +26,6 @@ resource "aws_eks_cluster" "this" {
   enabled_cluster_log_types = var.enabled_cluster_log_types
 
   tags = var.tags
-
-  depends_on = [aws_iam_role_policy_attachment.eks_cluster_role_attachment]
 }
 
 resource "aws_eks_node_group" "this" {

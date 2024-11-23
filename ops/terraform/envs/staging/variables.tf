@@ -106,3 +106,9 @@ variable "public_access_cidrs" {
   type        = list(string)
   default     = ["0.0.0.0/0"]
 }
+
+variable "helm_values" {
+  description = "YAML configuration for Helm chart."
+  type        = list(string)
+  default     = []
+}

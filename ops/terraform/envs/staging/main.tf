@@ -47,5 +47,5 @@ module "helm" {
   chart_name       = "my-app-chart"
   chart_version    = "1.2.3"
   namespace        = "my-app-namespace"
-  values           = [file("${path.module}/helm-values/my-app-values.yaml")]
+  values           = var.helm_values
 }

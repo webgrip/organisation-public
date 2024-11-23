@@ -83,3 +83,4 @@ variable "enabled_cluster_log_types" {
   type        = list(string)
   default     = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 }
+
