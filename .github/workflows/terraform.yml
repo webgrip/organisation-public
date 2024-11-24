@@ -42,7 +42,7 @@ jobs:
 
       - name: Terraform Init
         working-directory: ops/terraform/envs/${{ matrix.environment }}
-        run: terraform init -input=false -upgrade
+        run: terraform init
 
       - name: Terraform Validate
         working-directory: ops/terraform/envs/${{ matrix.environment }}
