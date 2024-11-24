@@ -16,36 +16,19 @@ module "iam" {
 module "eks" {
   source = "../../modules/eks"
 
-  cluster_name          = var.cluster_name
-  cluster_role_arn      = module.iam.eks_cluster_role_arn
-  node_group_role_arn   = module.iam.eks_node_group_role_arn
-  private_subnets       = module.vpc.private_subnets
-  kubernetes_version    = var.kubernetes_version
-  desired_capacity      = var.desired_capacity
-  min_capacity          = var.min_capacity
-  max_capacity          = var.max_capacity
-  instance_types        = var.instance_types
-  node_disk_size        = var.node_disk_size
-  environment           = var.environment
-  tags                  = var.tags
+  cluster_name            = var.cluster_name
+  cluster_role_arn        = module.iam.eks_cluster_role_arn
+  node_group_role_arn     = module.iam.eks_node_group_role_arn
+  private_subnets         = module.vpc.private_subnets
+  kubernetes_version      = var.kubernetes_version
+  desired_capacity        = var.desired_capacity
+  min_capacity            = var.min_capacity
+  max_capacity            = var.max_capacity
+  instance_types          = var.instance_types
+  node_disk_size          = var.node_disk_size
+  environment             = var.environment
+  tags                    = var.tags
   endpoint_public_access  = var.endpoint_public_access
   endpoint_private_access = var.endpoint_private_access
   public_access_cidrs     = var.public_access_cidrs
-}
-
-module "helm" {
-  source = "../../modules/helm"
-
-  kubeconfig = {
-    host                   = module.eks.cluster_endpoint
-    cluster_ca_certificate = module.eks.cluster_certificate_authority_data
-    cluster_name           = module.eks.cluster_name
-  }
-
-  release_name     = "my-application"
-  chart_repository = "https://charts.example.com"
-  chart_name       = "my-app-chart"
-  chart_version    = "1.2.3"
-  namespace        = "my-app-namespace"
-  values           = var.helm_values
 }

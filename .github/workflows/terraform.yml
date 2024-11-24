@@ -13,8 +13,8 @@ on:
 
 jobs:
   terraform:
-    name: Terraform Plan and Apply
-    runs-on: ubuntu-latest
+    name: Terraform Init, Plan, Apply
+    runs-on: self-hosted
 
     strategy:
       matrix:
@@ -42,7 +42,7 @@ jobs:
 
       - name: Terraform Init
         working-directory: ops/terraform/envs/${{ matrix.environment }}
-        run: terraform init
+        run: terraform init -input=false -upgrade
 
       - name: Terraform Validate
         working-directory: ops/terraform/envs/${{ matrix.environment }}

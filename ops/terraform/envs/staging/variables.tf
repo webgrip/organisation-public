@@ -37,7 +37,7 @@ variable "private_subnet_cidrs" {
 variable "kubernetes_version" {
   description = "Kubernetes version for the EKS cluster."
   type        = string
-  default     = "1.27"
+  default     = "1.31"
 }
 
 variable "desired_capacity" {
@@ -95,10 +95,4 @@ variable "public_access_cidrs" {
   description = "List of CIDR blocks to allow access to the public endpoint."
   type        = list(string)
   default     = ["0.0.0.0/0"]
-}
-
-variable "helm_values" {
-  description = "YAML configuration for Helm chart."
-  type        = list(string)
-  default     = []
 }
