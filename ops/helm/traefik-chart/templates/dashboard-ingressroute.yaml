@@ -7,8 +7,12 @@ metadata:
   labels:
     {{- include "traefik-chart.labels" . | nindent 4 }}
 spec:
+  {{- if .Values.ingressRoute.entryPoints }}
   entryPoints:
-    - web
+    {{- range .Values.ingressRoute.entryPoints }}
+    - {{ . }}
+    {{- end }}
+  {{- end }}
   routes:
     - match: Host(`{{ .Values.dashboard.domain }}`)
       kind: Rule

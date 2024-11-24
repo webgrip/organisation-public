@@ -6,6 +6,13 @@ metadata:
   labels:
     {{- include "traefik-chart.labels" . | nindent 4 }}
 spec:
+  strategy:
+    type: {{ .Values.deployment.strategy.type | default "RollingUpdate"}}
+    {{- with .Values.deployment.strategy.rollingUpdate }}
+    rollingUpdate:
+      maxUnavailable: {{ .maxUnavailable }}
+      maxSurge: {{ .maxSurge }}
+    {{- end }}
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}

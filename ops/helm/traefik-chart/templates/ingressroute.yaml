@@ -7,12 +7,16 @@ metadata:
   labels:
     {{- include "traefik-chart.labels" . | nindent 4 }}
 spec:
+  {{- if .Values.ingressRoute.entryPoints }}
   entryPoints:
-    - web
+    {{- range .Values.ingressRoute.entryPoints }}
+    - {{ . }}
+    {{- end }}
+  {{- end }}
   routes:
     - match: Host(`{{ .Values.ingressRoute.domain }}`)
       kind: Rule
       services:
         - name: {{ include "traefik-chart.fullname" . }}
-          port: 80
+          port: {{ .Values.service.port }}
 {{- end }}

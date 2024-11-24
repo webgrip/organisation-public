@@ -1,5 +1,12 @@
 replicaCount: 2
 
+deployment:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+
 image:
   repository: traefik
   tag: "3.1"
@@ -11,10 +18,14 @@ service:
 
 dashboard:
   enabled: true
+  entryPoints:
+    - websecure
   domain: dashboard.traefik.staging.aws.webgrip.nl
 
 ingressRoute:
   enabled: true
+  entryPoints:
+    - websecure
   domain: traefik.staging.aws.webgrip.nl
 
 resources:
@@ -41,7 +52,9 @@ autoscaling:
 ingress:
   enabled: true
   className: "traefik"
-  annotations: {}
+  annotations:
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
   tls:
     - hosts:
         - "traefik.staging.aws.webgrip.nl"
@@ -56,3 +69,18 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: ryan@webgrip.nl
+      storage: /data/acme.json
+      httpChallenge:
+        entryPoint: web
+
+volumes:
+  - name: acme-storage
+    emptyDir: {} # Replace with PersistentVolumeClaim for production
+volumeMounts:
+  - mountPath: /data
+    name: acme-storage
