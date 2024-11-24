@@ -1,0 +1,18 @@
+{{- if .Values.ingressRoute.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "traefik-chart.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "traefik-chart.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`{{ .Values.ingressRoute.domain }}`)
+      kind: Rule
+      services:
+        - name: {{ include "traefik-chart.fullname" . }}
+          port: 80
+{{- end }}

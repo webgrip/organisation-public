@@ -75,7 +75,6 @@ variable "tags" {
   type        = map(string)
   default = {
     Environment = "staging"
-    Project     = "MyProject"
   }
 }
 

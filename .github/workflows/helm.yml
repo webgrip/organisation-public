@@ -1,0 +1,78 @@
+name: Helm Deploy
+
+on:
+  workflow_call:
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        description: 'AWS Access Key ID'
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        description: 'AWS Secret Access Key'
+        required: true
+  workflow_dispatch:
+
+jobs:
+  deploy-helm:
+    name: Deploy Helm Charts
+    runs-on: self-hosted
+
+    strategy:
+      matrix:
+        environment: [ staging ]
+
+    env:
+      AWS_REGION: 'eu-west-1'
+      CLUSTER_NAME: ${{ matrix.environment }}-eks-cluster
+      NAMESPACE_TRAEFIK: 'traefik'
+      TRAEFIK_HELM_VALUES: './ops/helm/traefik-chart/values.yaml'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: latest
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: latest
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'eu-west-1'
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
+
+      - name: Install yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.44.5/yq_linux_amd64 -O /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
+
+#      - name: Add Helm Repositories from Config
+#        run: |
+#          yq e '.repositories[] | "helm repo add \(.name) \(.url)"' helm/repositories.yaml | sh
+#
+#      - name: Update Helm Repositories
+#        run: helm repo update
+#
+#      - name: Apply Namespace Manifests
+#        run: kubectl apply -f ops/k8s/${{ matrix.environment }}/namespaces.yaml
+
+      - name: Deploy Traefik with Helm
+        run: |
+          helm upgrade --install traefik ./ops/helm/traefik-chart \
+            --namespace $NAMESPACE_TRAEFIK \
+            --values $TRAEFIK_HELM_VALUES \
+            --wait --timeout 10m
+
+      - name: Verify Traefik Deployment
+        run: |
+          kubectl rollout status deployment/traefik -n $NAMESPACE_TRAEFIK
