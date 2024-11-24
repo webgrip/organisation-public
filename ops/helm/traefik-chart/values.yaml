@@ -44,10 +44,15 @@ ingress:
   annotations: {}
   tls:
     - hosts:
-        - "example.com"
-      secretName: "example-tls-secret"
+        - "traefik.staging.aws.webgrip.nl"
+        - "dashboard.traefik.staging.aws.webgrip.nl"
+      secretName: "traefik-tls-secret"
   hosts:
-    - host: "example.com"
+    - host: "traefik.staging.aws.webgrip.nl"
       paths:
         - path: /
-          pathType: ImplementationSpecific
+          pathType: Prefix
+    - host: "dashboard.traefik.staging.aws.webgrip.nl"
+      paths:
+        - path: /
+          pathType: Prefix
