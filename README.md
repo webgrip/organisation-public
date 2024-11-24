@@ -15,7 +15,7 @@ You will find here the base structure of the organisation, such as domains, grou
 
 ```
 aws configure
-aws eks update-kubeconfig --name staging-eks-cluster --region <region-name>
+aws eks update-kubeconfig --name staging-eks-cluster --region eu-west-1
 
 Traefik CRDS: https://raw.githubusercontent.com/traefik/traefik/v3.1/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
 
