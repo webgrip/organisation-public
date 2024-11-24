@@ -71,7 +71,7 @@ jobs:
           helm upgrade --install traefik ./ops/helm/traefik-chart \
             --namespace $NAMESPACE_TRAEFIK \
             --values $TRAEFIK_HELM_VALUES \
-            --wait --timeout 10m
+            --wait --timeout 10m --create-namespace
 
       - name: Verify Traefik Deployment
         run: |
