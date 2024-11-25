@@ -1,0 +1,17 @@
+apiVersion: v2
+name: application
+version: 0.0.1
+description: The description for the application
+type: application
+keywords:
+  - application
+home: https://application.webgrip.nl
+sources:
+  - https://dev.azure.com/webgrip/[project]/_git/[repository]
+maintainers:
+  - name: Ryan Grippeling
+    email: ryan@webgrip.nl
+appVersion: "0.0.1"
+deprecated: false
+annotations:
+  example: A list of annotations keyed by name (optional).

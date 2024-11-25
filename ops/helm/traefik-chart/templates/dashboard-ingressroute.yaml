@@ -7,10 +7,16 @@ metadata:
   labels:
     {{- include "traefik-chart.labels" . | nindent 4 }}
 spec:
-  {{- if .Values.ingressRoute.entryPoints }}
+  {{- if .Values.dashboard.entryPoints }}
   entryPoints:
-    {{- range .Values.ingressRoute.entryPoints }}
+    {{- range .Values.dashboard.entryPoints }}
     - {{ . }}
+    {{- end }}
+  {{- end }}
+  {{- with .Values.dashboard.middlewares }}
+  middlewares:
+    {{- range . }}
+    - name: {{ . }}
     {{- end }}
   {{- end }}
   routes:

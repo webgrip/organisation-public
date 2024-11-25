@@ -16,6 +16,12 @@ spec:
   routes:
     - match: Host(`{{ .Values.ingressRoute.domain }}`)
       kind: Rule
+      {{- with .Values.ingressRoute.middlewares }}
+      middlewares:
+        {{- range . }}
+        - name: {{ . }}
+        {{- end }}
+      {{- end }}
       services:
         - name: {{ include "traefik-chart.fullname" . }}
           port: {{ .Values.service.port }}

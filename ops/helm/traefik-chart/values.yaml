@@ -14,16 +14,28 @@ image:
 
 service:
   type: LoadBalancer
-  port: 80
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 443
+      targetPort: http
+      protocol: TCP
+      name: https
 
 dashboard:
   enabled: true
+  middlewares:
+    - redirect-to-https
   entryPoints:
     - websecure
   domain: dashboard.traefik.staging.aws.webgrip.nl
 
 ingressRoute:
   enabled: true
+  middlewares:
+    - redirect-to-https
   entryPoints:
     - websecure
   domain: traefik.staging.aws.webgrip.nl
@@ -70,13 +82,33 @@ ingress:
         - path: /
           pathType: Prefix
 
-certificatesResolvers:
-  letsencrypt:
-    acme:
-      email: ryan@webgrip.nl
-      storage: /data/acme.json
-      httpChallenge:
-        entryPoint: web
+middlewares:
+  redirect-to-https:
+    redirectScheme:
+      scheme: https
+      permanent: true
+
+configMap:
+  enabled: true
+  name: traefik-config
+  data:
+    traefik.yml: |
+      entryPoints:
+      web:
+        address: ":80"
+      websecure:
+        address: ":443"
+        http:
+          tls:
+            certResolver: letsencrypt
+
+      certificatesResolvers:
+        letsencrypt:
+          acme:
+            email: "admin@webgrip.nl"
+            storage: /data/acme.json
+            httpChallenge:
+              entryPoint: web
 
 volumes:
   - name: acme-storage

@@ -28,7 +28,7 @@ spec:
               service:
                 name: {{ include "traefik-chart.fullname" $ }}
                 port:
-                  number: {{ $.Values.service.port }}
+                  name: {{ (index $.Values.service.ports 0).name }}
             {{- end }}
       {{- end }}
   {{- if .Values.ingress.tls }}

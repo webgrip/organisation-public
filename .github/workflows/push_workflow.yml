@@ -1,21 +1,21 @@
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-
-on:
-  push:
-    branches:
-      - 'main'
-
-name: Push Workflow
-jobs:
-  terraform:
-    uses: ./.github/workflows/terraform.yml
-    secrets:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  helm:
-    uses: ./.github/workflows/helm.yml
-    needs: [ terraform ]
-    secrets:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#concurrency:
+#  group: ${{ github.workflow }}-${{ github.ref }}
+#
+#on:
+#  push:
+#    branches:
+#      - 'main'
+#
+#name: Push Workflow
+#jobs:
+#  terraform:
+#    uses: ./.github/workflows/terraform.yml
+#    secrets:
+#      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#  helm:
+#    uses: ./.github/workflows/helm.yml
+#    needs: [ terraform ]
+#    secrets:
+#      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
