@@ -12,12 +12,9 @@ metadata:
     - title: Website
       url: https://cert-manager.io/
       icon: website
-    - title: Documentation
-      url: https://backstage.io/docs
-      icon: docs
   annotations:
     backstage.io/adr-location: docs/adr
-    github.com/project-slug: webgrip/organisation-public
+    github.com/project-slug: cert-manager/cert-manager
     backstage.io/techdocs-ref: dir:.
     backstage.io/kubernetes-label-selector: "app.kubernetes.io/instance=cert-manager"
     backstage.io/kubernetes-namespace: cert-manager

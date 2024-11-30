@@ -10,7 +10,7 @@ metadata:
     tier: "2"
   annotations:
     backstage.io/adr-location: docs/adr
-    github.com/project-slug: webgrip/organisation-public
+    github.com/project-slug: kubernetes/ingress-nginx
     backstage.io/techdocs-ref: dir:.
     backstage.io/kubernetes-label-selector: "app.kubernetes.io/instance=ingress-nginx"
     backstage.io/kubernetes-namespace: ingress-nginx

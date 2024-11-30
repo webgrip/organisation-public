@@ -10,7 +10,7 @@ metadata:
     tier: "3"
   annotations:
     backstage.io/adr-location: docs/adr
-    github.com/project-slug: webgrip/organisation-public
+    github.com/project-slug: datawire/quote
     backstage.io/techdocs-ref: dir:.
     backstage.io/kubernetes-label-selector: "app.kubernetes.io/instance=quote"
     backstage.io/kubernetes-namespace: backend
