@@ -3,8 +3,8 @@ name: Helm Deploy
 on:
   workflow_call:
     secrets:
-      DO_API_TOKEN:
-        description: 'DigitalOcean API Token'
+      DIGITAL_OCEAN_API_KEY:
+        description: 'DigitalOcean API Key'
         required: true
   workflow_dispatch:
 
