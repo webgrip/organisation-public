@@ -10,12 +10,14 @@ metadata:
     tier: "3"
   annotations:
     backstage.io/adr-location: docs/adr
-    github.com/project-slug: datawire/quote
-    backstage.io/techdocs-ref: dir:.
     backstage.io/kubernetes-label-selector: "app.kubernetes.io/instance=quote"
     backstage.io/kubernetes-namespace: backend
+    backstage.io/techdocs-ref: dir:.
+    github.com/project-slug: datawire/quote
 spec:
   type: service
   owner: group:webgrip/infrastructure
   lifecycle: experimental
   system: kubernetes-system
+  dependsOn:
+    - resource:webgrip/staging-doks-cluster

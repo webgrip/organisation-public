@@ -8,19 +8,17 @@ metadata:
     Cert Manager is a Kubernetes add-on to automate the management and issuance of TLS certificates from various sources.
   labels:
     tier: "2"
-  links:
-    - title: Website
-      url: https://cert-manager.io/
-      icon: website
   annotations:
     backstage.io/adr-location: docs/adr
-    github.com/project-slug: cert-manager/cert-manager
-    backstage.io/techdocs-ref: dir:.
     backstage.io/kubernetes-label-selector: "app.kubernetes.io/instance=cert-manager"
     backstage.io/kubernetes-namespace: cert-manager
+    backstage.io/techdocs-ref: dir:.
+    github.com/project-slug: cert-manager/cert-manager
     simpleicons.org/icon-slug: awssecretsmanager
 spec:
   type: service
   owner: group:webgrip/infrastructure
   lifecycle: experimental
   system: kubernetes-system
+  dependsOn:
+    - resource:webgrip/staging-doks-cluster
