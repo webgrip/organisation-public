@@ -24,3 +24,4 @@ spec:
     email: ryan@webgrip.nl
     picture: https://api.dicebear.com/7.x/identicon/svg?seed=Fluffy&backgroundColor=ffdfbf
   children: ['group:webgrip/infrastructure']
+  members: ['Ryangr0']
