@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: kubernetes-system
+  namespace: webgrip
+  title: Kubernetes
+  description: |
+    Kubernetes is an open-source container-orchestration system for automating application deployment, scaling, and management.
+spec:
+  owner: group:webgrip/infrastructure
+  domain: webgrip/operations-domain

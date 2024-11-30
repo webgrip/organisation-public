@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: echo-component
+  namespace: webgrip
+  title: Echo
+  description: |
+    Echo is a simple HTTP server that responds with the request headers. It is useful for debugging and testing.
+  annotations:
+    backstage.io/adr-location: docs/adr
+    github.com/project-slug: webgrip/organisation-public
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/kubernetes-id: echo
+    backstage.io/kubernetes-namespace: backend
+spec:
+  owner: group:webgrip/infrastructure
+  domain: webgrip/operations-domain

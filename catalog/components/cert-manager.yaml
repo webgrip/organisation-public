@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: cert-manager-component
+  namespace: webgrip
+  title: Cert Manager
+  description: |
+    Cert Manager is a Kubernetes add-on to automate the management and issuance of TLS certificates from various sources.
+  annotations:
+    backstage.io/adr-location: docs/adr
+    github.com/project-slug: webgrip/organisation-public
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/kubernetes-id: cert-manager
+    backstage.io/kubernetes-namespace: cert-manager
+    simpleicons.org/icon-slug: awssecretsmanager
+spec:
+  owner: group:webgrip/infrastructure
+  domain: webgrip/operations-domain

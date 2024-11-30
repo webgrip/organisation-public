@@ -8,3 +8,26 @@ spec:
   targets:
     - ./catalog/domains/operations-domain.yaml
     - ./catalog/domains/telemetry-domain.yaml
+---
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: webgrip-systems
+  namespace: webgrip
+  description: A collection of all the systems within the WebGrip organisation
+spec:
+  targets:
+    - ./catalog/systems/kubernetes.yaml
+---
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: webgrip-components
+  namespace: webgrip
+  description: A collection of all the components within the WebGrip organisation
+spec:
+  targets:
+    - ./catalog/components/ingress-nginx.yaml
+    - ./catalog/components/cert-manager.yaml
+    - ./catalog/components/echo.yaml
+    - ./catalog/components/quotes.yaml

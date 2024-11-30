@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: quotes-component
+  namespace: webgrip
+  title: Quotes
+  description: |
+    Quotes is a simple HTTP server that responds with a random quote. It is useful for testing and learning.
+  annotations:
+    backstage.io/adr-location: docs/adr
+    github.com/project-slug: webgrip/organisation-public
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/kubernetes-id: quotes
+    backstage.io/kubernetes-namespace: backend
+spec:
+  owner: group:webgrip/infrastructure
+  domain: webgrip/operations-domain

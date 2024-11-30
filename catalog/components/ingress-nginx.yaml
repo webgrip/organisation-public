@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ingress-nginx-component
+  namespace: webgrip
+  title: Ingress Nginx
+  description: |
+    Ingress Nginx is an Ingress controller for Kubernetes using NGINX as a reverse proxy and load balancer.
+  annotations:
+    backstage.io/adr-location: docs/adr
+    github.com/project-slug: webgrip/organisation-public
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/kubernetes-id: ingress-nginx
+    backstage.io/kubernetes-namespace: ingress-nginx
+    simpleicons.org/icon-slug: nginx
+spec:
+  owner: group:webgrip/infrastructure
+  domain: webgrip/operations-domain
