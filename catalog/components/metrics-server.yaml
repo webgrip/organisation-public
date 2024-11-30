@@ -1,0 +1,24 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: metrics-server-component
+  namespace: webgrip
+  title: Metrics Server
+  description: |
+    Metrics Server is a scalable, efficient source of container resource metrics for Kubernetes built-in autoscaling pipelines.
+  labels:
+    tier: "2"
+  annotations:
+    backstage.io/adr-location: docs/adr
+    backstage.io/kubernetes-label-selector: "app.kubernetes.io/instance=metrics-server"
+    backstage.io/kubernetes-namespace: metrics-server
+    backstage.io/techdocs-ref: dir:.
+    github.com/project-slug: kubernetes/metrics-server
+    simpleicons.org/icon-slug: nginx
+spec:
+  type: service
+  owner: group:webgrip/infrastructure
+  lifecycle: experimental
+  system: kubernetes-system
+  dependsOn:
+    - resource:webgrip/staging-doks-cluster
