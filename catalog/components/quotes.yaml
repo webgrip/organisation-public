@@ -6,6 +6,8 @@ metadata:
   title: Quotes
   description: |
     Quotes is a simple HTTP server that responds with a random quote. It is useful for testing and learning.
+  labels:
+    tier: "3"
   annotations:
     backstage.io/adr-location: docs/adr
     github.com/project-slug: webgrip/organisation-public
@@ -16,4 +18,4 @@ spec:
   type: service
   owner: group:webgrip/infrastructure
   lifecycle: experimental
-  domain: webgrip/operations-domain
+  system: kubernetes-system

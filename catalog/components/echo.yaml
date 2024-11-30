@@ -6,6 +6,8 @@ metadata:
   title: Echo
   description: |
     Echo is a simple HTTP server that responds with the request headers. It is useful for debugging and testing.
+  labels:
+    tier: "3"
   annotations:
     backstage.io/adr-location: docs/adr
     github.com/project-slug: webgrip/organisation-public
@@ -16,4 +18,4 @@ spec:
   type: service
   owner: group:webgrip/infrastructure
   lifecycle: experimental
-  domain: webgrip/operations-domain
+  system: kubernetes-system

@@ -6,6 +6,8 @@ metadata:
   title: Ingress Nginx
   description: |
     Ingress Nginx is an Ingress controller for Kubernetes using NGINX as a reverse proxy and load balancer.
+  labels:
+    tier: "2"
   annotations:
     backstage.io/adr-location: docs/adr
     github.com/project-slug: webgrip/organisation-public
@@ -17,4 +19,4 @@ spec:
   type: infrastructure
   owner: group:webgrip/infrastructure
   lifecycle: experimental
-  domain: webgrip/operations-domain
+  system: kubernetes-system

@@ -26,4 +26,4 @@ spec:
   type: infrastructure
   owner: group:webgrip/infrastructure
   lifecycle: experimental
-  domain: webgrip/operations-domain
+  system: kubernetes-system
