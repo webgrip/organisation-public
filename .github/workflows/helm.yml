@@ -8,6 +8,9 @@ on:
         required: true
   workflow_dispatch:
 
+variables:
+  DO_CLI_VERSION: '1.119.1'
+
 jobs:
   deploy-helm:
     name: Deploy Helm Charts
@@ -22,7 +25,6 @@ jobs:
       DO_KUBECONFIG_FILE: './doks-kubeconfig'
       NAMESPACE_TRAEFIK: 'traefik'
       TRAEFIK_HELM_VALUES: './ops/helm/traefik-chart/values.yaml'
-      DO_CLI_VERSION: '1.119.1'
 
     steps:
       - name: Checkout code
