@@ -16,7 +16,7 @@ metadata:
     backstage.io/kubernetes-namespace: ingress-nginx
     simpleicons.org/icon-slug: nginx
 spec:
-  type: infrastructure
+  type: service
   owner: group:webgrip/infrastructure
   lifecycle: experimental
   system: kubernetes-system

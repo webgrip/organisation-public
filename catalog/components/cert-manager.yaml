@@ -20,7 +20,7 @@ metadata:
     backstage.io/kubernetes-namespace: cert-manager
     simpleicons.org/icon-slug: awssecretsmanager
 spec:
-  type: infrastructure
+  type: service
   owner: group:webgrip/infrastructure
   lifecycle: experimental
   system: kubernetes-system
