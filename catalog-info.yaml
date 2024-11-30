@@ -31,3 +31,13 @@ spec:
     - ./catalog/components/cert-manager.yaml
     - ./catalog/components/echo.yaml
     - ./catalog/components/quotes.yaml
+---
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: webgrip-resources
+  namespace: webgrip
+  description: A collection of all the resources within the WebGrip organisation
+spec:
+  targets:
+    - ./catalog/resources/staging-doks-cluster.yaml
