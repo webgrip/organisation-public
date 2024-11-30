@@ -13,5 +13,6 @@ metadata:
     backstage.io/kubernetes-id: echo
     backstage.io/kubernetes-namespace: backend
 spec:
+  type: service
   owner: group:webgrip/infrastructure
   domain: webgrip/operations-domain

@@ -14,5 +14,6 @@ metadata:
     backstage.io/kubernetes-namespace: cert-manager
     simpleicons.org/icon-slug: awssecretsmanager
 spec:
+  type: infrastructure
   owner: group:webgrip/infrastructure
   domain: webgrip/operations-domain
