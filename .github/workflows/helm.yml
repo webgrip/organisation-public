@@ -3,11 +3,8 @@ name: Helm Deploy
 on:
   workflow_call:
     secrets:
-      AWS_ACCESS_KEY_ID:
-        description: 'AWS Access Key ID'
-        required: true
-      AWS_SECRET_ACCESS_KEY:
-        description: 'AWS Secret Access Key'
+      DO_API_TOKEN:
+        description: 'DigitalOcean API Token'
         required: true
   workflow_dispatch:
 
@@ -21,10 +18,11 @@ jobs:
         environment: [ staging ]
 
     env:
-      AWS_REGION: 'eu-west-1'
-      CLUSTER_NAME: ${{ matrix.environment }}-eks-cluster
+      DO_CLUSTER_NAME: ${{ matrix.environment }}-doks-cluster
+      DO_KUBECONFIG_FILE: './doks-kubeconfig'
       NAMESPACE_TRAEFIK: 'traefik'
       TRAEFIK_HELM_VALUES: './ops/helm/traefik-chart/values.yaml'
+      DO_CLI_VERSION: '1.119.1'
 
     steps:
       - name: Checkout code
@@ -40,39 +38,38 @@ jobs:
         with:
           version: latest
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: 'eu-west-1'
-
-      - name: Update kubeconfig
+      - name: Install doctl (DigitalOcean CLI)
         run: |
-          aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
+          curl -sL https://github.com/digitalocean/doctl/releases/download/v${{ DO_CLI_VERSION }}/doctl-${{ DO_CLI_VERSION }}-linux-amd64.tar.gz | tar -xz
+          sudo mv doctl /usr/local/bin
+
+      - name: Authenticate doctl
+        run: doctl auth init --access-token ${{ secrets.DO_API_TOKEN }}
+
+      - name: Fetch DOKS kubeconfig
+        run: doctl kubernetes cluster kubeconfig save $DO_CLUSTER_NAME
+
+      - name: Configure kubeconfig
+        run: |
+          export KUBECONFIG=$DO_KUBECONFIG_FILE
 
       - name: Install yq
         run: |
           sudo wget https://github.com/mikefarah/yq/releases/download/v4.44.5/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
 
-#      - name: Add Helm Repositories from Config
-#        run: |
-#          yq e '.repositories[] | "helm repo add \(.name) \(.url)"' helm/repositories.yaml | sh
-#
-#      - name: Update Helm Repositories
-#        run: helm repo update
-#
-#      - name: Apply Namespace Manifests
-#        run: kubectl apply -f ops/k8s/${{ matrix.environment }}/namespaces.yaml
-
-      - name: Deploy Traefik with Helm
+      - name: Deploy All Helm Charts
         run: |
-          helm upgrade --install traefik ./ops/helm/traefik-chart \
-            --namespace $NAMESPACE_TRAEFIK \
-            --values $TRAEFIK_HELM_VALUES \
-            --wait --timeout 10m --create-namespace
-
-      - name: Verify Traefik Deployment
-        run: |
-          kubectl rollout status deployment/traefik-traefik-chart -n $NAMESPACE_TRAEFIK
+          for chart in ./ops/helm/*; do
+           echo "Processing chart $(basename "$chart")..."
+            if [ -d "$chart" ]; then
+              namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
+              echo "Deploying chart $(basename "$chart") to namespace $namespace..."
+              helm dependency update "$chart"
+              helm upgrade --install "$(basename "$chart")" "$chart" \
+                --namespace "$namespace" \
+                --create-namespace \
+                --values "$chart/values.yaml" \
+                --wait --timeout 10m
+            fi
+          done

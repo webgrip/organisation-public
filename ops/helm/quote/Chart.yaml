@@ -1,0 +1,8 @@
+apiVersion: v2
+name: quote-chart
+description: A Helm chart for deploying the Quote server application
+version: 0.1.1
+type: application
+
+sources:
+  - https://github.com/datawire/quote

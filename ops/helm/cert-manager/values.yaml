@@ -1,0 +1,7 @@
+namespace: cert-manager
+
+cert-manager:
+  installCRDs: true
+  replicaCount: 2
+  webhook:
+    timeoutSeconds: 30

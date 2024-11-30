@@ -1,0 +1,36 @@
+namespace: backend
+
+replicaCount: 1
+
+image:
+  repository: docker.io/datawire/quote
+  pullPolicy: IfNotPresent
+  tag: "0.4.1"
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "50Mi"
+  limits:
+    cpu: "200m"
+    memory: "100Mi"
+
+service:
+  type: ClusterIP
+  port: 80
+
+deployment:
+  strategy:
+    type: RollingUpdate
+
+ingress:
+  enabled: true
+  className: nginx
+  host: quote.k8s.webgrip.nl
+  path: /
+  pathType: Prefix
+  tls:
+    enabled: true
+    secretName: letsencrypt-nginx
+  annotations:
+    cert-manager.io/issuer: letsencrypt-nginx

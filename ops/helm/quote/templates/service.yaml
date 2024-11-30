@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "quote-chart.fullname" . }}-service
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "quote-chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: 8080
+  selector:
+    {{- include "quote-chart.selectorLabels" . | nindent 4 }}
