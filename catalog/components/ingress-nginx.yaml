@@ -12,7 +12,7 @@ metadata:
     backstage.io/adr-location: docs/adr
     github.com/project-slug: webgrip/organisation-public
     backstage.io/techdocs-ref: dir:.
-    backstage.io/kubernetes-id: ingress-nginx
+    backstage.io/kubernetes-label-selector: "app.kubernetes.io/instance=ingress-nginx"
     backstage.io/kubernetes-namespace: ingress-nginx
     simpleicons.org/icon-slug: nginx
 spec:

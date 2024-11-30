@@ -12,7 +12,7 @@ metadata:
     backstage.io/adr-location: docs/adr
     github.com/project-slug: webgrip/organisation-public
     backstage.io/techdocs-ref: dir:.
-    backstage.io/kubernetes-id: quote
+    backstage.io/kubernetes-label-selector: "app.kubernetes.io/instance=quote"
     backstage.io/kubernetes-namespace: backend
 spec:
   type: service
