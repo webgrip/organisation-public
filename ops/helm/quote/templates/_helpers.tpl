@@ -48,7 +48,4 @@ Selector labels
 {{- define "quote-chart.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "quote-chart.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- if .Values.backstageKubernetesId }}
-backstage.io/kubernetes-id: {{ .Values.backstageKubernetesId | quote }}
-{{- end }}
 {{- end }}
