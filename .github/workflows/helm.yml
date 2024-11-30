@@ -23,8 +23,6 @@ jobs:
       DO_KUBECONFIG_FILE: './doks-kubeconfig'
       NAMESPACE_TRAEFIK: 'traefik'
       TRAEFIK_HELM_VALUES: './ops/helm/traefik-chart/values.yaml'
-
-    vars:
       DO_CLI_VERSION: '1.119.1'
 
     steps:
@@ -43,7 +41,7 @@ jobs:
 
       - name: Install doctl (DigitalOcean CLI)
         run: |
-          curl -sL https://github.com/digitalocean/doctl/releases/download/v${{ vars.DO_CLI_VERSION }}/doctl-${{ vars.DO_CLI_VERSION }}-linux-amd64.tar.gz | tar -xz
+          curl -sL https://github.com/digitalocean/doctl/releases/download/v${{ env.DO_CLI_VERSION }}/doctl-${{ env.DO_CLI_VERSION }}-linux-amd64.tar.gz | tar -xz
           sudo mv doctl /usr/local/bin
 
       - name: Authenticate doctl
