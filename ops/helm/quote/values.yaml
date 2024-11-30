@@ -34,5 +34,3 @@ ingress:
     secretName: letsencrypt-nginx
   annotations:
     cert-manager.io/issuer: letsencrypt-nginx
-
-backstageKubernetesId: quote
