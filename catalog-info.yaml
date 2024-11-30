@@ -30,7 +30,7 @@ spec:
     - ./catalog/components/ingress-nginx.yaml
     - ./catalog/components/cert-manager.yaml
     - ./catalog/components/echo.yaml
-    - ./catalog/components/quotes.yaml
+    - ./catalog/components/quote.yaml
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Location
