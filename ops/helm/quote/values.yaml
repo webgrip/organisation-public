@@ -37,12 +37,12 @@ ingress:
       pathType: Prefix
       port: 80
 
-readinessProbe:
-  path: /readyz
-  initialDelaySeconds: 5
-  periodSeconds: 10
-
-livenessProbe:
-  path: /healthz
-  initialDelaySeconds: 10
-  periodSeconds: 20
+#readinessProbe:
+#  path: /readyz
+#  initialDelaySeconds: 5
+#  periodSeconds: 10
+#
+#livenessProbe:
+#  path: /healthz
+#  initialDelaySeconds: 10
+#  periodSeconds: 20
