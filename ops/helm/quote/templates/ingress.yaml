@@ -16,7 +16,7 @@ spec:
   tls:
     - hosts:
       - {{ .Values.ingress.host }}
-      secretName: {{ .Values.ingress.tls.secretName | default (printf "%s-tls" (include "chart.fullname" .)) }}
+      secretName: {{ .Values.ingress.tls.secretName }}-{{include "chart.fullname" .}}
   {{- end }}
   rules:
     - host: {{ .Values.ingress.host | default "example.com" }}
