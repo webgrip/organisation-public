@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "chart.fullname" . }}
+  name: {{ include "quote-chart.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "chart.labels" . | nindent 4 }}
+    {{- include "quote-chart.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount | default 1 }}
   selector:
     matchLabels:
-      {{- include "chart.selectorLabels" . | nindent 6 }}
+      {{- include "quote-chart.selectorLabels" . | nindent 6 }}
   strategy:
     type: {{ .Values.deployment.strategy.type | default "RollingUpdate" }}
     {{- if eq .Values.deployment.strategy.type "RollingUpdate" }}
@@ -20,7 +20,7 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "chart.selectorLabels" . | nindent 8 }}
+        {{- include "quote-chart.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: quote
