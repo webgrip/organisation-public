@@ -3,6 +3,6 @@ name: echo-chart
 description: A Helm chart for deploying the Echo server application
 version: 0.1.1
 type: application
-
+appVersion: 0.3.7
 sources:
   - https://github.com/jmalloc/echo-server
