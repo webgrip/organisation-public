@@ -4,6 +4,6 @@ description: A G
 version: 0.1.0
 type: application
 dependencies:
-  - name: akeyless
-    version: 0.27.1
+  - name: akeyless-api-gateway
+    version: 1.51.1
     repository: https://akeylesslabs.github.io/helm-charts
