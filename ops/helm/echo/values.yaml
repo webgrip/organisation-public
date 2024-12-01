@@ -1,5 +1,9 @@
 namespace: backend
 
+deployment:
+  strategy:
+    type: RollingUpdate
+
 replicaCount: 1
 
 image:
@@ -19,18 +23,26 @@ service:
   type: ClusterIP
   port: 80
 
-deployment:
-  strategy:
-    type: RollingUpdate
-
 ingress:
   enabled: true
   className: nginx
   host: echo.k8s.webgrip.nl
-  path: /
-  pathType: Prefix
+  annotations:
+    cert-manager.io/issuer: letsencrypt-nginx
   tls:
     enabled: true
     secretName: letsencrypt-nginx
-  annotations:
-    cert-manager.io/issuer: letsencrypt-nginx
+  paths:
+    - path: /
+      pathType: Prefix
+      port: 80
+
+#readinessProbe:
+#  path: /readyz
+#  initialDelaySeconds: 5
+#  periodSeconds: 10
+#
+#livenessProbe:
+#  path: /healthz
+#  initialDelaySeconds: 10
+#  periodSeconds: 20
