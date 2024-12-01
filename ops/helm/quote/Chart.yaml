@@ -1,5 +1,5 @@
 apiVersion: v2
-name: quote-chart
+name: chart
 description: A Helm chart for deploying the Quote server application
 version: 0.2.0
 type: application
