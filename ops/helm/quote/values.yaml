@@ -1,5 +1,9 @@
 namespace: backend
 
+deployment:
+  strategy:
+    type: RollingUpdate
+
 replicaCount: 1
 
 image:
@@ -18,10 +22,6 @@ resources:
 service:
   type: ClusterIP
   port: 80
-
-deployment:
-  strategy:
-    type: RollingUpdate
 
 ingress:
   enabled: true

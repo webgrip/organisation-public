@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "quote-chart.fullname" . }}
+  name: {{ include "chart.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "quote-chart.labels" . | nindent 4 }}
+    {{- include "chart.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount | default 1 }}
   selector:
     matchLabels:
-      {{- include "quote-chart.selectorLabels" . | nindent 6 }}
+      {{- include "chart.selectorLabels" . | nindent 6 }}
   strategy:
     type: {{ .Values.deployment.strategy.type | default "RollingUpdate" }}
     {{- if eq .Values.deployment.strategy.type "RollingUpdate" }}
     rollingUpdate:
-      maxSurge: {{ .Values.deployment.strategy.rollingUpdate.maxSurge | default "25%" }}
-      maxUnavailable: {{ .Values.deployment.strategy.rollingUpdate.maxUnavailable | default "25%" }}
+      maxSurge: {{ (.Values.deployment.strategy.rollingUpdate).maxSurge | default "25%" }}
+      maxUnavailable: {{ (.Values.deployment.strategy.rollingUpdate).maxUnavailable | default "25%" }}
     {{- end }}
   template:
     metadata:
       labels:
-        {{- include "quote-chart.selectorLabels" . | nindent 8 }}
+        {{- include "chart.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: quote
