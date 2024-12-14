@@ -50,4 +50,4 @@ traefik:
       matchRule: Host(`dashboard.traefik.k8s.traefik.webgrip.nl`)
       middlewares:
         - name: traefik-dashboard-auth
-#        - name: special-ip-whitelist
+        - name: special-ip-whitelist
