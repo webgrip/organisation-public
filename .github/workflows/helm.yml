@@ -60,7 +60,6 @@ jobs:
           sudo chmod +x /usr/local/bin/yq
 
       - name: Deploy Bootstrap Charts (Certificate Manager & Metrics Server)
-        id: bootstrap
         run: |
           for chart in ./ops/helm/01-bootstrap/*; do
            echo "Processing chart $(basename "$chart")..."
@@ -77,8 +76,6 @@ jobs:
           done
 
       - name: Deploy Certificate Issuers
-        id: issuers
-        needs: bootstrap
         run: |
           for chart in ./ops/helm/02-issuers/*; do
            echo "Processing chart $(basename "$chart")..."
@@ -95,7 +92,6 @@ jobs:
           done
 
       - name: Deploy Ingress Controllers (Traefik & Nginx)
-        needs: issuers
         run: |
           for chart in ./ops/helm/03-ingress/*; do
            echo "Processing chart $(basename "$chart")..."
@@ -112,7 +108,6 @@ jobs:
           done
 
       - name: Deploy Services
-        needs: ingress-controllers
         run: |
           for chart in ./ops/helm/04-services/*; do
            echo "Processing chart $(basename "$chart")..."
