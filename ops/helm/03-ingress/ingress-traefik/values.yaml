@@ -22,6 +22,16 @@ ports:
 #    http3:
 #      enabled: true
 
+logs:
+  general:
+    level: DEBUG
+  access:
+    enabled: true
+    fields:
+      general:
+        defaultMode: keep
+      headers:
+        defaultMode: keep
 
 ingressRoute:
   dashboard:
