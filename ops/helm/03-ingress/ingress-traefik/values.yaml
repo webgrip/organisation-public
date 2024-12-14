@@ -19,8 +19,6 @@ traefik:
       redirectTo:
         port: websecure
     websecure:
-      tls:
-        certResolver: letsencrypt-traefik
       forwardedHeaders:
         insecure: true
         trustedIPs:
