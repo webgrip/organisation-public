@@ -23,10 +23,12 @@ traefik:
         certResolver: letsencrypt-traefik
       forwardedHeaders:
         insecure: true
-        trustedIPs: 0.0.0.0/0
+        trustedIPs:
+          - 0.0.0.0/0
       proxyProtocol:
         insecure: true
-        trustedIPs: 0.0.0.0/0
+        trustedIPs:
+          - 0.0.0.0/0
       http3:
         enabled: true
 
