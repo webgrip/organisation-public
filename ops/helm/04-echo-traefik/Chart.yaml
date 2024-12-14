@@ -1,0 +1,8 @@
+apiVersion: v2
+name: echo-traefik-chart
+description: A Helm chart for deploying the Echo server application in Kubernetes with Traefik
+version: 0.1.0
+type: application
+appVersion: 0.3.7
+sources:
+  - https://github.com/jmalloc/echo-server

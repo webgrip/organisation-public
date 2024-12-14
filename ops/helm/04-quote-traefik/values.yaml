@@ -7,9 +7,9 @@ deployment:
 replicaCount: 1
 
 image:
-  repository: jmalloc/echo-server
+  repository: docker.io/datawire/quote
   pullPolicy: IfNotPresent
-  tag: "latest"
+  tag: "0.5.0"
 
 resources:
   requests:
@@ -25,13 +25,13 @@ service:
 
 ingress:
   enabled: true
-  className: nginx
-  host: echo.k8s.webgrip.nl
+  className: ingress-traefik
+  host: quote.k8s.traefik.webgrip.nl
   annotations:
-    cert-manager.io/issuer: letsencrypt-nginx
+    cert-manager.io/issuer: letsencrypt-traefik
   tls:
     enabled: true
-    secretName: letsencrypt-nginx
+    secretName: letsencrypt-traefik-quote
   paths:
     - path: /
       pathType: Prefix

@@ -1,0 +1,6 @@
+namespace: backend
+issuerName: letsencrypt-nginx
+email: ryan@webgrip.nl
+acmeServer: "https://acme-v02.api.letsencrypt.org/directory"
+privateKeySecretName: letsencrypt-nginx-private-key
+ingressClass: nginx

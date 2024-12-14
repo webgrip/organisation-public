@@ -1,0 +1,48 @@
+namespace: backend
+
+deployment:
+  strategy:
+    type: RollingUpdate
+
+replicaCount: 1
+
+image:
+  repository: jmalloc/echo-server
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "50Mi"
+  limits:
+    cpu: "200m"
+    memory: "100Mi"
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: nginx
+  host: echo.k8s.nginx.webgrip.nl
+  annotations:
+    cert-manager.io/issuer: letsencrypt-nginx
+  tls:
+    enabled: true
+    secretName: letsencrypt-nginx-echo
+  paths:
+    - path: /
+      pathType: Prefix
+      port: 80
+
+#readinessProbe:
+#  path: /readyz
+#  initialDelaySeconds: 5
+#  periodSeconds: 10
+#
+#livenessProbe:
+#  path: /healthz
+#  initialDelaySeconds: 10
+#  periodSeconds: 20

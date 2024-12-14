@@ -1,0 +1,5 @@
+apiVersion: v2
+name: cert-issuer-nginx-chart
+description: A Helm chart for deploying the Cert Issuer application in Kubernetes with Nginx
+version: 0.1.0
+type: application

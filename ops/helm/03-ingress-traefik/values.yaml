@@ -1,0 +1,22 @@
+service:
+  type: LoadBalancer
+
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+  name: ingress-traefik
+
+ports:
+  web:
+    redirectTo:
+      port: websecure
+
+ingressRoute:
+  dashboard:
+    enabled: true
+    entryPoints: [web, websecure]
+    matchRule: Host(`dashboard.traefik.k8s.traefik.webgrip.nl`)
+
+additionalArguments:
+  - "--entrypoints.web.forwardedHeaders.trustedIPs=0.0.0.0/0"
+  - "--entrypoints.websecure.forwardedHeaders.trustedIPs=0.0.0.0/0"

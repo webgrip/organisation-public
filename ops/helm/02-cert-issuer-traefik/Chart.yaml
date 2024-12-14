@@ -1,0 +1,5 @@
+apiVersion: v2
+name: cert-issuer-traefik-chart
+description: A Helm chart for deploying the Cert Issuer application in Kubernetes with Traefik
+version: 0.1.0
+type: application
