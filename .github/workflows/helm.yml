@@ -59,9 +59,62 @@ jobs:
           sudo wget https://github.com/mikefarah/yq/releases/download/v4.44.5/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
 
-      - name: Deploy All Helm Charts
+      - name: Deploy Bootstrap Charts (Certificate Manager & Metrics Server)
+        id: bootstrap
         run: |
-          for chart in ./ops/helm/*; do
+          for chart in ./ops/helm/01-bootstrap/*; do
+           echo "Processing chart $(basename "$chart")..."
+            if [ -d "$chart" ]; then
+              namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
+              echo "Deploying chart $(basename "$chart") to namespace $namespace..."
+              helm dependency update "$chart"
+              helm upgrade --install "$(basename "$chart")" "$chart" \
+                --namespace "$namespace" \
+                --create-namespace \
+                --values "$chart/values.yaml" \
+                --wait --timeout 10m
+            fi
+          done
+
+      - name: Deploy Certificate Issuers
+        id: issuers
+        needs: bootstrap
+        run: |
+          for chart in ./ops/helm/02-issuers/*; do
+           echo "Processing chart $(basename "$chart")..."
+            if [ -d "$chart" ]; then
+              namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
+              echo "Deploying chart $(basename "$chart") to namespace $namespace..."
+              helm dependency update "$chart"
+              helm upgrade --install "$(basename "$chart")" "$chart" \
+                --namespace "$namespace" \
+                --create-namespace \
+                --values "$chart/values.yaml" \
+                --wait --timeout 10m
+            fi
+          done
+
+      - name: Deploy Ingress Controllers (Traefik & Nginx)
+        needs: issuers
+        run: |
+          for chart in ./ops/helm/03-ingress/*; do
+           echo "Processing chart $(basename "$chart")..."
+            if [ -d "$chart" ]; then
+              namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
+              echo "Deploying chart $(basename "$chart") to namespace $namespace..."
+              helm dependency update "$chart"
+              helm upgrade --install "$(basename "$chart")" "$chart" \
+                --namespace "$namespace" \
+                --create-namespace \
+                --values "$chart/values.yaml" \
+                --wait --timeout 10m
+            fi
+          done
+
+      - name: Deploy Services
+        needs: ingress-controllers
+        run: |
+          for chart in ./ops/helm/04-services/*; do
            echo "Processing chart $(basename "$chart")..."
             if [ -d "$chart" ]; then
               namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
