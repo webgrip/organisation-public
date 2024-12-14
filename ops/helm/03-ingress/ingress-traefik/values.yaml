@@ -3,6 +3,11 @@ namespace: ingress-traefik
 traefik:
   service:
     type: LoadBalancer
+    spec:
+      externalTrafficPolicy: Local
+    annotations:
+      service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
+      service.beta.kubernetes.io/do-loadbalancer-tls-passthrough: "true"
 
   ingressClass:
     enabled: true
@@ -18,8 +23,10 @@ traefik:
         certResolver: letsencrypt-traefik
       forwardedHeaders:
         insecure: true
+        trustedIPs: 0.0.0.0/0
       proxyProtocol:
         insecure: true
+        trustedIPs: 0.0.0.0/0
       http3:
         enabled: true
 
