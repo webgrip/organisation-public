@@ -1,40 +1,41 @@
 namespace: ingress-traefik
 
-service:
-  type: LoadBalancer
+traefik:
+  service:
+    type: LoadBalancer
 
-ingressClass:
-  enabled: true
-  isDefaultClass: true
-  name: ingress-traefik
-
-ports:
-  web:
-    redirectTo:
-      port: websecure
-  websecure:
-    tls:
-      certResolver: letsencrypt-traefik
-    forwardedHeaders:
-      insecure: true
-    proxyProtocol:
-      insecure: true
-#    http3:
-#      enabled: true
-
-logs:
-  general:
-    level: DEBUG
-  access:
+  ingressClass:
     enabled: true
-    fields:
-      general:
-        defaultMode: keep
-      headers:
-        defaultMode: keep
+    isDefaultClass: true
+    name: ingress-traefik
 
-ingressRoute:
-  dashboard:
-    enabled: true
-    entryPoints: [web, websecure]
-    matchRule: Host(`dashboard.traefik.k8s.traefik.webgrip.nl`)
+  ports:
+    web:
+      redirectTo:
+        port: websecure
+    websecure:
+      tls:
+        certResolver: letsencrypt-traefik
+      forwardedHeaders:
+        insecure: true
+      proxyProtocol:
+        insecure: true
+  #    http3:
+  #      enabled: true
+
+  logs:
+    general:
+      level: DEBUG
+    access:
+      enabled: true
+      fields:
+        general:
+          defaultMode: keep
+        headers:
+          defaultMode: keep
+
+  ingressRoute:
+    dashboard:
+      enabled: true
+      entryPoints: [web, websecure]
+      matchRule: Host(`dashboard.traefik.k8s.traefik.webgrip.nl`)

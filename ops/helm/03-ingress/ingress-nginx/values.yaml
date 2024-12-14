@@ -1,17 +1,18 @@
 namespace: ingress-nginx
 
-controller:
-  replicaCount: 2
-  resources:
-    requests:
-      cpu: 100m
-      memory: 90Mi
-  service:
-    type: LoadBalancer
-    externalTrafficPolicy: Local
-    annotations:
-      service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
-      service.beta.kubernetes.io/do-loadbalancer-tls-passthrough: "true"
-  config:
-    use-proxy-protocol: "true"
-    use-forwarded-headers: "true"
+ingress-nginx:
+  controller:
+    replicaCount: 2
+    resources:
+      requests:
+        cpu: 100m
+        memory: 90Mi
+    service:
+      type: LoadBalancer
+      externalTrafficPolicy: Local
+      annotations:
+        service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
+        service.beta.kubernetes.io/do-loadbalancer-tls-passthrough: "true"
+    config:
+      use-proxy-protocol: "true"
+      use-forwarded-headers: "true"
