@@ -9,6 +9,9 @@ traefik:
       service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
       service.beta.kubernetes.io/do-loadbalancer-tls-passthrough: "true"
 
+  globalArguments: # This is to disable the default --global.sendanonymoususage flag
+    - "--global.checknewversion"
+
   ingressClass:
     enabled: true
     isDefaultClass: true
