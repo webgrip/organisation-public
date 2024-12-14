@@ -20,5 +20,7 @@ ingressRoute:
     matchRule: Host(`dashboard.traefik.k8s.traefik.webgrip.nl`)
 
 additionalArguments:
+  - "--entryPoints.web.forwardedHeaders.insecure"
   - "--entrypoints.web.forwardedHeaders.trustedIPs=0.0.0.0/0"
+  - "--entryPoints.websecure.forwardedHeaders.insecure"
   - "--entrypoints.websecure.forwardedHeaders.trustedIPs=0.0.0.0/0"
