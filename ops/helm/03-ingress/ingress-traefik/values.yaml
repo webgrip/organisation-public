@@ -24,3 +24,4 @@ additionalArguments:
   - "--entrypoints.web.forwardedHeaders.trustedIPs=0.0.0.0/0"
   - "--entryPoints.websecure.forwardedHeaders.insecure"
   - "--entrypoints.websecure.forwardedHeaders.trustedIPs=0.0.0.0/0"
+  - "--experimental.http3=true"

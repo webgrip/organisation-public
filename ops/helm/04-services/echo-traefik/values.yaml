@@ -29,6 +29,7 @@ ingress:
   host: echo.k8s.traefik.webgrip.nl
   annotations:
     cert-manager.io/issuer: letsencrypt-traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
   tls:
     enabled: true
     secretName: letsencrypt-traefik-echo
