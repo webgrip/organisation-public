@@ -20,8 +20,8 @@ traefik:
         insecure: true
       proxyProtocol:
         insecure: true
-  #    http3:
-  #      enabled: true
+      http3:
+        enabled: true
 
   logs:
     general:
@@ -37,5 +37,43 @@ traefik:
   ingressRoute:
     dashboard:
       enabled: true
-      entryPoints: [web, websecure]
+      entryPoints: [websecure]
       matchRule: Host(`dashboard.traefik.k8s.traefik.webgrip.nl`)
+      middlewares:
+        - name: traefik-dashboard-auth
+        - name: special-ip-whitelist
+
+  extraObjects:
+    - apiVersion: v1
+      kind: Secret
+      metadata:
+        name: traefik-dashboard-auth-secret
+      type: kubernetes.io/basic-auth
+      stringData:
+        username: admin
+        password: changeme
+
+    - apiVersion: traefik.io/v1alpha1
+      kind: Middleware
+      metadata:
+        name: traefik-dashboard-auth
+      spec:
+        basicAuth:
+          secret: traefik-dashboard-auth-secret
+
+    - apiVersion: traefik.io/v1alpha1
+      kind: Middleware
+      metadata:
+        name: traefik-dashboard-auth
+      spec:
+        basicAuth:
+          secret: traefik-dashboard-auth-secret
+
+    - apiVersion: traefik.io/v1alpha1
+      kind: Middleware
+      metadata:
+        name: special-ip-whitelist
+      spec:
+        ipAllowList:
+          sourceRange:
+            - 188.89.91.129/32
