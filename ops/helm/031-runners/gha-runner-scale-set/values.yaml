@@ -7,3 +7,5 @@ gha-runner-scale-set:
   maxRunners: 5
   runnerGroup: Default
   runnerScaleSetName: arc-runner-set
+  containerMode:
+    type: dind
