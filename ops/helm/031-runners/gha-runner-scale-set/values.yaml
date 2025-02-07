@@ -3,3 +3,5 @@ namespace: arc-runner-set
 gha-runner-scale-set:
   githubConfigSecret: pre-defined-secret
   githubConfigUrl: https://github.com/webgrip
+  minRunners: 1
+  maxRunners: 5
