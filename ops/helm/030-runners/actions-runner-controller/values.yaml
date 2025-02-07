@@ -3,7 +3,7 @@ namespace: actions-runner-controller
 actions-runner-controller:
   replicaCount: 1
   authSecret:
-    create: true
+    enabled: false
   env:
     - name: GITHUB_TOKEN
       valueFrom:
