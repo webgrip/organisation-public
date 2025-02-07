@@ -5,4 +5,5 @@ gha-runner-scale-set:
   githubConfigUrl: https://github.com/webgrip
   minRunners: 1
   maxRunners: 5
+  runnerGroup: Default
   runnerScaleSetName: arc-runner-set
