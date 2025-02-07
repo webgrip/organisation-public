@@ -95,7 +95,22 @@ jobs:
 
       - name: Deploy GitHub Actions Runners
         run: |
-          for chart in ./ops/helm/030-runners/*; do
+          for chart in ./ops/helm/030-runners-controller/*; do
+           echo "Processing chart $(basename "$chart")..."
+            if [ -d "$chart" ]; then
+              namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
+              echo "Deploying chart $(basename "$chart") to namespace $namespace..."
+              helm dependency update "$chart"
+              helm upgrade --install "$(basename "$chart")" "$chart" \
+                --namespace "$namespace" \
+                --create-namespace \
+                --values "$chart/values.yaml" \
+                --wait --timeout 10m \
+                --force
+            fi
+          done
+          
+          for chart in ./ops/helm/031-runners/*; do
            echo "Processing chart $(basename "$chart")..."
             if [ -d "$chart" ]; then
               namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
