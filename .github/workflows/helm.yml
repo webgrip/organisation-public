@@ -61,7 +61,7 @@ jobs:
 
       - name: Deploy Bootstrap Charts (Certificate Manager & Metrics Server)
         run: |
-          for chart in ./ops/helm/01-bootstrap/*; do
+          for chart in ./ops/helm/010-bootstrap/*; do
            echo "Processing chart $(basename "$chart")..."
             if [ -d "$chart" ]; then
               namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
@@ -78,7 +78,24 @@ jobs:
 
       - name: Deploy Certificate Issuers
         run: |
-          for chart in ./ops/helm/02-issuers/*; do
+          for chart in ./ops/helm/020-issuers/*; do
+           echo "Processing chart $(basename "$chart")..."
+            if [ -d "$chart" ]; then
+              namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
+              echo "Deploying chart $(basename "$chart") to namespace $namespace..."
+              helm dependency update "$chart"
+              helm upgrade --install "$(basename "$chart")" "$chart" \
+                --namespace "$namespace" \
+                --create-namespace \
+                --values "$chart/values.yaml" \
+                --wait --timeout 10m \
+                --force
+            fi
+          done
+
+      - name: Deploy GitHub Actions Runners
+        run: |
+          for chart in ./ops/helm/030-runners/*; do
            echo "Processing chart $(basename "$chart")..."
             if [ -d "$chart" ]; then
               namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
@@ -95,7 +112,7 @@ jobs:
 
       - name: Deploy Ingress Controllers (Traefik & Nginx)
         run: |
-          for chart in ./ops/helm/03-ingress/*; do
+          for chart in ./ops/helm/040-ingress/*; do
            echo "Processing chart $(basename "$chart")..."
             if [ -d "$chart" ]; then
               namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
@@ -112,7 +129,7 @@ jobs:
 
       - name: Deploy Services
         run: |
-          for chart in ./ops/helm/04-services/*; do
+          for chart in ./ops/helm/050-services/*; do
            echo "Processing chart $(basename "$chart")..."
             if [ -d "$chart" ]; then
               namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
