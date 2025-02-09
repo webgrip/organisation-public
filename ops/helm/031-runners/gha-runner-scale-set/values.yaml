@@ -36,7 +36,7 @@ gha-runner-scale-set:
           - dockerd
           - --host=unix:///var/run/docker.sock
           - --group=$(DOCKER_GROUP_GID)
-          - --registry-mirror=http://docker-registry-mirror-docker-registry.docker-registry.svc.cluster.local:5000
+          - -registry-mirror=http://docker-registry.docker-registry.svc.cluster.local:5000
         env:
           - name: DOCKER_GROUP_GID
             value: "123"
