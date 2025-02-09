@@ -6,3 +6,9 @@ docker-registry:
 #    storageClass: default
     accessMode: 'ReadWriteOnce'
     size: 10Gi
+
+  proxy:
+    enabled: true
+    remoteurl: https://registry-1.docker.io
+#    username: ""
+#    password: ""
