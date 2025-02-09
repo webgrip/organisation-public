@@ -9,3 +9,9 @@ gha-runner-scale-set:
   runnerScaleSetName: arc-runner-set
   containerMode:
     type: dind
+  template:
+    spec:
+      containers:
+        - name: runner
+          image: webgrip/github-action-runner:daa31809a3928f3c3cb6d73a1404dcc771435a01
+          command: [ "/home/runner/run.sh" ]
