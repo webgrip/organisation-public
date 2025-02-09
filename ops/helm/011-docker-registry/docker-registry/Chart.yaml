@@ -1,0 +1,10 @@
+apiVersion: v2
+name: docker-registry-mirror
+description: A pull-through Docker registry mirror
+type: application
+version: 0.1.0
+appVersion: 2.3.2
+dependencies:
+  - name: docker-registry
+    version: 2.2.3
+    repository: https://helm.twun.io/
