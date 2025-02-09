@@ -14,7 +14,7 @@ gha-runner-scale-set:
    spec:
      initContainers:
      - name: init-dind-externals
-       image: ghcr.io/actions/actions-runner:latest
+       image: webgrip/github-action-runner:daa31809a3928f3c3cb6d73a1404dcc771435a01
        command: ["cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/"]
        volumeMounts:
          - name: dind-externals
