@@ -8,7 +8,6 @@ on:
         required: true
   workflow_dispatch:
 
-
 jobs:
   deploy-helm:
     name: Deploy Helm Charts
@@ -62,6 +61,23 @@ jobs:
       - name: Deploy Bootstrap Charts (Certificate Manager & Metrics Server)
         run: |
           for chart in ./ops/helm/010-bootstrap/*; do
+           echo "Processing chart $(basename "$chart")..."
+            if [ -d "$chart" ]; then
+              namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
+              echo "Deploying chart $(basename "$chart") to namespace $namespace..."
+              helm dependency update "$chart"
+              helm upgrade --install "$(basename "$chart")" "$chart" \
+                --namespace "$namespace" \
+                --create-namespace \
+                --values "$chart/values.yaml" \
+                --wait --timeout 10m \
+                --force
+            fi
+          done
+
+      - name: Deploy Docker Registry (Cache, pull "through")
+        run: |
+          for chart in ./ops/helm/011-docker-registry/*; do
            echo "Processing chart $(basename "$chart")..."
             if [ -d "$chart" ]; then
               namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
