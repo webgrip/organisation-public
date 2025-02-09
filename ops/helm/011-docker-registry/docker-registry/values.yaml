@@ -2,7 +2,7 @@ namespace: docker-registry
 
 docker-registry:
   persistence:
-    enabled: true
+    enabled: false
 #    storageClass: default
-    accessMode: ReadWriteOnce
+    accessMode: 'ReadWriteOnce'
     size: 10Gi
