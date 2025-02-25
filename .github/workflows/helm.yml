@@ -1,33 +1,27 @@
-name: Helm Deploy
+name: Helm Deploy with Detailed Job Summary
 
 on:
-  workflow_call:
-    secrets:
-      DIGITAL_OCEAN_API_KEY:
-        description: 'DigitalOcean API Key'
-        required: true
   workflow_dispatch:
 
 jobs:
   deploy-helm:
-    name: Deploy Helm Charts
+    name: Deploy Helm Charts and Record Stats
     runs-on: self-hosted
-
+    outputs:
+      deploymentStats: ${{ steps.collect-stats.outputs.stats }}
+      overallStats: ${{ steps.collect-stats.outputs.overall }}
     strategy:
       matrix:
         environment: [ staging ]
-
     env:
       DO_CLUSTER_NAME: ${{ matrix.environment }}-doks-cluster
       DO_KUBECONFIG_FILE: './doks-kubeconfig'
-      NAMESPACE_TRAEFIK: 'traefik'
-      TRAEFIK_HELM_VALUES: './ops/helm/traefik-chart/values.yaml'
       DO_CLI_VERSION: '1.119.1'
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Setup required tools (kubectl, helm, doctl, yq, etc.)
       - name: Setup kubectl
         uses: azure/setup-kubectl@v4
         with:
@@ -58,119 +52,123 @@ jobs:
           sudo wget https://github.com/mikefarah/yq/releases/download/v4.44.5/yq_linux_amd64 -O /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
 
-      - name: Deploy Bootstrap Charts (Certificate Manager & Metrics Server)
+      # Loop through chart directories, deploy each chart with timing & error capture.
+      - name: Deploy Charts with Timing and Status
         run: |
+          # Create a CSV file with header: Chart,Namespace,Duration,Status,Error
+          echo "Chart,Namespace,Duration,Status,Error" > deployment-stats.csv
+          
+          # Define a helper function to deploy a chart
+          deploy_chart() {
+            chartDir=$1
+            if [ -d "$chartDir" ]; then
+              chartName=$(basename "$chartDir")
+              # Read namespace from the chart's values.yaml; default to "default" if not set
+              namespace=$(yq e '.namespace' "$chartDir/values.yaml" || echo "default")
+              echo "Deploying chart '$chartName' to namespace '$namespace'..."
+              start=$(date +%s)
+              # Update dependencies and attempt deployment; capture status without exiting the loop
+              if helm dependency update "$chartDir" && helm upgrade --install "$chartName" "$chartDir" \
+                   --namespace "$namespace" \
+                   --create-namespace \
+                   --values "$chartDir/values.yaml" \
+                   --wait --timeout 10m --force; then
+                status="Success"
+                error=""
+              else
+                status="Failed"
+                error="Deployment failed"
+              fi
+              end=$(date +%s)
+              duration=$((end - start))
+              # Append the result as a CSV row
+              echo "$chartName,$namespace,$duration,$status,$error" >> deployment-stats.csv
+            fi
+          }
+          
+          # Process each group of charts – repeat for each directory as needed
           for chart in ./ops/helm/010-bootstrap/*; do
-           echo "Processing chart $(basename "$chart")..."
-            if [ -d "$chart" ]; then
-              namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
-              echo "Deploying chart $(basename "$chart") to namespace $namespace..."
-              helm dependency update "$chart"
-              helm upgrade --install "$(basename "$chart")" "$chart" \
-                --namespace "$namespace" \
-                --create-namespace \
-                --values "$chart/values.yaml" \
-                --wait --timeout 10m \
-                --force
-            fi
+            deploy_chart "$chart"
           done
-
-      - name: Deploy Docker Registry (Cache, pull "through")
-        run: |
+          
           for chart in ./ops/helm/011-docker-registry/*; do
-           echo "Processing chart $(basename "$chart")..."
-            if [ -d "$chart" ]; then
-              namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
-              echo "Deploying chart $(basename "$chart") to namespace $namespace..."
-              helm dependency update "$chart"
-              helm upgrade --install "$(basename "$chart")" "$chart" \
-                --namespace "$namespace" \
-                --create-namespace \
-                --values "$chart/values.yaml" \
-                --wait --timeout 10m \
-                --force
-            fi
+            deploy_chart "$chart"
           done
-
-      - name: Deploy Certificate Issuers
-        run: |
+          
           for chart in ./ops/helm/020-issuers/*; do
-           echo "Processing chart $(basename "$chart")..."
-            if [ -d "$chart" ]; then
-              namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
-              echo "Deploying chart $(basename "$chart") to namespace $namespace..."
-              helm dependency update "$chart"
-              helm upgrade --install "$(basename "$chart")" "$chart" \
-                --namespace "$namespace" \
-                --create-namespace \
-                --values "$chart/values.yaml" \
-                --wait --timeout 10m \
-                --force
-            fi
+            deploy_chart "$chart"
           done
-
-      - name: Deploy GitHub Actions Runners
-        run: |
+          
           for chart in ./ops/helm/030-runners-controller/*; do
-           echo "Processing chart $(basename "$chart")..."
-            if [ -d "$chart" ]; then
-              namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
-              echo "Deploying chart $(basename "$chart") to namespace $namespace..."
-              helm dependency update "$chart"
-              helm upgrade --install "$(basename "$chart")" "$chart" \
-                --namespace "$namespace" \
-                --create-namespace \
-                --values "$chart/values.yaml" \
-                --wait --timeout 10m \
-                --force
-            fi
+            deploy_chart "$chart"
           done
           
           for chart in ./ops/helm/031-runners/*; do
-           echo "Processing chart $(basename "$chart")..."
-            if [ -d "$chart" ]; then
-              namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
-              echo "Deploying chart $(basename "$chart") to namespace $namespace..."
-              helm dependency update "$chart"
-              helm upgrade --install "$(basename "$chart")" "$chart" \
-                --namespace "$namespace" \
-                --create-namespace \
-                --values "$chart/values.yaml" \
-                --wait --timeout 10m \
-                --force
-            fi
+            deploy_chart "$chart"
           done
-
-      - name: Deploy Ingress Controllers (Traefik & Nginx)
-        run: |
+          
           for chart in ./ops/helm/040-ingress/*; do
-           echo "Processing chart $(basename "$chart")..."
-            if [ -d "$chart" ]; then
-              namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
-              echo "Deploying chart $(basename "$chart") to namespace $namespace..."
-              helm dependency update "$chart"
-              helm upgrade --install "$(basename "$chart")" "$chart" \
-                --namespace "$namespace" \
-                --create-namespace \
-                --values "$chart/values.yaml" \
-                --wait --timeout 10m \
-                --force
-            fi
+            deploy_chart "$chart"
           done
-
-      - name: Deploy Services
-        run: |
+          
           for chart in ./ops/helm/050-services/*; do
-           echo "Processing chart $(basename "$chart")..."
-            if [ -d "$chart" ]; then
-              namespace=$(yq e '.namespace' "$chart/values.yaml" || echo "default")
-              echo "Deploying chart $(basename "$chart") to namespace $namespace..."
-              helm dependency update "$chart"
-              helm upgrade --install "$(basename "$chart")" "$chart" \
-                --namespace "$namespace" \
-                --create-namespace \
-                --values "$chart/values.yaml" \
-                --wait --timeout 10m \
-                --force
-            fi
+            deploy_chart "$chart"
           done
+          
+          # Compute overall stats: total charts deployed and total duration
+          total_duration=0
+          count=0
+          while IFS=, read -r chart namespace duration status error; do
+            # Skip header row
+            if [ "$chart" = "Chart" ]; then
+              continue
+            fi
+            total_duration=$((total_duration + duration))
+            count=$((count + 1))
+          done < deployment-stats.csv
+          
+          echo "Overall, $count charts deployed in $total_duration seconds." > overall-stats.txt
+
+      # Read the deployment-stats.csv and overall-stats.txt and set them as job outputs.
+      - name: Collect Deployment Stats
+        id: collect-stats
+        run: |
+          stats=$(cat deployment-stats.csv)
+          overall=$(cat overall-stats.txt)
+          echo "::set-output name=stats::$stats"
+          echo "::set-output name=overall::$overall"
+
+  set-job-summary:
+    name: Create Detailed Job Summary
+    needs: deploy-helm
+    runs-on: arc-runner-set
+    steps:
+      - name: Generate Job Summary with Deployment Stats
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Retrieve CSV data and overall summary from environment variables
+            const statsCSV = process.env.DEPLOYMENT_STATS || '';
+            const overallStats = process.env.OVERALL_STATS || '';
+            
+            // Add an overall summary section
+            core.summary.addHeading('Deployment Overview', 2);
+            core.summary.addRaw(overallStats).addEOL().addSeparator();
+            
+            if (!statsCSV) {
+              core.summary.addRaw('No deployment statistics available.').addEOL();
+            } else {
+              // Parse the CSV into rows (assumes comma-separated values)
+              const lines = statsCSV.trim().split('\n');
+              const header = lines.shift().split(',');
+              const dataRows = lines.map(line => line.split(','));
+            
+              // Build a table with the header row followed by the data rows
+              await core.summary
+                .addHeading('Per-Chart Deployment Details', 3)
+                .addTable([header, ...dataRows])
+                .write();
+            }
+        env:
+          DEPLOYMENT_STATS: ${{ needs.deploy-helm.outputs.deploymentStats }}
+          OVERALL_STATS: ${{ needs.deploy-helm.outputs.overall }}
