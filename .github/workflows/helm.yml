@@ -60,8 +60,8 @@ jobs:
       # Loop through chart directories, deploy each chart with timing & error capture.
       - name: Deploy Charts with Timing and Status
         run: |
-          # Create a CSV file with header: Chart,Namespace,Duration,Status,Error
-          echo "Chart,Namespace,Duration,Status,Error" > deployment-stats.csv
+          # Create a CSV file with header: Chart,Namespace,Time,Status,Error
+          echo "Chart,Namespace,Time,Status,Error" > deployment-stats.csv
           
           # Define a helper function to deploy a chart
           deploy_chart() {
@@ -78,16 +78,18 @@ jobs:
                    --create-namespace \
                    --values "$chartDir/values.yaml" \
                    --wait --timeout 10m --force; then
-                status="Success"
+                status="Success ✅"
                 error=""
               else
-                status="Failed"
+                status="Failed ❌"
                 error="Deployment failed"
               fi
               end=$(date +%s)
               duration=$((end - start))
-              # Append the result as a CSV row
-              echo "$chartName,$namespace,$duration,$status,$error" >> deployment-stats.csv
+              # Format duration as HH:MM:SS
+              duration_formatted=$(printf "%02d:%02d:%02d" $((duration/3600)) $(((duration % 3600)/60)) $((duration % 60)))
+              # Append the result as a CSV row (using the formatted time)
+              echo "$chartName,$namespace,$duration_formatted,$status,$error" >> deployment-stats.csv
             fi
           }
           
@@ -120,19 +122,23 @@ jobs:
             deploy_chart "$chart"
           done
           
-          # Compute overall stats: total charts deployed and total duration
+          # Compute overall stats: total charts deployed and total cumulative duration in seconds
           total_duration=0
           count=0
-          while IFS=, read -r chart namespace duration status error; do
+          while IFS=, read -r chart namespace time status error; do
             # Skip header row
             if [ "$chart" = "Chart" ]; then
               continue
             fi
-            total_duration=$((total_duration + duration))
+            # Convert HH:MM:SS to seconds for summing
+            IFS=: read -r hh mm ss <<< "$time"
+            seconds=$((10#$hh * 3600 + 10#$mm * 60 + 10#$ss))
+            total_duration=$((total_duration + seconds))
             count=$((count + 1))
           done < deployment-stats.csv
-          
-          echo "Overall, $count charts deployed in $total_duration seconds." > overall-stats.txt
+          # Format overall duration as HH:MM:SS
+          overall_formatted=$(printf "%02d:%02d:%02d" $((total_duration/3600)) $(((total_duration % 3600)/60)) $((total_duration % 60)))
+          echo "Overall, $count charts deployed in $overall_formatted ⏱️" > overall-stats.txt
 
       # Read the deployment-stats.csv and overall-stats.txt and set them as job outputs.
       - name: Collect Deployment Stats
@@ -162,7 +168,7 @@ jobs:
             const statsCSV = process.env.DEPLOYMENT_STATS || '';
             const overallStats = process.env.OVERALL_STATS || '';
             
-            // Add an overall summary section
+            // Add an overall summary section with emoji
             core.summary.addHeading('Deployment Overview', 2);
             core.summary.addRaw(overallStats).addEOL().addSeparator();
             
