@@ -1,6 +1,11 @@
 name: Helm Deploy with Detailed Job Summary
 
 on:
+  workflow_call:
+    secrets:
+      DIGITAL_OCEAN_API_KEY:
+        description: 'DigitalOcean API Key'
+        required: true
   workflow_dispatch:
 
 jobs:
