@@ -140,8 +140,14 @@ jobs:
         run: |
           stats=$(cat deployment-stats.csv)
           overall=$(cat overall-stats.txt)
-          echo "stats=$stats" >> $GITHUB_OUTPUT
-          echo "overall=$overall" >> $GITHUB_OUTPUT
+          {
+            echo "stats<<EOF"
+            echo "$stats"
+            echo "EOF"
+            echo "overall<<EOF"
+            echo "$overall"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
   set-job-summary:
     name: Create Detailed Job Summary
