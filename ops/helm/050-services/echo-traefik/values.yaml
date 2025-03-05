@@ -28,7 +28,7 @@ ingress:
   className: ingress-traefik
   host: echo.k8s.traefik.webgrip.nl
   annotations:
-    cert-manager.io/issuer: letsencrypt-traefik
+    cert-manager.io/cluster-issuer: letsencrypt-traefik
   tls:
     enabled: true
     secretName: letsencrypt-traefik-echo

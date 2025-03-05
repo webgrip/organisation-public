@@ -28,7 +28,7 @@ ingress:
   className: nginx
   host: quote.k8s.nginx.webgrip.nl
   annotations:
-    cert-manager.io/issuer: letsencrypt-nginx
+    cert-manager.io/cluster-issuer: letsencrypt-nginx
   tls:
     enabled: true
     secretName: letsencrypt-nginx-quote
