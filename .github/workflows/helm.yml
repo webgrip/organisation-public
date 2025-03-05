@@ -70,14 +70,32 @@ jobs:
               chartName=$(basename "$chartDir")
               # Read namespace from the chart's values.yaml; default to "default" if not set
               namespace=$(yq e '.namespace' "$chartDir/values.yaml" || echo "default")
-              echo "Deploying chart '$chartName' to namespace '$namespace'..."
+
+              # Detect if this chart is a ClusterIssuer
+              is_cluster_issuer=$(grep -q "kind: ClusterIssuer" "$chartDir/templates/"* && echo "true" || echo "false")
+
+              echo "Deploying chart '$chartName'..."
               start=$(date +%s)
-              # Update dependencies and attempt deployment; capture status without exiting the loop
-              if helm dependency update "$chartDir" && helm upgrade --install "$chartName" "$chartDir" \
-                   --namespace "$namespace" \
-                   --create-namespace \
-                   --values "$chartDir/values.yaml" \
-                   --wait --timeout 10m --force; then
+
+              # Build Helm arguments dynamically
+              helmArgs=(
+                upgrade
+                --install
+                "$chartName"
+                "$chartDir"
+                --values "$chartDir/values.yaml"
+                --wait
+                --timeout 10m
+                --force
+              )
+
+              # Only add namespace for non-cluster-wide resources
+              if [ "$is_cluster_issuer" != "true" ]; then
+                helmArgs+=(--namespace "$namespace" --create-namespace)
+              fi
+
+              # Execute Helm deployment
+              if helm dependency update "$chartDir" && helm "${helmArgs[@]}"; then
                 status="Success ✅"
                 error=""
               else
@@ -86,9 +104,7 @@ jobs:
               fi
               end=$(date +%s)
               duration=$((end - start))
-              # Format duration as HH:MM:SS
               duration_formatted=$(printf "%02d:%02d:%02d" $((duration/3600)) $(((duration % 3600)/60)) $((duration % 60)))
-              # Append the result as a CSV row (using the formatted time)
               echo "$chartName,$namespace,$duration_formatted,$status,$error" >> deployment-stats.csv
             fi
           }
@@ -126,21 +142,15 @@ jobs:
           total_duration=0
           count=0
           while IFS=, read -r chart namespace time status error; do
-            # Skip header row
-            if [ "$chart" = "Chart" ]; then
-              continue
-            fi
-            # Convert HH:MM:SS to seconds for summing
+            if [ "$chart" = "Chart" ]; then continue; fi
             IFS=: read -r hh mm ss <<< "$time"
             seconds=$((10#$hh * 3600 + 10#$mm * 60 + 10#$ss))
             total_duration=$((total_duration + seconds))
             count=$((count + 1))
           done < deployment-stats.csv
-          # Format overall duration as HH:MM:SS
           overall_formatted=$(printf "%02d:%02d:%02d" $((total_duration/3600)) $(((total_duration % 3600)/60)) $((total_duration % 60)))
           echo "Overall, $count charts deployed in $overall_formatted ⏱️" > overall-stats.txt
 
-      # Read the deployment-stats.csv and overall-stats.txt and set them as job outputs.
       - name: Collect Deployment Stats
         id: collect-stats
         run: |
@@ -164,23 +174,19 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            // Retrieve CSV data and overall summary from environment variables
             const statsCSV = process.env.DEPLOYMENT_STATS || '';
             const overallStats = process.env.OVERALL_STATS || '';
-            
-            // Add an overall summary section with emoji
+
             core.summary.addHeading('Deployment Overview', 2);
             core.summary.addRaw(overallStats).addEOL().addSeparator();
-            
+
             if (!statsCSV) {
               core.summary.addRaw('No deployment statistics available.').addEOL();
             } else {
-              // Parse the CSV into rows (assumes comma-separated values)
               const lines = statsCSV.trim().split('\n');
               const header = lines.shift().split(',');
               const dataRows = lines.map(line => line.split(','));
-            
-              // Build a table with the header row followed by the data rows
+
               await core.summary
                 .addHeading('Per-Chart Deployment Details', 3)
                 .addTable([header, ...dataRows])
