@@ -1,0 +1,48 @@
+name: "[Workflow] On Source Change"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'ops/helm/**'
+      - 'ops/secrets/**'
+
+jobs:
+  determine-changed-secrets:
+    name: "Secrets"
+    uses: webgrip/workflows/.github/workflows/determine-changed-directories.yml@main
+    with:
+      inside-dir: 'ops/secrets'
+
+  deploy-changed-secrets:
+    name: "Deploy Changed Secrets"
+    needs: [ determine-changed-secrets ]
+    if: needs.determine-changed-secrets.outputs.matrix != '[]'
+    uses: ./.github/workflows/deploy-helm-templates.yml
+    with:
+      paths: ${{ needs.determine-changed-secrets.outputs.matrix }}
+    secrets:
+      DIGITAL_OCEAN_API_KEY: ${{ secrets.DIGITAL_OCEAN_API_KEY }}
+      DIGITALOCEAN_DOCR_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_DOCR_ACCESS_TOKEN }}
+      SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+
+  determine-changed-helm:
+    name: "Helm"
+    uses: webgrip/workflows/.github/workflows/determine-changed-directories.yml@main
+    with:
+      inside-dir: 'ops/helm'
+
+  deploy-changed-helm:
+    name: "Deploy Changed Services"
+    needs: [ determine-changed-helm, deploy-changed-secrets ]
+    if: >
+      always()
+      && needs.determine-changed-helm.outputs.matrix != '[]'
+      && needs.deploy-changed-secrets.result == 'success' || needs.deploy-changed-secrets.result == 'skipped'
+    uses: ./.github/workflows/deploy-helm-templates.yml
+    with:
+      paths: ${{ needs.determine-changed-helm.outputs.matrix }}
+    secrets:
+      DIGITAL_OCEAN_API_KEY: ${{ secrets.DIGITAL_OCEAN_API_KEY }}
+      DIGITALOCEAN_DOCR_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_DOCR_ACCESS_TOKEN }}

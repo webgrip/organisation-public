@@ -1,6 +1,0 @@
-apiVersion: v2
-name: traefik-chart
-description: A Helm chart for Traefik Ingress Controller
-type: application
-version: 1.0.1
-appVersion: 3.1

@@ -1,0 +1,54 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: actions-runner-controller
+  namespace: webgrip
+  title: Actions Runner Controller (ARC)
+  description: |
+    A Kubernetes controller that operates self-hosted runners for GitHub Actions on your Kubernetes cluster.
+  links:
+    - title: Repository
+      url: https://github.com/actions/actions-runner-controller
+    - title: Documentation
+      url: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners-with-actions-runner-controller/about-actions-runner-controller
+spec:
+  owner: group:webgrip/infrastructure
+  domain: webgrip/operations-domain
+relations:
+  - type: parentOf
+    target: webgrip/github-actions-scale-set-controller
+  - type: dependsOn
+    target: webgrip/kubernetes-system
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: github-actions-scale-set-controller
+  namespace: webgrip
+  title: GitHub Actions Runner Scale Set Controller
+  description: |
+    The Controller that manages the scale set for the GitHub Actions Runner.
+  links:
+    - title: Chart
+      url: https://github.com/actions/actions-runner-controller/tree/master/charts/gha-runner-scale-set-controller
+spec:
+  owner: group:webgrip/infrastructure
+  domain: webgrip/operations-domain
+relations:
+  - type: parentOf
+    target: webgrip/github-actions-scale-set
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: gha-runner-scale-set
+  namespace: webgrip
+  title: GitHub Actions Runner Scale Set
+  description: |
+    The Scale Set for the GitHub Actions Runner.
+  links:
+    - title: Chart
+      url: https://github.com/actions/actions-runner-controller/tree/master/charts/gha-runner-scale-set
+spec:
+  owner: group:webgrip/infrastructure
+  domain: webgrip/operations-domain

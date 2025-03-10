@@ -13,14 +13,14 @@ gha-runner-scale-set:
     spec:
       initContainers:
         - name: init-dind-externals
-          image: webgrip/github-action-runner:daa31809a3928f3c3cb6d73a1404dcc771435a01
+          image: webgrip/github-runner:latest
           command: [ "cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/" ]
           volumeMounts:
             - name: dind-externals
               mountPath: /home/runner/tmpDir
       containers:
         - name: runner
-          image: webgrip/github-action-runner:daa31809a3928f3c3cb6d73a1404dcc771435a01
+          image: webgrip/github-runner:latest
           command: [ "/home/runner/run.sh" ]
           env:
             - name: DOCKER_HOST

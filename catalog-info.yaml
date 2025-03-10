@@ -18,6 +18,7 @@ metadata:
 spec:
   targets:
     - ./catalog/systems/kubernetes.yaml
+    - ./catalog/systems/github-actions-runner-controller.yaml
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Location
