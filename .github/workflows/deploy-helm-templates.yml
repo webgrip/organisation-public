@@ -13,8 +13,11 @@ on:
       DIGITAL_OCEAN_API_KEY:
         description: 'Digital Ocean API Key'
         required: true
-      DIGITALOCEAN_DOCR_ACCESS_TOKEN:
-        description: 'Digital Ocean Container Registry Access Token'
+      DOCKER_USERNAME:
+        description: 'Docker Username'
+        required: true
+      DOCKER_TOKEN:
+        description: 'Docker Token'
         required: true
       SOPS_AGE_KEY:
         description: 'SOPS Age private key'
