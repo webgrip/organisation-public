@@ -42,6 +42,7 @@ jobs:
       environment: "staging"
       path: ${{ matrix.path }}
     secrets:
+      DIGITAL_OCEAN_API_KEY: ${{ secrets.DIGITAL_OCEAN_API_KEY }}
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
       SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY || '' }}
