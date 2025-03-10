@@ -13,6 +13,12 @@ on:
       DIGITAL_OCEAN_API_KEY:
         description: 'Digital Ocean API Key'
         required: true
+      DOCKER_USERNAME:
+        description: 'Docker Username'
+        required: true
+      DOCKER_TOKEN:
+        description: 'Docker Token'
+        required: true
       SOPS_AGE_KEY:
         description: 'SOPS Age private key'
         required: false
@@ -37,4 +43,6 @@ jobs:
       path: ${{ matrix.path }}
     secrets:
       DIGITAL_OCEAN_API_KEY: ${{ secrets.DIGITAL_OCEAN_API_KEY }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
       SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY || '' }}

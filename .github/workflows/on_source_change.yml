@@ -23,6 +23,8 @@ jobs:
     with:
       paths: ${{ needs.determine-changed-secrets.outputs.matrix }}
     secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
       DIGITAL_OCEAN_API_KEY: ${{ secrets.DIGITAL_OCEAN_API_KEY }}
       SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
 
@@ -43,4 +45,6 @@ jobs:
     with:
       paths: ${{ needs.determine-changed-helm.outputs.matrix }}
     secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
       DIGITAL_OCEAN_API_KEY: ${{ secrets.DIGITAL_OCEAN_API_KEY }}
