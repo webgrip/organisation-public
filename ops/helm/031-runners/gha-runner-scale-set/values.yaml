@@ -56,4 +56,3 @@ gha-runner-scale-set:
           emptyDir: { }
         - name: dind-externals
           emptyDir: { }
-
