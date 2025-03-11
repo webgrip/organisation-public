@@ -1,0 +1,6 @@
+dependencies:
+- name: akeyless-gateway
+  repository: https://akeylesslabs.github.io/helm-charts
+  version: 1.3.1
+digest: sha256:9c71239400482d7c03b659e646452186429a35679aa11df13883cf673da83f07
+generated: "2025-03-07T19:36:23.138224+01:00"

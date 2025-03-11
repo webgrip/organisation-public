@@ -1,0 +1,23 @@
+{{- if .Values.nodeLabeler.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-node-labeler"
+  namespace: "{{ .Release.Namespace }}"
+spec:
+  template:
+    spec:
+      serviceAccountName: {{ .Release.Name }}-node-labeler
+      restartPolicy: OnFailure
+      containers:
+        - name: kubectl
+          image: bitnami/kubectl:latest
+          command:
+            - sh
+            - -c
+            - |
+              kubectl label nodes -l "{{ .Values.nodeLabeler.nodePoolLabelSelector }}" {{- range $key, $value := .Values.nodeLabeler.labels }} {{$key}}={{$value}} {{- end }} --overwrite
+              {{- range .Values.nodeLabeler.taints }}
+              kubectl taint nodes -l "{{ $.Values.nodeLabeler.nodePoolLabelSelector }}" {{ .key }}={{ .value }}:{{ .effect }} --overwrite
+              {{- end }}
+{{- end }}

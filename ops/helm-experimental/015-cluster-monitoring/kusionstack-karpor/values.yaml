@@ -1,0 +1,15 @@
+namespace: karpor
+
+karpor:
+    namespace: karpor
+    namespaceEnabled: false
+    elasticsearch:
+        resources:
+            requests:
+                cpu: 500m
+                memory: 2Gi
+                ephemeral-storage: 10Gi
+            limits:
+                cpu: 500m
+                memory: 2Gi
+                ephemeral-storage: 10Gi

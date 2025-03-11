@@ -1,0 +1,10 @@
+apiVersion: v2
+name: akeyless-secrets-injection-chart
+description: A Helm chart for Akeyless
+version: 0.1.0
+type: application
+appVersion: 1.15.0
+dependencies:
+  - name: akeyless-secrets-injection
+    version: 1.15.0
+    repository: https://akeylesslabs.github.io/helm-charts

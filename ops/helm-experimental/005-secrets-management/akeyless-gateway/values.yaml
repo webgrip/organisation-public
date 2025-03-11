@@ -1,0 +1,14 @@
+namespace: akeyless
+
+akeyless-gateway:
+  globalConfig:
+    gatewayAuth:
+      gatewayAccessId: p-qhmeh1gui5q6am
+      gatewayAccessType: access_key
+      gatewayCredentialsExistingSecret: akeyless-gateway-secrets
+
+    serviceAccount:
+      create: true
+
+#    metrics:
+#      enabled: true

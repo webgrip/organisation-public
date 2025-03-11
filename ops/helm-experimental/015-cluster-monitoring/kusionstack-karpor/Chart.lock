@@ -1,0 +1,6 @@
+dependencies:
+- name: karpor
+  repository: https://kusionstack.github.io/charts/
+  version: 0.6.3
+digest: sha256:8e49cd90ac7bd1727c626605b610ec8663ba25c1ea831e20d0f41f74bf89fc05
+generated: "2025-03-07T18:15:30.263977+01:00"

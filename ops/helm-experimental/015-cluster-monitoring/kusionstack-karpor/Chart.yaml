@@ -1,0 +1,10 @@
+apiVersion: v2
+name: kusionstack-karpor
+description: A Helm chart for Karpor, Intelligence for Kubernetes
+version: 0.1.0
+type: application
+appVersion: 0.7.2
+dependencies:
+  - name: karpor
+    version: 0.6.3
+    repository: https://kusionstack.github.io/charts/

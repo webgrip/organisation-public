@@ -1,0 +1,6 @@
+dependencies:
+- name: akeyless-secrets-injection
+  repository: https://akeylesslabs.github.io/helm-charts
+  version: 1.15.0
+digest: sha256:ace9f4121cfed781d647e01410790ce4d877e479c3fced5c4ac2ebda40e3ad37
+generated: "2025-03-07T09:53:04.476788+01:00"

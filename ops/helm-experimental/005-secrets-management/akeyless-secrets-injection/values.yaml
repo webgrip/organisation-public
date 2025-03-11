@@ -1,0 +1,15 @@
+namespace: akeyless
+
+
+akeyless-secrets-injection:
+  restartRollout:
+    enabled: false
+    interval: 1m
+
+  env:
+    AKEYLESS_URL: "https://vault.akeyless.io"
+    # to Work with Private GW
+    # AKEYLESS_API_GW_URL: "https://<Your-Akeyless-GW-URL:8080>"
+    AKEYLESS_ACCESS_TYPE: "api_key"
+    AKEYLESS_API_KEY: "hZ/yVxXVnuys4Ggabi94qmcuTOJWQe3fX+iUKmLlOms="
+    AKEYLESS_ACCESS_ID: "p-nncsqgnkcb50am"

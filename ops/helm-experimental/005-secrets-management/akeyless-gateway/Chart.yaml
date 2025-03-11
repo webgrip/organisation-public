@@ -1,0 +1,10 @@
+apiVersion: v2
+name: akeyless-gateway-chart
+description: A Helm chart for AKeyless Gateway
+version: 0.1.0
+type: application
+appVersion: 1.3.1
+dependencies:
+  - name: akeyless-gateway
+    version: 1.3.1
+    repository: https://akeylesslabs.github.io/helm-charts

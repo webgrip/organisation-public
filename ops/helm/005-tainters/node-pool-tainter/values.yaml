@@ -1,0 +1,9 @@
+nodeLabeler:
+  enabled: true
+  nodePoolLabelSelector: "doks.digitalocean.com/node-pool=dedicated-cpu-pool-1"
+  labels:
+    dedicated: "cpu"
+  taints:
+    - key: "dedicated"
+      value: "cpu"
+      effect: "NoSchedule"
