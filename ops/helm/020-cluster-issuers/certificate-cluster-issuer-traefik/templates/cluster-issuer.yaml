@@ -11,7 +11,7 @@ spec:
     solvers:
       - dns01:
           cloudflare:
-            email: {{ .Values.email }}
-            apiKeySecretRef:
+            email: {{ .Values.email }}   # (optional, may not be needed for token-based auth)
+            apiTokenSecretRef:
               name: cloudflare-api-key-secret
               key: api-key
