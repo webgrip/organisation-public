@@ -39,6 +39,7 @@ ingress:
       pathType: Prefix
       port: 80
 
+
 #readinessProbe:
 #  path: /readyz
 #  initialDelaySeconds: 5
