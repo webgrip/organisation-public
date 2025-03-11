@@ -1,0 +1,51 @@
+namespace: ingress-traefik
+
+traefik:
+  service:
+    type: LoadBalancer
+    spec:
+      externalTrafficPolicy: Local
+    annotations:
+      service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
+      service.beta.kubernetes.io/do-loadbalancer-tls-passthrough: "true"
+
+  globalArguments:
+    - "--global.checknewversion"
+    - "--global.sendanonymoususage=false"
+
+  ingressClass:
+    enabled: true
+    isDefaultClass: true
+    name: ingress-traefik
+
+  ports:
+    web:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+    websecure:
+      forwardedHeaders:
+        insecure: false
+        trustedIPs:
+          - "134.209.139.248"   # IP of ingress-traefik LoadBalancer
+          - "10.110.0.0/20"      # VPC CIDR
+      proxyProtocol:
+        insecure: false
+        trustedIPs:
+          - "134.209.139.248"   # IP of ingress-traefik LoadBalancer
+          - "10.110.0.0/20"      # VPC CIDR
+      http3:
+        enabled: true
+
+  logs:
+    general:
+      level: INFO
+    access:
+      enabled: true
+      fields:
+        general:
+          defaultMode: keep
+        headers:
+          defaultMode: keep

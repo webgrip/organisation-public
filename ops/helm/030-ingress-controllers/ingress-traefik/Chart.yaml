@@ -1,0 +1,10 @@
+apiVersion: v2
+name: ingress-traefik-chart
+description: A Helm chart for traefik ingress controller
+type: application
+version: 0.1.0
+appVersion: v3.3.4
+dependencies:
+  - name: traefik
+    version: 34.4.1
+    repository: https://traefik.github.io/charts
