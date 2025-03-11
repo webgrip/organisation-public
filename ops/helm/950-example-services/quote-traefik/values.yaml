@@ -11,13 +11,13 @@ image:
   pullPolicy: IfNotPresent
   tag: "0.5.0"
 
-#resources:
-#  requests:
-#    cpu: "100m"
-#    memory: "50Mi"
-#  limits:
-#    cpu: "200m"
-#    memory: "100Mi"
+resources:
+  requests:
+    cpu: "10m"
+    memory: "50Mi"
+  limits:
+    cpu: "50m"
+    memory: "75Mi"
 
 service:
   type: ClusterIP
