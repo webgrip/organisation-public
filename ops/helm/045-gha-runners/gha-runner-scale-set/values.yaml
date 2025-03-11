@@ -11,8 +11,6 @@ gha-runner-scale-set:
 #    type: dind
   template:
     spec:
-#      imagePullSecrets:
-#        - name: staging-docr
       tolerations:
         - key: "dedicated"
           operator: "Equal"
@@ -29,7 +27,6 @@ gha-runner-scale-set:
                       - "cpu"
       initContainers:
         - name: init-dind-externals
-#          image: ghcr.io/actions/actions-runner:latest
           image: webgrip/github-runner:latest
           command: [ "cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/" ]
           volumeMounts:
@@ -54,7 +51,6 @@ gha-runner-scale-set:
             - dockerd
             - --host=unix:///var/run/docker.sock
             - --group=$(DOCKER_GROUP_GID)
-#            - --registry-mirror=http://docker-registry.docker-registry.svc.cluster.local:5000
           env:
             - name: DOCKER_GROUP_GID
               value: "123"
@@ -76,8 +72,6 @@ gha-runner-scale-set:
           emptyDir: { }
   listenerTemplate:
     spec:
-#      imagePullSecrets:
-#        - name: staging-docr
       containers:
         - name: listener
       tolerations:
