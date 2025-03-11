@@ -4,9 +4,9 @@ gha-runner-scale-set-controller:
   replicaCount: 1
 
   tolerations:
-    - key: "cpu"
+    - key: "dedicated"
       operator: "Equal"
-      value: "dedicated"
+      value: "cpu"
       effect: "NoSchedule"
 
   affinity:
@@ -14,8 +14,7 @@ gha-runner-scale-set-controller:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
           - matchExpressions:
-              - key: "cpu"
+              - key: "dedicated"
                 operator: "In"
                 values:
-                  - "dedicated"
-
+                  - "cpu"

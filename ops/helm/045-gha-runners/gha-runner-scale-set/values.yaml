@@ -11,26 +11,26 @@ gha-runner-scale-set:
 #    type: dind
   template:
     spec:
-      imagePullSecrets:
-        - name: staging-docr
+#      imagePullSecrets:
+#        - name: staging-docr
       tolerations:
-        - key: "cpu"
+        - key: "dedicated"
           operator: "Equal"
-          value: "dedicated"
+          value: "cpu"
           effect: "NoSchedule"
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: "cpu"
+                  - key: "dedicated"
                     operator: "In"
                     values:
-                      - "dedicated"
+                      - "cpu"
       initContainers:
         - name: init-dind-externals
 #          image: ghcr.io/actions/actions-runner:latest
-          image: registry.digitalocean.com/staging-docr/infrastructure/github-runner:latest
+          image: webgrip/github-runner:latest
           command: [ "cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/" ]
           volumeMounts:
             - name: dind-externals
@@ -38,7 +38,7 @@ gha-runner-scale-set:
       containers:
         - name: runner
 #          image: ghcr.io/actions/actions-runner:latest
-          image: registry.digitalocean.com/staging-docr/infrastructure/github-runner:latest
+          image: webgrip/github-runner:latest
           command: [ "/home/runner/run.sh" ]
           env:
             - name: DOCKER_HOST
@@ -76,21 +76,21 @@ gha-runner-scale-set:
           emptyDir: { }
   listenerTemplate:
     spec:
-      imagePullSecrets:
-        - name: staging-docr
+#      imagePullSecrets:
+#        - name: staging-docr
       containers:
         - name: listener
       tolerations:
-        - key: "cpu"
+        - key: "dedicated"
           operator: "Equal"
-          value: "dedicated"
+          value: "cpu"
           effect: "NoSchedule"
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: "cpu"
+                  - key: "dedicated"
                     operator: "In"
                     values:
-                      - "dedicated"
+                      - "cpu"
