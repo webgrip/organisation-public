@@ -1,0 +1,50 @@
+namespace: example-services
+
+deployment:
+  strategy:
+    type: RollingUpdate
+
+replicaCount: 3
+
+image:
+  repository: jmalloc/echo-server
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "50Mi"
+  limits:
+    cpu: "200m"
+    memory: "100Mi"
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: ingress-traefik
+  host: echo.staging.k8s.webgrip.nl
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-traefik
+    cert-manager.io/acme-challenge-type: dns01
+    cert-manager.io/acme-dns01-provider: cloudflare
+  tls:
+    enabled: true
+    secretName: letsencrypt-traefik-echo
+  paths:
+    - path: /
+      pathType: Prefix
+      port: 80
+
+#readinessProbe:
+#  path: /readyz
+#  initialDelaySeconds: 5
+#  periodSeconds: 10
+#
+#livenessProbe:
+#  path: /healthz
+#  initialDelaySeconds: 10
+#  periodSeconds: 20

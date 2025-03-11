@@ -29,12 +29,12 @@ traefik:
       forwardedHeaders:
         insecure: false
         trustedIPs:
-          - "134.209.139.248"   # IP of ingress-traefik LoadBalancer
+          - "152.42.148.141"   # IP of ingress-traefik LoadBalancer
           - "10.110.0.0/20"      # VPC CIDR
       proxyProtocol:
         insecure: false
         trustedIPs:
-          - "134.209.139.248"   # IP of ingress-traefik LoadBalancer
+          - "152.42.148.141"   # IP of ingress-traefik LoadBalancer
           - "10.110.0.0/20"      # VPC CIDR
       http3:
         enabled: true
