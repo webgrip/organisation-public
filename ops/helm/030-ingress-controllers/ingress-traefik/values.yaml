@@ -49,4 +49,3 @@ traefik:
           defaultMode: keep
         headers:
           defaultMode: keep
-
