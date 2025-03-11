@@ -1,0 +1,21 @@
+namespace: arc-systems
+
+gha-runner-scale-set-controller:
+  replicaCount: 1
+
+  tolerations:
+    - key: "cpu"
+      operator: "Equal"
+      value: "dedicated"
+      effect: "NoSchedule"
+
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: "cpu"
+                operator: "In"
+                values:
+                  - "dedicated"
+

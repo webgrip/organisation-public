@@ -1,0 +1,96 @@
+namespace: arc-systems
+
+gha-runner-scale-set:
+  githubConfigSecret: gha-runner-scale-set-secrets
+  githubConfigUrl: https://github.com/webgrip
+  minRunners: 2
+  maxRunners: 10
+  runnerGroup: Default
+  runnerScaleSetName: arc-runner-set
+#  containerMode:
+#    type: dind
+  template:
+    spec:
+      imagePullSecrets:
+        - name: staging-docr
+      tolerations:
+        - key: "cpu"
+          operator: "Equal"
+          value: "dedicated"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: "cpu"
+                    operator: "In"
+                    values:
+                      - "dedicated"
+      initContainers:
+        - name: init-dind-externals
+#          image: ghcr.io/actions/actions-runner:latest
+          image: registry.digitalocean.com/staging-docr/infrastructure/github-runner:latest
+          command: [ "cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/" ]
+          volumeMounts:
+            - name: dind-externals
+              mountPath: /home/runner/tmpDir
+      containers:
+        - name: runner
+#          image: ghcr.io/actions/actions-runner:latest
+          image: registry.digitalocean.com/staging-docr/infrastructure/github-runner:latest
+          command: [ "/home/runner/run.sh" ]
+          env:
+            - name: DOCKER_HOST
+              value: unix:///var/run/docker.sock
+          volumeMounts:
+            - name: work
+              mountPath: /home/runner/_work
+            - name: dind-sock
+              mountPath: /var/run
+        - name: dind
+          image: docker:dind
+          args:
+            - dockerd
+            - --host=unix:///var/run/docker.sock
+            - --group=$(DOCKER_GROUP_GID)
+#            - --registry-mirror=http://docker-registry.docker-registry.svc.cluster.local:5000
+          env:
+            - name: DOCKER_GROUP_GID
+              value: "123"
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: work
+              mountPath: /home/runner/_work
+            - name: dind-sock
+              mountPath: /var/run
+            - name: dind-externals
+              mountPath: /home/runner/externals
+      volumes:
+        - name: work
+          emptyDir: { }
+        - name: dind-sock
+          emptyDir: { }
+        - name: dind-externals
+          emptyDir: { }
+  listenerTemplate:
+    spec:
+      imagePullSecrets:
+        - name: staging-docr
+      containers:
+        - name: listener
+      tolerations:
+        - key: "cpu"
+          operator: "Equal"
+          value: "dedicated"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: "cpu"
+                    operator: "In"
+                    values:
+                      - "dedicated"

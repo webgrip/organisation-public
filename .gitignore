@@ -23,3 +23,6 @@ override.tf.json
 *.tgz
 
 age.agekey
+
+*.dec.yml
+*.dec.yaml
