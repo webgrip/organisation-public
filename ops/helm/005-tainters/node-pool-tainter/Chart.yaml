@@ -1,0 +1,5 @@
+apiVersion: v2
+name: node-pool-tainter-chart
+description: A Helm chart for tainting node pools
+version: 0.1.0
+type: application
