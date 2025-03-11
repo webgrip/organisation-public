@@ -1,0 +1,5 @@
+issuerName: letsencrypt-traefik
+email: ryan@vendic.nl
+acmeServer: "https://acme-v02.api.letsencrypt.org/directory"
+privateKeySecretName: letsencrypt-traefik-private-key
+ingressClass: traefik
