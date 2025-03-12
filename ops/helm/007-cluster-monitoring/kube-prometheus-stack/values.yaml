@@ -45,4 +45,3 @@ kube-prometheus-stack:
 #  nodeExporter:
 #    tolerations: []
     # ...
-
