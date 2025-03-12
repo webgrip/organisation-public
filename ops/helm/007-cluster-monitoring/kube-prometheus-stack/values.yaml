@@ -12,6 +12,7 @@ kube-prometheus-stack:
 #    service:
 #      type: ClusterIP
 
+
   prometheus:
     service:
       type: ClusterIP
