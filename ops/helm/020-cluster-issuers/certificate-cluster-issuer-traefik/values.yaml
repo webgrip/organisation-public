@@ -3,3 +3,7 @@ email: ryan@webgrip.nl
 acmeServer: "https://acme-v02.api.letsencrypt.org/directory"
 privateKeySecretName: letsencrypt-traefik-private-key
 ingressClass: traefik
+
+# The following values are used to create the secret for the Cloudflare API token
+cloudflareSecretName: cloudflare-api-key-secret
+cloudflareSecretKey: api-key

@@ -7,8 +7,8 @@ gha-runner-scale-set:
   maxRunners: 10
   runnerGroup: Default
   runnerScaleSetName: arc-runner-set
-#  containerMode:
-#    type: dind
+  #  containerMode:
+  #    type: dind
   template:
     spec:
       tolerations:
@@ -27,6 +27,7 @@ gha-runner-scale-set:
                       - "cpu"
       initContainers:
         - name: init-dind-externals
+#          image: ghcr.io/actions/actions-runner:latest
           image: webgrip/github-runner:latest
           command: [ "cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/" ]
           volumeMounts:
@@ -36,6 +37,13 @@ gha-runner-scale-set:
         - name: runner
 #          image: ghcr.io/actions/actions-runner:latest
           image: webgrip/github-runner:latest
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1
+              memory: 2Gi
           command: [ "/home/runner/run.sh" ]
           env:
             - name: DOCKER_HOST

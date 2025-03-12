@@ -1,8 +1,11 @@
-namespace: monitoring
+namespace: kube-prometheus-stack
 
 kube-prometheus-stack:
   grafana:
-    adminPassword: "admin"
+    admin:
+      existingSecret: grafana-admin-secret
+      userKey: admin-user
+      passwordKey: admin-password
 #    persistence:
 #      enabled: true
 #      size: 10Gi

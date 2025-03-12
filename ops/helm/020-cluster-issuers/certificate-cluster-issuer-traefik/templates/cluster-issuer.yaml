@@ -13,5 +13,5 @@ spec:
           cloudflare:
             email: {{ .Values.email }}   # (optional, may not be needed for token-based auth)
             apiTokenSecretRef:
-              name: cloudflare-api-key-secret
-              key: api-key
+              name: {{ .Values.cloudflareSecretName }}
+              key:  {{ .Values.cloudflareSecretKey }}
