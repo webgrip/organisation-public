@@ -10,6 +10,11 @@ gha-runner-scale-set:
   #  containerMode:
   #    type: dind
   template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8080"
     spec:
       tolerations:
         - key: "dedicated"
@@ -80,6 +85,11 @@ gha-runner-scale-set:
           emptyDir: { }
   listenerTemplate:
     spec:
+      metadata:
+        annotations:
+          prometheus.io/scrape: "true"
+          prometheus.io/path: "/metrics"
+          prometheus.io/port: "8080"
       containers:
         - name: listener
       tolerations:
