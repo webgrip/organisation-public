@@ -14,17 +14,17 @@ endif
 	sops --encrypt --age $$(cat age.pubkey) $(SECRETS_DIR)/values.dec.yaml > $(SECRETS_DIR)/values.sops.yaml
 	@echo "Encrypted: $(SECRETS_DIR)/values.dec.yaml -> $(SECRETS_DIR)/values.sops.yaml"
 
-## Decrypt values.sops.yaml -> values.dec.yaml in the specified directory
 decrypt-secrets:
 ifndef SECRETS_DIR
 	$(error SECRETS_DIR is not set. Usage: make decrypt-secrets SECRETS_DIR=./path/to/secrets)
 endif
-	sops --decrypt $(SECRETS_DIR)/values.sops.yaml > $(SECRETS_DIR)/values.dec.yaml
-	@echo "Decrypted: $(SECRETS_DIR)/values.sops.yaml -> $(SECRETS_DIR)/values.dec.yaml"
+	@echo "Decrypting secrets..."
+	@SOPS_AGE_KEY="$$(cat ./age.agekey)" \
+		sops --decrypt $(SECRETS_DIR)/values.sops.yaml > $(SECRETS_DIR)/values.dec.yaml
 
 ## View Grafana dashboard
 view-grafana:
-	kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80
+	open -a "Brave Browser" http://localhost:3000 && kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80
 	@echo "Access Grafana at: http://localhost:3000 with username: admin"
 
 ## View Traefik dashboard
