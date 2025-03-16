@@ -1,0 +1,5 @@
+apiVersion: v2
+name: gha-runner-scale-set-podmonitor
+description: A Helm chart to deploy the GitHub Actions Runner Scale Set PodMonitor
+type: application
+version: 0.1.0

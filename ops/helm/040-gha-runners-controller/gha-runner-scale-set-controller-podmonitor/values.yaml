@@ -1,0 +1,6 @@
+namespace: arc-systems
+
+appName: gha-runner-pod-monitor
+
+selectorLabels:
+  app.kubernetes.io/instance: gha-runner-scale-set-controller

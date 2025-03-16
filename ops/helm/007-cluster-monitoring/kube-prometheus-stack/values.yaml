@@ -17,6 +17,9 @@ kube-prometheus-stack:
       type: ClusterIP
     prometheusSpec:
       retention: 7d
+      podMonitorSelector:
+        matchLabels:
+          app: gha-runner-pod-monitor
 #      storageSpec:
 #        volumeClaimTemplate:
 #          spec:
