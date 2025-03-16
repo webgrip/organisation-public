@@ -3,11 +3,12 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: "{{ .Release.Name }}-node-labeler"
-  namespace: "{{ .Release.Namespace }}"
+  namespace: {{ .Release.Namespace }}
+  {{ include "chart.commonLabels"  . | nindent 2}}
 spec:
   template:
     spec:
-      serviceAccountName: {{ .Release.Name }}-node-labeler
+      serviceAccountName: {{ include "chart.name" . }}-node-labeler
       restartPolicy: OnFailure
       containers:
         - name: kubectl

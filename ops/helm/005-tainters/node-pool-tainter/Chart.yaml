@@ -1,5 +1,9 @@
 apiVersion: v2
-name: node-pool-tainter-chart
+name: node-pool-tainter
 description: A Helm chart for tainting node pools
 version: 0.1.0
 type: application
+dependencies:
+  - name: common-helpers
+    repository: oci://ghcr.io/webgrip/common-charts
+    version: 1.0.13
