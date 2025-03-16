@@ -1,7 +1,7 @@
 namespace: arc-systems-k8s
 
 gha-runner-scale-set:
-  githubConfigSecret: gha-runner-scale-set-secrets-secret
+  githubConfigSecret: gha-runner-scale-set-secrets-k8s
   githubConfigUrl: https://github.com/webgrip
   minRunners: 1
   maxRunners: 5
