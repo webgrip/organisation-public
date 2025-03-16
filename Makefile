@@ -24,7 +24,7 @@ endif
 
 ## View Grafana dashboard
 view-grafana:
-	open -a "Brave Browser" http://localhost:3000 && kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80
+	open -a "Brave Browser" http://localhost:3000 && kubectl port-forward -n kube-prometheus-stack svc/kube-prometheus-stack-grafana 3000:80
 	@echo "Access Grafana at: http://localhost:3000 with username: admin"
 
 ## View Traefik dashboard
