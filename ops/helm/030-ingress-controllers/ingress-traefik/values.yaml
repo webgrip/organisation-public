@@ -26,16 +26,16 @@ traefik:
           scheme: https
           permanent: true
     websecure:
+      middlewares:
+        - "ingress-traefik-ryan-home-ip-allow-list@kubernetescrd"
       forwardedHeaders:
         insecure: false
         trustedIPs:
-#          - "159.223.241.12"   # IP of ingress-traefik LoadBalancer
-          - "10.110.0.0/20"      # VPC CIDR
+          - "10.110.0.0/20"
       proxyProtocol:
         insecure: false
         trustedIPs:
-#          - "159.223.241.12"   # IP of ingress-traefik LoadBalancer
-          - "10.110.0.0/20"      # VPC CIDR
+          - "10.110.0.0/20"
       http3:
         enabled: true
 
