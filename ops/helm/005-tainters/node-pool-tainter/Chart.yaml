@@ -3,6 +3,9 @@ name: node-pool-tainter
 description: A Helm chart for tainting node pools
 version: 0.1.0
 type: application
+maintainers:
+  - name: Ryan Grippeling
+    email: ryan@webgrip.nl
 dependencies:
   - name: common-helpers
     repository: oci://ghcr.io/webgrip/common-charts
