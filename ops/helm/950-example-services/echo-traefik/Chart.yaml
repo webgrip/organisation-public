@@ -6,3 +6,10 @@ type: application
 appVersion: 0.3.7
 sources:
   - https://github.com/jmalloc/echo-server
+maintainers:
+  - name: Ryan Grippeling
+    email: ryan@webgrip.nl
+dependencies:
+  - name: common-helpers
+    repository: oci://ghcr.io/webgrip/common-charts
+    version: 1.0.13
