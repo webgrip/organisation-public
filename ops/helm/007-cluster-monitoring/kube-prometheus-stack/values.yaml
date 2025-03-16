@@ -20,6 +20,10 @@ kube-prometheus-stack:
       podMonitorSelector:
         matchLabels:
           app: gha-runner-pod-monitor
+      serviceMonitorSelector:
+        matchLabels:
+          app.kubernetes.io/component: metrics
+
 #      storageSpec:
 #        volumeClaimTemplate:
 #          spec:
