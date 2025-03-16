@@ -1,4 +1,4 @@
-namespace: arc-systems-k8s
+namespace: arc-systems
 
 gha-runner-scale-set-controller:
   replicaCount: 1
