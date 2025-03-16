@@ -1,4 +1,4 @@
-namespace: arc-systems
+namespace: arc-systems-k8s
 
 gha-runner-scale-set:
   githubConfigSecret: gha-runner-scale-set-secrets
