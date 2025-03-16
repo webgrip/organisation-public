@@ -5,11 +5,13 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "chart.labels" . | nindent 4 }}
+  annotations:
+    {{- include "chart.commonAnnotations" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.service.type | default "ClusterIP" }}
   ports:
     - name: http
-      port: {{ .Values.service.port }}
+      port: {{ .Values.service.port | default 80 }}
       targetPort: 8080
   selector:
     {{- include "chart.selectorLabels" . | nindent 4 }}

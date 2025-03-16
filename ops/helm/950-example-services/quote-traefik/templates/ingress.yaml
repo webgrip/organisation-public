@@ -6,17 +6,18 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "chart.labels" . | nindent 4 }}
-  {{- if .Values.ingress.annotations }}
   annotations:
+    {{- include "chart.commonAnnotations" . | nindent 4 }}
+    {{- if .Values.ingress.annotations }}
     {{- .Values.ingress.annotations | toYaml | nindent 4 }}
-  {{- end }}
+    {{- end }}
 spec:
-  ingressClassName: {{ .Values.ingress.className | default "nginx" }}
+  ingressClassName: {{ .Values.ingress.className | default "traefik" }}
   {{- if .Values.ingress.tls.enabled }}
   tls:
     - hosts:
-      - {{ .Values.ingress.host }}
-      secretName: {{ .Values.ingress.tls.secretName }}-{{include "chart.fullname" .}}
+        - {{ .Values.ingress.host }}
+      secretName: {{ .Values.ingress.tls.secretName }}
   {{- end }}
   rules:
     - host: {{ .Values.ingress.host | default "example.com" }}

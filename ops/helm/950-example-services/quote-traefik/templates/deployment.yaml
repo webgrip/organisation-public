@@ -5,6 +5,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "chart.labels" . | nindent 4 }}
+  annotations:
+    {{- include "chart.commonAnnotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount | default 1 }}
   selector:
@@ -21,6 +23,8 @@ spec:
     metadata:
       labels:
         {{- include "chart.selectorLabels" . | nindent 8 }}
+      annotations:
+        {{- include "chart.commonAnnotations" . | nindent 8 }}
     spec:
       containers:
         - name: quote
