@@ -1,0 +1,19 @@
+namespace: ingress-traefik
+
+middlewares:
+  ipAllowList:
+    enabled: true
+    name: ryan-home-ip-allow-list
+    sourceRanges:
+      - "188.89.91.129/32"
+
+  basicAuth:
+    enabled: true
+    name: ryan-basic-auth
+    secret: ryan-basic-auth-secret
+
+  rateLimit:
+    enabled: false
+    name: my-ratelimit
+    average: 100
+    burst: 200
