@@ -1,0 +1,86 @@
+namespace: arc-systems
+
+gha-runner-scale-set:
+  githubConfigSecret: gha-runner-scale-set-secrets-secret
+  githubConfigUrl: https://github.com/webgrip
+  minRunners: 1
+  maxRunners: 5
+  runnerGroup: Default
+  runnerScaleSetName: arc-runner-set-k8s
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8080"
+    spec:
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "cpu"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: "dedicated"
+                    operator: "In"
+                    values:
+                      - "cpu"
+      containers:
+        - name: runner
+          image: webgrip/github-runner:latest
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1
+              memory: 2Gi
+          command: ["/home/runner/run.sh"]
+          env:
+            - name: ACTIONS_RUNNER_CONTAINER_HOOKS
+              value: /home/runner/k8s/index.js
+            - name: ACTIONS_RUNNER_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
+              value: "true"
+          volumeMounts:
+            - name: work
+              mountPath: /home/runner/_work
+      volumes:
+        - name: work
+          ephemeral:
+            volumeClaimTemplate:
+              spec:
+                accessModes: [ "ReadWriteOnce" ]
+                storageClassName: "local-path"
+                resources:
+                  requests:
+                    storage: 1Gi
+  listenerTemplate:
+    spec:
+      metadata:
+        annotations:
+          prometheus.io/scrape: "true"
+          prometheus.io/path: "/metrics"
+          prometheus.io/port: "8080"
+      containers:
+        - name: listener
+      tolerations:
+        - key: "dedicated"
+          operator: "Equal"
+          value: "cpu"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: "dedicated"
+                    operator: "In"
+                    values:
+                      - "cpu"
