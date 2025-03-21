@@ -1,0 +1,10 @@
+apiVersion: v2
+name: loki
+description: A Helm chart to deploy Loki, a horizontally-scalable, highly-available, multi-tenant log aggregation system
+version: 0.1.0
+type: application
+appVersion: 3.4.2
+dependencies:
+  - name: loki
+    version: 6.28.0
+    repository: https://grafana.github.io/helm-charts
