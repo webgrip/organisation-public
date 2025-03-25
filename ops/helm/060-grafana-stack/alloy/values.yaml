@@ -10,24 +10,13 @@ alloy:
     configMap:
       create: true
       content: |-
-        ########################################
-        #              EXTENSIONS             #
-        ########################################
-        # These provide internal telemetry for checking
-        # Agent health, profiling, etc.
         extension "health_check" {
-          // The default endpoint is 0.0.0.0:13133
           endpoint = "0.0.0.0:13133"
         }
 
         extension "pprof" {}
         extension "zpages" {}
 
-        ########################################
-        #         RECEIVERS (INPUTS)          #
-        ########################################
-
-        # 1) Receive OTLP signals from your apps/services.
         otelcol.receiver.otlp "otlp_in" {
           grpc {
             endpoint = "0.0.0.0:4317"
@@ -43,16 +32,12 @@ alloy:
           }
         }
 
-        # 2) Collect logs from local container stdout/stderr in K8s.
-        #    We use filelog + k8sattributes to enrich logs with Pod, Namespace, etc.
-        #    This typically needs hostPath mounts or Docker/containerd file access.
         otelcol.receiver.filelog "k8s_logs" {
           include = [
             "/var/log/containers/*.log"
           ]
           start_at = "beginning"
 
-          # Parse the Kubernetes-style JSON logs:
           operators {
             json_parser {
               parse_to       = "body"
@@ -65,39 +50,19 @@ alloy:
           }
         }
 
-        # 3) Scrape metrics from pods/services across the cluster.
-        #    This uses Prometheus-style scraping with Kubernetes service discovery.
         prometheus.discovery.kubernetes "cluster_sd" {
-          // No special config needed for in-cluster defaults,
-          // but you must grant ServiceAccount permissions.
-          // By default, it scrapes annotated pods & services matching typical Prom labels.
-
-          // Send discovered targets to the "prometheus.scrape" component:
           output = ["prometheus.scrape.cluster.input"]
         }
 
         prometheus.scrape "cluster" {
-          // Attach the discovered targets:
           forward_to = [processor.batch.main.metrics.input]
-
-          // Or if you want to route metrics directly to an exporter,
-          // you could set forward_to = [<exporter>.input]. But we
-          // usually put them through “batch” first for reliability.
 
           wal_directory = "/tmp/agent/wal_prometheus"
         }
 
-        ########################################
-        #           PROCESSORS                #
-        ########################################
-
-        # Attach Kubernetes metadata (namespace, pod labels, etc.) to logs
         otelcol.processor.k8sattributes "k8sattrs" {
           auth_type = "serviceAccount"
 
-          # If you're running in-cluster, the agent picks up SA tokens automatically.
-          // Extract common fields from log file path (pod_name, container_name).
-          # The filelog "include" pattern is typically /var/log/containers/<pod>_<namespace>_<container>-<random>.log
           extract {
             container = "container_name"
             namespace = "namespace_name"
@@ -108,10 +73,9 @@ alloy:
           }
         }
 
-        # Rate-limit memory usage for logs/metrics/traces, then pass along:
         otelcol.processor.memory_limiter "memory_limiter" {
           check_interval         = "1s"
-          limit_percentage       = 70  // 70% of container memory
+          limit_percentage       = 70
           spike_limit_percentage = 20
           output {
             logs    = [processor.retry.logs.input]
@@ -120,7 +84,6 @@ alloy:
           }
         }
 
-        # A retry processor to handle transient failures to Loki/Tempo etc.
         otelcol.processor.retry "retry" {
           output {
             logs    = [processor.batch.main.logs.input]
@@ -129,7 +92,6 @@ alloy:
           }
         }
 
-        # A single “batch” processor for everything
         otelcol.processor.batch "main" {
           send_batch_size    = 1024
           send_batch_max_size = 2048
@@ -140,10 +102,6 @@ alloy:
               loki.write.incluster.input
             ]
             metrics = [
-              # Option A: Expose locally for scraping by an external Prom
-              # otelcol.exporter.prometheus "local_exporter".input
-              # OR
-              # Option B: Remote-write to a downstream Prom:
               prometheus.remote_write.incluster.input
             ]
             traces  = [
@@ -152,18 +110,12 @@ alloy:
           }
         }
 
-        ########################################
-        #              EXPORTERS              #
-        ########################################
-
-        # 1) Logs → In-cluster Loki over HTTP
         loki.write "incluster" {
           endpoint {
             url = "http://loki.grafana-stack.svc.cluster.local:3100/loki/api/v1/push"
           }
         }
 
-        # 2) Traces → In-cluster Tempo (OTLP/gRPC)
         otelcol.exporter.otlp "tempo_out" {
           client {
             endpoint = "tempo.grafana-stack.svc.cluster.local:4317"
@@ -173,25 +125,13 @@ alloy:
           }
         }
 
-        # 3) Metrics → In-cluster Prometheus
-        # Option A: If you have a Prom that scrapes Alloy on port 8889:
-        # otelcol.exporter.prometheus "local_exporter" {
-        #   endpoint = "0.0.0.0:8889"
-        # }
-
-        # Option B: If you want to do remote_write to an in-cluster Prom:
         prometheus.remote_write "incluster" {
           endpoint {
             url = "http://kube-prometheus-stack-prometheus.kube-prometheus-stack.svc.cluster.local:9090/api/v1/write"
           }
         }
 
-        ########################################
-        #             SERVICE BLOCK           #
-        ########################################
-
         service "default" {
-          // Register these extensions
           extensions = [
             "health_check",
             "pprof",
@@ -199,11 +139,8 @@ alloy:
           ]
 
           pipelines = {
-            // The final “entrypoints” for logs, metrics, and traces are set up above
-            // in each receiver plus the filelog → k8sattrs chain → memory_limiter → ...
           }
         }
-        # Provide some resource requests/limits to ensure stable performance
     resources:
       requests:
         memory: 512Mi
