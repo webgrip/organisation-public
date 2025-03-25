@@ -1,0 +1,4 @@
+namespace: grafana-stack
+
+tempo:
+  replicas: 2
