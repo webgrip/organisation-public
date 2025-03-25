@@ -22,6 +22,7 @@ alloy:
           grpc {
             endpoint = "0.0.0.0:4317"
           }
+
           http {
             endpoint = "0.0.0.0:4318"
           }
@@ -30,6 +31,28 @@ alloy:
             metrics = [otelcol.exporter.prometheus.default.input]
             logs    = [otelcol.exporter.loki.default.input]
             traces  = [otelcol.exporter.otlp.tempo.input]
+          }
+        }
+
+        otelcol.receiver.filelog "traefik-access" {
+          include = ["/var/log/containers/*traefik*.log"]
+          start_at = "end"
+
+          operators = [
+            {
+              type       = "regex_parser"
+              regex      = "^(?P<json_log>.*)$"
+              parse_to   = "body"
+              parse_from = "attributes.log"
+            },
+            {
+              type  = "json_parser"
+              field = "body"
+            },
+          ]
+
+          output {
+            logs = [otelcol.exporter.otlp.loki.default.input]
           }
         }
 
