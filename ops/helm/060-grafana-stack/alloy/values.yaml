@@ -7,15 +7,11 @@ alloy:
       varlog: true
       dockercontainers: true
 
+    stabilityLevel: 'experimental'
+
     configMap:
       create: true
       content: |-
-        extension "health_check" {
-          endpoint = "0.0.0.0:13133"
-        }
-
-        extension "pprof" {}
-        extension "zpages" {}
 
         otelcol.receiver.otlp "otlp_in" {
           grpc {
@@ -50,7 +46,7 @@ alloy:
           }
         }
 
-        prometheus.discovery.kubernetes "cluster_sd" {
+        discovery.kubernetes "cluster_sd" {
           output = ["prometheus.scrape.cluster.input"]
         }
 
@@ -77,14 +73,6 @@ alloy:
           check_interval         = "1s"
           limit_percentage       = 70
           spike_limit_percentage = 20
-          output {
-            logs    = [otelcol.processor.retry.logs.input]
-            metrics = [otelcol.processor.retry.metrics.input]
-            traces  = [otelcol.processor.retry.traces.input]
-          }
-        }
-
-        otelcol.processor.retry "retry" {
           output {
             logs    = [otelcol.processor.batch.main.logs.input]
             metrics = [otelcol.processor.batch.main.metrics.input]
@@ -131,16 +119,6 @@ alloy:
           }
         }
 
-        service "default" {
-          extensions = [
-            "health_check",
-            "pprof",
-            "zpages",
-          ]
-
-          pipelines = {
-          }
-        }
     resources:
       requests:
         memory: 512Mi
