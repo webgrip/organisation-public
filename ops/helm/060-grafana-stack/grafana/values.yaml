@@ -38,6 +38,9 @@ grafana:
           editable: true
           jsonData:
             maxLines: 1000
+            httpHeaderName1: "X-Scope-OrgID"
+          secureJsonData:
+            httpHeaderValue1: "fake"
 #            derivedFields:
 #              - datasourceUid: grafana-stack-tempo
 #                matcherType: label
@@ -50,7 +53,7 @@ grafana:
           uid: kube-prometheus-stack-prometheus
           type: prometheus
           access: proxy
-          url: http://kube-prometheus-stack-prometheus-node-exporter.kube-prometheus-stack.svc.cluster.local:9100
+          url: http://kube-prometheus-stack-prometheus.kube-prometheus-stack.svc.cluster.local:9090
           editable: true
 #        - name: grafana-stack-tempo
 #          uid: grafana-stack-tempo

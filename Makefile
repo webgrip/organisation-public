@@ -22,9 +22,14 @@ endif
 	@SOPS_AGE_KEY="$$(cat ./age.agekey)" \
 		sops --decrypt $(SECRETS_DIR)/values.sops.yaml > $(SECRETS_DIR)/values.dec.yaml
 
-## View Grafana dashboard
-view-grafana:
+## View k8s cluster grafana dashboard
+view-cluster-grafana:
 	open -a "Brave Browser" http://localhost:3000 && kubectl port-forward -n kube-prometheus-stack svc/kube-prometheus-stack-grafana 3000:80
+	@echo "Access Grafana at: http://localhost:3000 with username: admin"
+
+## View grafana- dashboard
+view-grafana:
+	open -a "Brave Browser" http://localhost:3001 && kubectl port-forward -n grafana-stack svc/grafana 3001:80
 	@echo "Access Grafana at: http://localhost:3000 with username: admin"
 
 ## View Traefik dashboard
