@@ -40,6 +40,7 @@ grafana:
     type: ClusterIP
     port: 80
 
+
   datasources:
     datasources.yml:
       apiVersion: 1

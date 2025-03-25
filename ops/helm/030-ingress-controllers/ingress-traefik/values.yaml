@@ -18,6 +18,12 @@ traefik:
     isDefaultClass: true
     name: ingress-traefik
 
+  ingressRoute:
+    dashboard:
+      enabled: true
+      middlewares:
+        - "ingress-traefik-ryan-basic-auth@kubernetescrd"
+
   ports:
     web:
       redirections:
