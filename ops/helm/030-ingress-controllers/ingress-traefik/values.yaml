@@ -39,6 +39,14 @@ traefik:
       http3:
         enabled: true
 
+  tracing:
+    otlp:
+      enabled: true
+      grpc:
+        endpoint: "alloy.grafana-stack.svc.cluster.local:4317"
+        insecure: true
+        insecureSkipVerify: true
+
   logs:
     general:
       level: INFO
@@ -51,6 +59,14 @@ traefik:
           defaultMode: keep
 
   metrics:
+    otlp:
+      enabled: true
+      grpc:
+        endpoint: "alloy.grafana-stack.svc.cluster.local:4317"
+        insecure: true
+        tls:
+          insecureSkipVerify: true
+
     prometheus:
       service:
         enabled: true
