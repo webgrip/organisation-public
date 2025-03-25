@@ -20,7 +20,7 @@ alloy:
           output {
             metrics = [otelcol.exporter.prometheus.default.input]
             logs    = [otelcol.exporter.loki.default.input]
-            traces  = [otelcol.exporter.oltp.tempo.input]
+            traces  = [otelcol.exporter.otlp.tempo.input]
           }
         }
 
