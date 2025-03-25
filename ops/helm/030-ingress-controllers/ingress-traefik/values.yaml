@@ -58,8 +58,6 @@ traefik:
         enabled: true
         endpoint: "alloy.grafana-stack.svc.cluster.local:4317"
         insecure: true
-        tls:
-          insecureSkipVerify: true
 
   logs:
     general:

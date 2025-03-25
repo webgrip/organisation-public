@@ -34,7 +34,7 @@ view-grafana:
 
 ## View Traefik dashboard
 view-traefik:
-	kubectl port-forward -n traefik svc/traefik-dashboard 9000:9000
+	kubectl port-forward -n ingress-traefik svc/traefik-dashboard 9000:9000
 	@echo "Access Traefik dashboard at: http://localhost:9000"
 
 view-akeyless-gateway:
