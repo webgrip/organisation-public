@@ -40,9 +40,15 @@ traefik:
         enabled: true
 
   tracing:
+    addInternals: true
     otlp:
       enabled: true
+      http:
+        endpoint: "alloy.grafana-stack.svc.cluster.local:4318"
+        tls:
+          insecureSkipVerify: true
       grpc:
+        enabled: true
         endpoint: "alloy.grafana-stack.svc.cluster.local:4317"
         insecure: true
         insecureSkipVerify: true
