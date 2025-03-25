@@ -6,6 +6,13 @@ alloy:
       varlog: true
       dockercontainers: true
     stabilityLevel: "experimental"
+    extraPorts:
+      - name: http
+        port: 4318
+        protocol: TCP
+      - name: grpc
+        port: 4317
+        protocol: TCP
     configMap:
       create: true
       content: |-
