@@ -25,11 +25,11 @@ alloy:
         }
 
         otelcol.exporter.prometheus "default" {
-          forward_to = [prometheus.remote_write.incluster.reciever]
+          forward_to = [prometheus.remote_write.incluster.receiver]
         }
 
         otelcol.exporter.loki "default" {
-          forward_to = [loki.write.incluster.reciever]
+          forward_to = [loki.write.incluster.receiver]
         }
 
         otelcol.exporter.otlp "tempo" {
