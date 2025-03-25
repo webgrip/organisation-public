@@ -21,8 +21,6 @@ traefik:
   ingressRoute:
     dashboard:
       enabled: true
-      middlewares:
-        - "ingress-traefik-ryan-basic-auth@kubernetescrd"
 
   ports:
     web:
