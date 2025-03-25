@@ -39,9 +39,9 @@ alloy:
           send_batch_max_size = 2048
           timeout             = "10s"
           output {
-            logs    = [loki.write.incluster.input]
-            metrics = [prometheus.remote_write.incluster.input]
-            traces  = [otelcol.exporter.otlp.tempo.input]
+            logs    = [loki.write.incluster]
+            metrics = [prometheus.remote_write.incluster]
+            traces  = [otelcol.exporter.otlp.tempo]
           }
         }
 
