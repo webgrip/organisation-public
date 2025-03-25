@@ -6,6 +6,7 @@ middlewares:
     name: ryan-home-ip-allow-list
     sourceRanges:
       - "188.89.91.129/32"
+      - "92.68.230.153/32"
 
   basicAuth:
     enabled: true

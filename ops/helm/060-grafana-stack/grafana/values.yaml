@@ -1,7 +1,20 @@
 namespace: grafana-stack
 
 grafana:
-  replicas: 1
+  replicas: 2
+
+  ingress:
+    enabled: true
+    ingressClassName: ingress-traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.middlewares: "ingress-traefik-ryan-basic-auth@kubernetescrd"
+    tls:
+      - secretName: letsencrypt-prod-grafana
+        hosts:
+          - grafana.staging.k8s.webgrip.nl
+    hosts:
+      - grafana.staging.k8s.webgrip.nl
+
 
   adminUser: admin
   adminPassword: password
