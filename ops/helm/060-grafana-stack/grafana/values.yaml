@@ -13,6 +13,7 @@ grafana:
 #    passwordKey:
 
   persistence:
+    storageClassName: do-block-storage
     enabled: true
     size: 10Gi
 
