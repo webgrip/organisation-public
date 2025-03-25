@@ -26,9 +26,9 @@ alloy:
           }
 
           output {
-            logs    = [processor.batch.main.input]
-            metrics = [processor.batch.main.input]
-            traces  = [processor.batch.main.input]
+            logs    = [otelcol.processor.batch.main.input]
+            metrics = [otelcol.processor.batch.main.input]
+            traces  = [otelcol.processor.batch.main.input]
           }
         }
 
@@ -46,7 +46,7 @@ alloy:
           }
 
           output {
-            logs = [processor.k8sattrs.logs.input]
+            logs = [otelcol.processor.k8sattrs.logs.input]
           }
         }
 
@@ -55,7 +55,7 @@ alloy:
         }
 
         prometheus.scrape "cluster" {
-          forward_to = [processor.batch.main.metrics.input]
+          forward_to = [otelcol.processor.batch.main.metrics.input]
 
           wal_directory = "/tmp/agent/wal_prometheus"
         }
@@ -69,7 +69,7 @@ alloy:
             pod       = "pod_name"
           }
           output {
-            logs = [processor.memory_limiter.logs.input]
+            logs = [otelcol.processor.memory_limiter.logs.input]
           }
         }
 
@@ -78,24 +78,24 @@ alloy:
           limit_percentage       = 70
           spike_limit_percentage = 20
           output {
-            logs    = [processor.retry.logs.input]
-            metrics = [processor.retry.metrics.input]
-            traces  = [processor.retry.traces.input]
+            logs    = [otelcol.processor.retry.logs.input]
+            metrics = [otelcol.processor.retry.metrics.input]
+            traces  = [otelcol.processor.retry.traces.input]
           }
         }
 
         otelcol.processor.retry "retry" {
           output {
-            logs    = [processor.batch.main.logs.input]
-            metrics = [processor.batch.main.metrics.input]
-            traces  = [processor.batch.main.traces.input]
+            logs    = [otelcol.processor.batch.main.logs.input]
+            metrics = [otelcol.processor.batch.main.metrics.input]
+            traces  = [otelcol.processor.batch.main.traces.input]
           }
         }
 
         otelcol.processor.batch "main" {
-          send_batch_size    = 1024
+          send_batch_size = 1024
           send_batch_max_size = 2048
-          timeout            = "10s"
+          timeout = "10s"
 
           output {
             logs    = [
