@@ -1,10 +1,6 @@
-# alloy-values.yaml
-
-# -- Common top-level Helm configuration
 namespace: grafana-stack
 
 alloy:
-    # We’ll create a ConfigMap from our Flow (HCL) config below:
   alloy:
     # We need hostPath mounts to read /var/log/containers/*.log for filelog receiver:
     mounts:
@@ -13,7 +9,7 @@ alloy:
 
     configMap:
       create: true
-      content: |
+      content: |-
         ########################################
         #              EXTENSIONS             #
         ########################################
