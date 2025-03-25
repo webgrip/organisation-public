@@ -9,7 +9,7 @@ alloy:
     configMap:
       create: true
       content: |-
-        otelcol.receiver.otlp "otlp" {
+        otelcol.receiver.otlp "default" {
           grpc {
             endpoint = "0.0.0.0:4317"
           }
@@ -18,47 +18,27 @@ alloy:
           }
 
           output {
-            logs    = [otelcol.processor.batch.logs_pipeline.logs.input]
-            metrics = [otelcol.processor.memory_limiter.limiter.metrics.input]
-            traces  = [otelcol.processor.memory_limiter.limiter.traces.input]
+            metrics = [otelcol.exporter.prometheus.default.input]
+            logs    = [otelcol.exporter.loki.default.input]
+            traces  = [otelcol.exporter.oltp.tempo.input]
           }
         }
 
-        otelcol.processor.memory_limiter "limiter" {
-          check_interval         = "1s"
-          limit_percentage       = 70
-          spike_limit_percentage = 20
-
-          output {
-            metrics = [otelcol.processor.batch.main.metrics.input]
-            traces  = [otelcol.processor.batch.main.traces.input]
-          }
+        otelcol.exporter.prometheus "default" {
+          forward_to = [prometheus.remote_write.incluster.reciever]
         }
 
-        otelcol.processor.batch "main" {
-          send_batch_size     = 1024
-          send_batch_max_size = 2048
-          timeout             = "10s"
-
-          output {
-            metrics = [prometheus.remote_write.incluster.input]
-            traces  = [otelcol.exporter.otlp.tempo.input]
-          }
+        otelcol.exporter.loki "default" {
+          forward_to = [loki.write.incluster.reciever]
         }
 
-        otelcol.processor.batch "logs_pipeline" {
-          send_batch_size     = 1024
-          send_batch_max_size = 2048
-          timeout             = "10s"
-
-          output {
-            logs = [loki.write.incluster.input]
-          }
-        }
-
-        loki.write "incluster" {
-          endpoint {
-            url = "http://loki.grafana-stack.svc.cluster.local:3100/loki/api/v1/push"
+        otelcol.exporter.otlp "tempo" {
+          client {
+            endpoint = "tempo.grafana-stack.svc.cluster.local:4317"
+            tls {
+              insecure = true
+              insecure_skip_verify = true
+            }
           }
         }
 
@@ -68,12 +48,9 @@ alloy:
           }
         }
 
-        otelcol.exporter.otlp "tempo" {
-          client {
-            endpoint = "tempo.grafana-stack.svc.cluster.local:4317"
-            tls {
-              insecure = true
-            }
+        loki.write "incluster" {
+          endpoint {
+            url = "loki.grafana-stack.svc.cluster.local:3100"
           }
         }
 
