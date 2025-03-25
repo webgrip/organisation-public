@@ -41,8 +41,8 @@ alloy:
           timeout             = "10s"
 
           output {
-            metrics = [prometheus.remote_write.incluster]
-            traces  = [otelcol.exporter.otlp.tempo]
+            metrics = [prometheus.remote_write.incluster.input]
+            traces  = [otelcol.exporter.otlp.tempo.input]
           }
         }
 
@@ -52,7 +52,7 @@ alloy:
           timeout             = "10s"
 
           output {
-            logs = [loki.write.incluster]
+            logs = [loki.write.incluster.input]
           }
         }
 
