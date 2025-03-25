@@ -2,99 +2,81 @@ namespace: grafana-stack
 
 alloy:
   alloy:
-    # We need hostPath mounts to read /var/log/containers/*.log for filelog receiver:
     mounts:
       varlog: true
       dockercontainers: true
-
-    stabilityLevel: 'experimental'
-
+    stabilityLevel: "experimental"
     configMap:
       create: true
       content: |-
-
-        otelcol.receiver.otlp "otlp_in" {
+        otelcol.receiver.otlp "otlp" {
           grpc {
             endpoint = "0.0.0.0:4317"
           }
           http {
             endpoint = "0.0.0.0:4318"
           }
-
           output {
-            logs    = [otelcol.processor.batch.main.input]
-            metrics = [otelcol.processor.batch.main.input]
-            traces  = [otelcol.processor.batch.main.input]
+            logs    = [otelcol.processor.batch.main.logs]
+            metrics = [otelcol.processor.batch.main.metrics]
+            traces  = [otelcol.processor.batch.main.traces]
           }
         }
 
-        otelcol.receiver.filelog "k8s_logs" {
-          include = [
-            "/var/log/containers/*.log",
-          ]
+        otelcol.receiver.filelog "k8slogs" {
+          include  = ["/var/log/containers/*.log"]
           start_at = "beginning"
-
           operators {
             json_parser {
               parse_to       = "body"
               timestamp_from = "body.time"
             }
           }
-
           output {
-            logs = [otelcol.processor.k8sattrs.logs.input]
+            logs = [otelcol.processor.k8sattributes.k8sattrs.logs]
           }
         }
 
         discovery.kubernetes "cluster_sd" {
-          output = ["prometheus.scrape.cluster.input"]
+          output = ["prometheus.scrape.scraper.input"]
         }
 
-        prometheus.scrape "cluster" {
-          forward_to = [otelcol.processor.batch.main.metrics.input]
-
+        prometheus.scrape "scraper" {
+          forward_to    = [otelcol.processor.batch.main.metrics]
           wal_directory = "/tmp/agent/wal_prometheus"
         }
 
         otelcol.processor.k8sattributes "k8sattrs" {
           auth_type = "serviceAccount"
-
           extract {
             container = "container_name"
             namespace = "namespace_name"
             pod       = "pod_name"
           }
           output {
-            logs = [otelcol.processor.memory_limiter.logs.input]
+            logs = [otelcol.processor.memory_limiter.limiter.logs]
           }
         }
 
-        otelcol.processor.memory_limiter "memory_limiter" {
+        otelcol.processor.memory_limiter "limiter" {
           check_interval         = "1s"
           limit_percentage       = 70
           spike_limit_percentage = 20
           output {
-            logs    = [otelcol.processor.batch.main.logs.input]
-            metrics = [otelcol.processor.batch.main.metrics.input]
-            traces  = [otelcol.processor.batch.main.traces.input]
+            logs    = [otelcol.processor.batch.main.logs]
+            metrics = [otelcol.processor.batch.main.metrics]
+            traces  = [otelcol.processor.batch.main.traces]
           }
         }
 
         otelcol.processor.batch "main" {
-          send_batch_size = 1024
+          send_batch_size     = 1024
           send_batch_max_size = 2048
-          timeout = "10s"
-
+          timeout             = "10s"
           output {
-            logs    = [
-              loki.write.incluster.input,
-            ]
-            metrics = [
-              prometheus.remote_write.incluster.input,
-            ]
-            traces  = [
-              otelcol.exporter.otlp.tempo_out.input,
-            ]
+            logs    = [loki.write.incluster]
+            metrics = [prometheus.remote_write.incluster]
+            traces  = [otelcol.exporter.otlp.tempo]
           }
         }
 
@@ -104,7 +86,7 @@ alloy:
           }
         }
 
-        otelcol.exporter.otlp "tempo_out" {
+        otelcol.exporter.otlp "tempo" {
           client {
             endpoint = "tempo.grafana-stack.svc.cluster.local:4317"
             tls {
@@ -128,28 +110,11 @@ alloy:
         cpu: 1000m
 
   controller:
-    type: 'daemonset'
-#    replicas: 2
-#    nodeSelector: {}
-#    tolerations: []
-#    affinity: {}
-
-    # Provide any environment variables or secrets for extra config
-#    extraEnv: []
-      # - name: EXAMPLE_ENV
-    #   value: "some_value"
-
-    # If you want to pass environment variables from a secret:
-    # envFrom:
-    #   - secretRef:
-    #       name: my-secrets
+    type: daemonset
 
   configReloader:
-    enabled: true  # automatically reload Flow config on ConfigMap changes
+    enabled: true
 
   service:
-    # The chart will create a Service on the default Alloy port (12345).
-    # This might not be strictly necessary if you only do local usage,
-    # but you can enable it to have a stable DNS name or add an Ingress.
     enabled: true
     type: ClusterIP
