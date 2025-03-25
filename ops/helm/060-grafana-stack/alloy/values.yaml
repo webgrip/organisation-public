@@ -17,44 +17,9 @@ alloy:
             endpoint = "0.0.0.0:4318"
           }
           output {
-            logs    = [otelcol.processor.batch.main.logs]
-            metrics = [otelcol.processor.batch.main.metrics]
-            traces  = [otelcol.processor.batch.main.traces]
-          }
-        }
-
-        otelcol.receiver.filelog "k8slogs" {
-          include  = ["/var/log/containers/*.log"]
-          start_at = "beginning"
-          operators {
-            json_parser {
-              parse_to       = "body"
-              timestamp_from = "body.time"
-            }
-          }
-          output {
-            logs = [otelcol.processor.k8sattributes.k8sattrs.logs]
-          }
-        }
-
-        discovery.kubernetes "cluster_sd" {
-          output = ["prometheus.scrape.scraper.input"]
-        }
-
-        prometheus.scrape "scraper" {
-          forward_to    = [otelcol.processor.batch.main.metrics]
-          wal_directory = "/tmp/agent/wal_prometheus"
-        }
-
-        otelcol.processor.k8sattributes "k8sattrs" {
-          auth_type = "serviceAccount"
-          extract {
-            container = "container_name"
-            namespace = "namespace_name"
-            pod       = "pod_name"
-          }
-          output {
-            logs = [otelcol.processor.memory_limiter.limiter.logs]
+            logs    = [otelcol.processor.batch.main.logs.input]
+            metrics = [otelcol.processor.batch.main.metrics.input]
+            traces  = [otelcol.processor.batch.main.traces.input]
           }
         }
 
@@ -74,9 +39,9 @@ alloy:
           send_batch_max_size = 2048
           timeout             = "10s"
           output {
-            logs    = [loki.write.incluster]
-            metrics = [prometheus.remote_write.incluster]
-            traces  = [otelcol.exporter.otlp.tempo]
+            logs    = [loki.write.incluster.input]
+            metrics = [prometheus.remote_write.incluster.input]
+            traces  = [otelcol.exporter.otlp.tempo.input]
           }
         }
 
