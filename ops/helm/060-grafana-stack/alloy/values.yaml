@@ -34,7 +34,7 @@ alloy:
 
         otelcol.receiver.filelog "k8s_logs" {
           include = [
-            "/var/log/containers/*.log"
+            "/var/log/containers/*.log",
           ]
           start_at = "beginning"
 
@@ -99,13 +99,13 @@ alloy:
 
           output {
             logs    = [
-              loki.write.incluster.input
+              loki.write.incluster.input,
             ]
             metrics = [
-              prometheus.remote_write.incluster.input
+              prometheus.remote_write.incluster.input,
             ]
             traces  = [
-              otelcol.exporter.otlp "tempo_out".input
+              otelcol.exporter.otlp.tempo_out.input,
             ]
           }
         }
