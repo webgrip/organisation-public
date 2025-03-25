@@ -1,0 +1,73 @@
+namespace: grafana-stack
+
+grafana:
+  replicas: 1
+
+  adminUser: admin
+  adminPassword: password
+
+#  adminUser: admin
+#  admin:
+#    existingSecret: grafana-admin
+#    userKey:
+#    passwordKey:
+
+  persistence:
+    enabled: true
+    size: 10Gi
+
+  plugins:
+    - grafana-lokiexplore-app
+    - grafana-exploretraces-app
+    - grafana-pyroscope-app
+    - alexanderzobnin-zabbix-app
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  datasources:
+    datasources.yml:
+      apiVersion: 1
+      datasources:
+        - name: grafana-stack-loki
+          uid: grafana-stack-loki
+          type: loki
+          access: proxy
+          url: http://loki.grafana-stack.svc.cluster.local:3100
+          editable: true
+          jsonData:
+            maxLines: 1000
+#            derivedFields:
+#              - datasourceUid: grafana-stack-tempo
+#                matcherType: label
+#                matcherRegex: trace_id
+#                name: TraceID
+#                # url will be interpreted as query for the datasource
+#                url: '$${__value.raw}'
+#                urlDisplayLabel: 'View Trace'
+        - name: kube-prometheus-stack-prometheus
+          uid: kube-prometheus-stack-prometheus
+          type: prometheus
+          access: proxy
+          url: http://kube-prometheus-stack-prometheus-node-exporter.kube-prometheus-stack.svc.cluster.local:9100
+          editable: true
+#        - name: grafana-stack-tempo
+#          uid: grafana-stack-tempo
+#          type: tempo
+#          access: proxy
+#          url: http://tempo.monitoring.svc.cluster.local:3100
+#          editable: true
+#          jsonData:
+#            tracesToLogsV2:
+#              datasourceUid: 'grafana-stack-loki'
+#              spanStartTimeShift: '-1h'
+#              spanEndTimeShift: '1h'
+#              filterByTraceID: false
+#              filterBySpanID: false
+#              customQuery: true
+#              query: '{$${__tags}} | trace_id = "$${__trace.traceId}"'
+#              tags:
+#                - key: 'service.name'
+#                  value: 'service_name'
+

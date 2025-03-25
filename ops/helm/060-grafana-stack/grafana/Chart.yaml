@@ -1,0 +1,10 @@
+apiVersion: v2
+name: grafana
+description: A Helm chart to deploy Grafana, a multi-platform open source analytics and interactive visualization web application
+version: 0.1.0
+type: application
+appVersion: 11.5.2
+dependencies:
+  - name: grafana
+    version: 8.10.4
+    repository: https://grafana.github.io/helm-charts
