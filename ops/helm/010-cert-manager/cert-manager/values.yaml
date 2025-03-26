@@ -3,4 +3,4 @@ namespace: cert-manager
 cert-manager:
   installCRDs: true
   webhook:
-    timeoutSeconds: 150
+    timeoutSeconds: 30
