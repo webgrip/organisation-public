@@ -6,4 +6,4 @@ ingressClass: traefik
 
 # The following values are used to create the secret for the Cloudflare API token
 cloudflareSecretName: cloudflare-api-token-secret
-cloudflareSecretKey: api-key
+cloudflareSecretKey: api-token
