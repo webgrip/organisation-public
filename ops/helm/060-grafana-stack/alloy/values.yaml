@@ -132,6 +132,7 @@ alloy:
         loki.write "incluster" {
           endpoint {
             url = "http://loki.grafana-stack.svc.cluster.local:3100/loki/api/v1/push"
+            tenant_id = "fake"
           }
         }
 
