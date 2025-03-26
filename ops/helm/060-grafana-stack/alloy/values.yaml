@@ -131,7 +131,7 @@ alloy:
 
         loki.write "incluster" {
           endpoint {
-            url = "loki.grafana-stack.svc.cluster.local:3100"
+            url = "loki.grafana-stack.svc.cluster.local:3100/loki/api/v1/push"
           }
         }
 
