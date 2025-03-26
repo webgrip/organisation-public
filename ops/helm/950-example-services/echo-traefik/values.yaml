@@ -28,6 +28,7 @@ ingress:
   className: ingress-traefik
   host: echo.staging.k8s.webgrip.nl
   annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-traefik
     traefik.ingress.kubernetes.io/router.middlewares: "ingress-traefik-ryan-basic-auth@kubernetescrd"
   tls:
     enabled: true
