@@ -20,13 +20,14 @@ jobs:
     needs: [ determine-changed-secrets ]
     if: needs.determine-changed-secrets.outputs.matrix != '[]'
     uses: ./.github/workflows/deploy-helm-templates.yml
-    with:
-      paths: ${{ needs.determine-changed-secrets.outputs.matrix }}
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
       DIGITAL_OCEAN_API_KEY: ${{ secrets.DIGITAL_OCEAN_API_KEY }}
       SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+    with:
+      paths: ${{ needs.determine-changed-secrets.outputs.matrix }}
+
 
   determine-changed-helm:
     name: "Helm"
@@ -41,10 +42,10 @@ jobs:
       always()
       && needs.determine-changed-helm.outputs.matrix != '[]'
       && needs.deploy-changed-secrets.result == 'success' || needs.deploy-changed-secrets.result == 'skipped'
-    uses: ./.github/workflows/deploy-helm-templates.yml
-    with:
-      paths: ${{ needs.determine-changed-helm.outputs.matrix }}
+    uses: webgrip/workflows/.github/workflows/helm-charts-deploy.yml@main
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
       DIGITAL_OCEAN_API_KEY: ${{ secrets.DIGITAL_OCEAN_API_KEY }}
+    with:
+      paths: ${{ needs.determine-changed-helm.outputs.matrix }}
