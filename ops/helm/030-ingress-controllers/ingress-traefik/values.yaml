@@ -30,9 +30,9 @@ traefik:
           scheme: https
           permanent: true
     websecure:
-      middlewares:
-        - "ingress-traefik-ryan-home-ip-allow-list@kubernetescrd"
-        - "ingress-traefik-ryan-office-ip-allow-list@kubernetescrd"
+#      middlewares:
+#        - "ingress-traefik-ryan-home-ip-allow-list@kubernetescrd"
+#        - "ingress-traefik-ryan-office-ip-allow-list@kubernetescrd"
       forwardedHeaders:
         insecure: false
         trustedIPs:
