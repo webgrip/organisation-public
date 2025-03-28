@@ -1,12 +1,17 @@
 namespace: ingress-traefik
 
 middlewares:
-  ipAllowList:
-    enabled: true
-    name: ryan-home-ip-allow-list
-    sourceRanges:
-      - "188.89.91.129/32"
-      - "92.68.230.153/32"
+  ipAllowLists:
+    - name: ryan-home-ip-allow-list
+      sourceRanges:
+        - "188.89.91.129/32"
+    - name: office-ip-allow-list
+      sourceRanges:
+        - "92.68.230.153/32"
+    - name: allow-all
+      sourceRanges:
+        - "0.0.0.0/0"
+        - "::/0"
 
   basicAuth:
     enabled: true
