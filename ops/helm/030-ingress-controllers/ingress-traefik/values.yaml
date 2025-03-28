@@ -32,6 +32,7 @@ traefik:
     websecure:
       middlewares:
         - "ingress-traefik-ryan-home-ip-allow-list@kubernetescrd"
+        - "ingress-traefik-ryan-office-ip-allow-list@kubernetescrd"
       forwardedHeaders:
         insecure: false
         trustedIPs:
