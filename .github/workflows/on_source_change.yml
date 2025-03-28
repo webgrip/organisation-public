@@ -19,7 +19,7 @@ jobs:
     name: "Deploy Changed Secrets"
     needs: [ determine-changed-secrets ]
     if: needs.determine-changed-secrets.outputs.matrix != '[]'
-    uses: ./.github/workflows/deploy-helm-templates.yml
+    uses: webgrip/workflows/.github/workflows/helm-charts-deploy.yml@main
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
