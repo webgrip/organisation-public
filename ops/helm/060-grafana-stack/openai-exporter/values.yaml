@@ -1,3 +1,5 @@
+namespace: grafana-stack
+
 replicaCount: 1
 
 image:
