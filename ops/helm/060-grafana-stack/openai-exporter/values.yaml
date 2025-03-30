@@ -29,4 +29,3 @@ serviceMonitor:
 
 # Optionally, if you wish to use a hash suffix for long names.
 useHashSuffix: false
-
