@@ -27,6 +27,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "chart.fullname" . }}-secrets
                   key: openai-api-token
+            - name: OPENAI_ORG_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "chart.fullname" . }}-secrets
+                  key: openai-org-id
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       nodeSelector:
