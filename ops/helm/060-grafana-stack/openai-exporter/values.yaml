@@ -9,7 +9,7 @@ image:
 
 service:
   type: ClusterIP
-  port: 8000
+  port: 9185
 
 serviceMonitor:
   enabled: true
