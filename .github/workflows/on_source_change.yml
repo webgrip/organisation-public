@@ -8,6 +8,10 @@ on:
       - 'ops/helm/**'
       - 'ops/secrets/**'
 
+concurrency:
+  group: push-${{ github.branch }}
+  cancel-in-progress: false
+
 jobs:
   determine-changed-secrets:
     name: "Secrets"
