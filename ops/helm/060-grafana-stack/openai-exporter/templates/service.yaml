@@ -4,8 +4,13 @@ metadata:
   name: {{ include "chart.fullname" . }}
   labels:
     {{- include "chart.labels" . | nindent 4 }}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9185"
+    prometheus.io/path: "/metrics"
 spec:
   type: {{ .Values.service.type }}
+
   ports:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.port }}
