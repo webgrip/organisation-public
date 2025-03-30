@@ -25,7 +25,7 @@ spec:
             - name: OPENAI_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "chart.fullname" . }}-openai-exporter-secrets
+                  name: {{ include "chart.fullname" . }}-secrets
                   key: openai-api-token
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
