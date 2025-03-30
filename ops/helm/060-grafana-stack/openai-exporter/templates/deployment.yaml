@@ -25,10 +25,10 @@ spec:
             - name: OPENAI_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "chart.fullname" . }}-openai-secret
-                  key: OPENAI_SECRET_KEY
+                  name: {{ include "chart.fullname" . }}-openai-exporter-secrets
+                  key: openai-api-token
           resources:
-          {{- toYaml .Values.resources | nindent 10 }}
+            {{- toYaml .Values.resources | nindent 12 }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
       tolerations:
