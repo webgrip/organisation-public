@@ -23,6 +23,26 @@ kube-prometheus-stack:
       serviceMonitorSelector:
         matchLabels:
           app.kubernetes.io/name: traefik
+      additionalScrapeConfigs: |
+        - job_name: 'annotation-scrape'
+          kubernetes_sd_configs:
+            - role: pod
+          relabel_configs:
+            # Only keep pods that have prometheus.io/scrape=true
+            - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+              action: keep
+              regex: "true"
+            # Use the annotation value for the metrics path, if available
+            - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+              action: replace
+              target_label: __metrics_path__
+              regex: "(.+)"
+            # Replace the default port with the value from the annotation
+            - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+              action: replace
+              target_label: __address__
+              regex: "(.+)"
+              replacement: "$1"
 
 #      storageSpec:
 #        volumeClaimTemplate:
