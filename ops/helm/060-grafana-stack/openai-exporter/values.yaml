@@ -11,21 +11,9 @@ service:
   type: ClusterIP
   port: 8000
 
-openai:
-  # Supply your OpenAI secret key here.
-  secretKey: ""
-
-resources: {}
-
-nodeSelector: {}
-tolerations: []
-affinity: {}
-
-# Enable ServiceMonitor if you are using Prometheus Operator.
 serviceMonitor:
-  enabled: false
+  enabled: true
   interval: 1m
   scrapeTimeout: 10s
 
-# Optionally, if you wish to use a hash suffix for long names.
 useHashSuffix: false
