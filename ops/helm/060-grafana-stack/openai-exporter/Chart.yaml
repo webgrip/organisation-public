@@ -1,0 +1,10 @@
+apiVersion: v2
+name: openai-exporter
+description: A Helm chart for deploying the foxdalas/openai-exporter for Prometheus.
+type: application
+version: 0.1.0
+appVersion: "latest"
+dependencies:
+  - name: common-helpers
+    repository: oci://ghcr.io/webgrip/common-charts
+    version: 1.0.13
