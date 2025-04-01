@@ -13,7 +13,6 @@ grafana:
     enabled: true
     ingressClassName: ingress-traefik
     annotations:
-#      traefik.ingress.kubernetes.io/router.middlewares: "ingress-traefik-ryan-basic-auth@kubernetescrd"
       cert-manager.io/cluster-issuer: letsencrypt-traefik
     tls:
       - secretName: letsencrypt-prod-grafana
@@ -21,7 +20,6 @@ grafana:
           - grafana.staging.k8s.webgrip.nl
     hosts:
       - grafana.staging.k8s.webgrip.nl
-
 
   admin:
     existingSecret: grafana-admin
@@ -66,7 +64,6 @@ grafana:
   service:
     type: ClusterIP
     port: 80
-
 
   datasources:
     datasources.yml:
