@@ -17,14 +17,29 @@ grafana:
       - grafana.staging.k8s.webgrip.nl
 
 
-  adminUser: admin
-  adminPassword: password
+  admin:
+    existingSecret: grafana-admin
 
-#  adminUser: admin
-#  admin:
-#    existingSecret: grafana-admin
-#    userKey:
-#    passwordKey:
+  grafana.ini:
+    # https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/github/#configuration-options
+    auth.github:
+      enabled: true
+      scopes: user:email,read:org
+      allow_sign_up: true
+      allowed_organizations: ["webgrip"]
+
+  # https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#override-configuration-with-environment-variables
+  env:
+    - name: GF_AUTH_GITHUB_CLIENT_ID
+      valueFrom:
+        secretKeyRef:
+          name: grafana-github
+          key: client-id
+    - name: GF_AUTH_GITHUB_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: grafana-github
+          key: client-secret
 
   persistence:
     storageClassName: do-block-storage
