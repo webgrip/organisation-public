@@ -31,6 +31,7 @@ grafana:
       scopes: user:email,read:org
       allow_sign_up: true
       allowed_organizations: ["webgrip"]
+      role_attribute_path: contains(groups[*], '@webgrip/infrastructure/grafana') && 'Admin' || 'Viewer'
 
   # https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#override-configuration-with-environment-variables
   envValueFrom:
