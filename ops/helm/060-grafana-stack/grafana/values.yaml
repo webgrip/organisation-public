@@ -7,7 +7,7 @@ grafana:
     enabled: true
     ingressClassName: ingress-traefik
     annotations:
-      traefik.ingress.kubernetes.io/router.middlewares: "ingress-traefik-ryan-basic-auth@kubernetescrd"
+#      traefik.ingress.kubernetes.io/router.middlewares: "ingress-traefik-ryan-basic-auth@kubernetescrd"
       cert-manager.io/cluster-issuer: letsencrypt-traefik
     tls:
       - secretName: letsencrypt-prod-grafana
