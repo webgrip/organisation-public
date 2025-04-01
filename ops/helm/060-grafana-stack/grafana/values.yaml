@@ -24,6 +24,8 @@ grafana:
 
   grafana.ini:
     # https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/github/#configuration-options
+    server:
+      root_url: https://grafana.staging.k8s.webgrip.nl
     auth.github:
       enabled: true
       scopes: user:email,read:org
