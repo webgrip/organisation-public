@@ -19,6 +19,8 @@ grafana:
 
   admin:
     existingSecret: grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
 
   grafana.ini:
     # https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/github/#configuration-options
@@ -29,17 +31,15 @@ grafana:
       allowed_organizations: ["webgrip"]
 
   # https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#override-configuration-with-environment-variables
-  env:
-    - name: GF_AUTH_GITHUB_CLIENT_ID
-      valueFrom:
-        secretKeyRef:
-          name: grafana-github
-          key: client-id
-    - name: GF_AUTH_GITHUB_CLIENT_SECRET
-      valueFrom:
-        secretKeyRef:
-          name: grafana-github
-          key: client-secret
+  envValueFrom:
+    GF_AUTH_GITHUB_CLIENT_ID:
+      secretKeyRef:
+        name: grafana-github
+        key: client-id
+    GF_AUTH_GITHUB_CLIENT_SECRET:
+      secretKeyRef:
+        name: grafana-github
+        key: client-secret
 
   persistence:
     storageClassName: do-block-storage
