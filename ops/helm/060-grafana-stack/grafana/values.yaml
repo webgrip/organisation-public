@@ -37,7 +37,7 @@ grafana:
       scopes: user:email,read:org
       allow_sign_up: true
       allowed_organizations: ["webgrip"]
-      role_attribute_path: "[login=='Ryangr0'][0] && 'GrafanaAdmin' || contains(groups[*], '@webgrip/grafana') && 'Admin' || 'Editor'"
+      role_attribute_path: "contains(groups[*], '@webgrip/grafana') && 'GrafanaAdmin' || 'Editor'"
       role_attribute_strict: true
       allow_assign_grafana_admin: true
 
