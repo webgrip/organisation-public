@@ -3,6 +3,12 @@ namespace: grafana-stack
 grafana:
   replicas: 2
 
+  deploymentStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
   ingress:
     enabled: true
     ingressClassName: ingress-traefik
