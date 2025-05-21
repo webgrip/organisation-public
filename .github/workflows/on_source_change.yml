@@ -15,7 +15,7 @@ concurrency:
 jobs:
   determine-changed-secrets:
     name: "Secrets"
-    uses: webgrip/workflows/.github/workflows/determine-changed-directories.yml@main
+    uses: webgrip/workflows/.github/workflows/determine-changed-directories.yml@ubuntu-latest
     with:
       inside-dir: 'ops/secrets'
 
@@ -23,7 +23,7 @@ jobs:
     name: "Deploy Changed Secrets"
     needs: [ determine-changed-secrets ]
     if: needs.determine-changed-secrets.outputs.matrix != '[]'
-    uses: webgrip/workflows/.github/workflows/helm-charts-deploy.yml@main
+    uses: webgrip/workflows/.github/workflows/helm-charts-deploy.yml@ubuntu-latest
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
@@ -35,7 +35,7 @@ jobs:
 
   determine-changed-helm:
     name: "Helm"
-    uses: webgrip/workflows/.github/workflows/determine-changed-directories.yml@main
+    uses: webgrip/workflows/.github/workflows/determine-changed-directories.yml@ubuntu-latest
     with:
       inside-dir: 'ops/helm'
 
@@ -46,7 +46,7 @@ jobs:
       always()
       && needs.determine-changed-helm.outputs.matrix != '[]'
       && needs.deploy-changed-secrets.result == 'success' || needs.deploy-changed-secrets.result == 'skipped'
-    uses: webgrip/workflows/.github/workflows/helm-charts-deploy.yml@main
+    uses: webgrip/workflows/.github/workflows/helm-charts-deploy.yml@ubuntu-latest
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
