@@ -10,7 +10,7 @@ on:
 
 concurrency:
   group: push-${{ github.branch }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   determine-changed-secrets:

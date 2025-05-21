@@ -106,3 +106,4 @@ gha-runner-scale-set:
                     operator: "In"
                     values:
                       - "cpu"
+
