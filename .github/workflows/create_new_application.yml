@@ -20,6 +20,7 @@ jobs:
     runs-on: arc-runner-set
     name: ${{ inputs.application_name }}
 
+    # These are only for the caller repo's GITHUB_TOKEN; we still use the App token for cross-repo ops.
     permissions:
       contents: write
       pull-requests: write
@@ -333,7 +334,7 @@ jobs:
       - name: Ensure gh-pages branch, configure Pages, and set homepage
         uses: actions/github-script@v7
         with:
-          github-token: ${{ github.token }}
+          github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const owner = process.env.ORG;
             const repo  = process.env.NEW_REPO;
@@ -360,10 +361,15 @@ jobs:
 
             if (!(await branchExists('gh-pages'))) {
               const sha = await getBaseSha();
-              await github.request('POST /repos/{owner}/{repo}/git/refs', {
-                owner, repo, ref: 'refs/heads/gh-pages', sha
-              });
-              core.info('Created gh-pages branch.');
+              try {
+                await github.request('POST /repos/{owner}/{repo}/git/refs', {
+                  owner, repo, ref: 'refs/heads/gh-pages', sha
+                });
+                core.info('Created gh-pages branch.');
+              } catch (e) {
+                core.setFailed(`Failed to create gh-pages branch: ${e.status} ${e.message}`);
+                return;
+              }
             } else {
               core.info('gh-pages branch already exists.');
             }
@@ -381,19 +387,27 @@ jobs:
             const source = { branch: 'gh-pages', path: '/' };
             const existing = await getPages();
 
-            if (existing) {
-              await github.request('PUT /repos/{owner}/{repo}/pages', { owner, repo, source });
-              core.info('Updated GitHub Pages to deploy from gh-pages /.');
-            } else {
-              await github.request('POST /repos/{owner}/{repo}/pages', { owner, repo, source });
-              core.info('Enabled GitHub Pages to deploy from gh-pages /.');
+            try {
+              if (existing) {
+                await github.request('PUT /repos/{owner}/{repo}/pages', { owner, repo, source });
+                core.info('Updated GitHub Pages to deploy from gh-pages /.');
+              } else {
+                await github.request('POST /repos/{owner}/{repo}/pages', { owner, repo, source });
+                core.info('Enabled GitHub Pages to deploy from gh-pages /.');
+              }
+            } catch (e) {
+              if (e.status === 403) {
+                core.warning('Pages API returned 403. Ensure the GitHub App has "Pages: Read and write" permission and Pages are allowed for the org.');
+              } else {
+                throw e;
+              }
             }
 
-            // Try to read back the canonical Pages URL; if not present yet, compute it.
-            const pagesInfo = await getPages();
-            const fallbackUrl = `https://${owner}.github.io/${repo}/`;
-            const pagesUrl = pagesInfo?.html_url || fallbackUrl;
-
+            let pagesUrl = `https://${owner}.github.io/${repo}/`;
+            try {
+              const pagesInfo = await getPages();
+              if (pagesInfo?.html_url) pagesUrl = pagesInfo.html_url;
+            } catch {}
             await github.request('PATCH /repos/{owner}/{repo}', {
               owner, repo, homepage: pagesUrl
             });
