@@ -1,0 +1,22 @@
+name: "[Workflow] Create New Application"
+
+run-name: Create New Application "${{ inputs.application_name }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      application_name:
+        type: string
+        description: 'the name of the application'
+        required: true
+
+jobs:
+  run-action:
+    uses: ./.github/workflows/create_new_application.yml
+    with:
+      application_name: ${{ github.event.inputs.application_name }}
+    secrets:
+      WEBGRIP_CI_APP_ID: ${{ secrets.WEBGRIP_CI_APP_ID }}
+      WEBGRIP_CI_CLIENT_ID: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
+      WEBGRIP_CI_CLIENT_PRIVATE_KEY: ${{ secrets.WEBGRIP_CI_CLIENT_PRIVATE_KEY }}
+

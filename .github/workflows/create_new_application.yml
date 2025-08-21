@@ -1,0 +1,138 @@
+name: "Create New Application"
+
+on:
+  workflow_call:
+    inputs:
+      application_name:
+        description: 'the name of the application'
+        required: true
+        type: string
+    secrets:
+      WEBGRIP_CI_APP_ID:
+        description: 'GitHub App ID'
+        required: true
+      WEBGRIP_CI_CLIENT_ID:
+        description: 'GitHub App Client ID'
+        required: true
+      WEBGRIP_CI_CLIENT_PRIVATE_KEY:
+        description: 'GitHub App private key'
+        required: true
+#   workflow_dispatch:
+#     inputs:
+#       application_name:
+#         description: 'the name of the application'
+#         required: true
+#         type: string
+#       owner:
+#         description: "GitHub owner (your username or org). Example: my-org"
+#         required: true
+#         type: string
+#       repo_name:
+#         description: "New repository name. Example: shiny-app"
+#         required: true
+#         type: string
+#       replace_token:
+#         description: 'Placeholder to replace (default: "application-application")'
+#         required: false
+#         default: "application-application"
+#         type: string
+#       visibility:
+#         description: "Repo visibility"
+#         required: true
+#         default: private
+#         type: choice
+#         options: [private, public, internal]
+#       ai_change:
+#         description: "Let AI update README (yes/no)"
+#         required: true
+#         default: "no"
+#         type: choice
+#         options: [no, yes]
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap:
+    runs-on: arc-runner-set
+    env:
+      OWNER: ${{ github.repository_owner }}
+      NEW_REPO: ${{ inputs.application_name }}
+      REPLACE_TOKEN: "application-application"
+      VISIBILITY: "public"             # public | private (org must allow this)
+      AI_CHANGE: "yes"
+
+    steps:
+      - name: Mint GitHub App installation token (no installation-id, use owner)
+        id: app-token
+        uses: actions/create-webgrip-ci-token@v2
+        with:
+          app-id: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
+          private-key: ${{ secrets.WEBGRIP_CI_CLIENT_PRIVATE_KEY }}
+          owner: ${{ env.OWNER }}
+
+      - name: Checkout TEMPLATE repository (webgrip/application-template)
+        uses: actions/checkout@v4
+        with:
+          repository: webgrip/application-template
+          fetch-depth: 0
+          persist-credentials: false
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Replace & rename from template token (public action)
+        uses: kota65535/github-template-rename-action@v1
+        with:
+          from-name: ${{ env.REPLACE_TOKEN }}
+          to-name: ${{ env.NEW_REPO }}  
+          # Token is only needed if action opens PRs against protected branches; safe to pass:
+          github-token: ${{ steps.app-token.outputs.token }}
+
+      - name: Commit template initialization
+        run: |
+          git config user.name "webgrip-ci[bot]"
+          git config user.email "${{ secrets.WEBGRIP_CI_APP_ID }}+[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore(init): rename to ${NEW_REPO}" || echo "Nothing to commit"
+
+    #   - name: Codex-style AI change (public action)
+    #     if: env.AI_CHANGE == 'yes'
+    #     uses: mirrajabi/aider-github-action@v1.1.0
+    #     with:
+    #       api_key_env_name: OPENAI_API_KEY
+    #       api_key_env_value: ${{ secrets.OPENAI_API_KEY }}
+    #       branch: main
+    #       model: gpt-4o-mini
+    #       aider_args: >
+    #         --yes
+    #         --message "Update README for '${{ env.NEW_REPO }}' with a concise intro + Quickstart.
+    #         Keep the diff minimal."
+
+      - name: Create remote repository (org) with App token
+        id: create_repo
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const owner = process.env.OWNER;
+            const name = process.env.NEW_REPO;
+            const visibility = process.env.VISIBILITY;
+            const isPrivate = (visibility !== 'public');
+
+            const r = await github.request('POST /orgs/{org}/repos', {
+              org: owner,
+              name,
+              private: isPrivate,
+              has_wiki: false,
+              has_issues: true,
+              auto_init: false
+            });
+            core.info(`Created: ${r.data.full_name}`);
+
+      - name: Push to new repository (using App token)
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          git branch -M main
+          git remote remove origin || true
+          git remote add origin "https://x-access-token:${APP_TOKEN}@github.com/${OWNER}/${NEW_REPO}.git"
+          git push -u origin main
