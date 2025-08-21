@@ -28,7 +28,6 @@ jobs:
       VISIBILITY: "public"
       AI_CHANGE: "no"
       APP_BOT_SLUG: ${{ vars.WEBGRIP_CI_BOT_NAME || 'webgrip-ci' }}
-      BOOTSTRAP_BRANCH: bootstrap/init-${{ github.run_id }}
 
     steps:
       - name: Silence local git init default-branch hint
@@ -51,6 +50,7 @@ jobs:
             const org = process.env.ORG;
             const name = process.env.NEW_REPO;
             const isPrivate = (process.env.VISIBILITY !== 'public');
+
             const r = await github.request('POST /repos/{template_owner}/{template_repo}/generate', {
               template_owner: process.env.TEMPLATE_OWNER,
               template_repo: process.env.TEMPLATE_REPO,
@@ -141,109 +141,81 @@ jobs:
           persist-credentials: false
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: remove unwanted files
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf CHANGELOG.md
-
-      - name: Derive name variants
-        id: namevars
-        shell: bash
-        run: |
-          set -euo pipefail
-          kebab="${NEW_REPO}"
-          snake="${kebab//-/_}"
-          upper_snake="${snake^^}"
-          IFS=- read -ra parts <<< "$kebab"
-          pascal=""
-          camel=""
-          title=""
-          for i in "${!parts[@]}"; do
-            p="${parts[$i]}"
-            cap="${p^}"
-            pascal+="$cap"
-            title+="$cap "
-            if [[ $i -eq 0 ]]; then camel+="${p,,}"; else camel+="$cap"; fi
-          done
-          title="${title% }"
-          {
-            echo "kebab=$kebab"
-            echo "snake=$snake"
-            echo "upper_snake=$upper_snake"
-            echo "pascal=$pascal"
-            echo "camel=$camel"
-            echo "title=$title"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Replace token (kebab)
-        uses: jacobtomlinson/gha-find-replace@v3
+      - name: Mass replace content + rename paths
+        uses: actions/github-script@v7
+        env:
+          TOKEN: ${{ env.REPLACE_TOKEN }}
+          REPL: ${{ env.NEW_REPO }}
         with:
-          find: ${{ env.REPLACE_TOKEN }}
-          replace: ${{ steps.namevars.outputs.kebab }}
-          include: "**/*"
-          exclude: ".git/**"
-          regex: false
+          script: |
+            const fs = require('fs');
+            const path = require('path');
 
-      - name: Replace token (snake)
-        uses: jacobtomlinson/gha-find-replace@v3
-        with:
-          find: "application_application"
-          replace: ${{ steps.namevars.outputs.snake }}
-          include: "**/*"
-          exclude: ".git/**"
-          regex: false
+            const root = process.env.GITHUB_WORKSPACE || process.cwd();
+            const token = process.env.TOKEN;
+            const repl  = process.env.REPL;
 
-      - name: Replace token (UPPER_SNAKE)
-        uses: jacobtomlinson/gha-find-replace@v3
-        with:
-          find: "APPLICATION_APPLICATION"
-          replace: ${{ steps.namevars.outputs.upper_snake }}
-          include: "**/*"
-          exclude: ".git/**"
-          regex: false
+            function isDir(p) { try { return fs.statSync(p).isDirectory(); } catch { return false; } }
+            function isFile(p) { try { return fs.statSync(p).isFile(); } catch { return false; } }
 
-      - name: Replace token (PascalCase)
-        uses: jacobtomlinson/gha-find-replace@v3
-        with:
-          find: "ApplicationApplication"
-          replace: ${{ steps.namevars.outputs.pascal }}
-          include: "**/*"
-          exclude: ".git/**"
-          regex: false
+            function walk(dir) {
+              const out = [];
+              for (const entry of fs.readdirSync(dir)) {
+                if (entry === '.git') continue;
+                const full = path.join(dir, entry);
+                out.push(full);
+                if (isDir(full)) out.push(...walk(full));
+              }
+              return out;
+            }
 
-      - name: Replace token (camelCase)
-        uses: jacobtomlinson/gha-find-replace@v3
-        with:
-          find: "applicationApplication"
-          replace: ${{ steps.namevars.outputs.camel }}
-          include: "**/*"
-          exclude: ".git/**"
-          regex: false
+            // 1) Delete CHANGELOG.md if present at repo root
+            const changelog = path.join(root, 'CHANGELOG.md');
+            if (fs.existsSync(changelog)) {
+              fs.rmSync(changelog, { force: true });
+              core.info('Removed root CHANGELOG.md');
+            }
 
-      - name: Replace token (Title Case with space)
-        uses: jacobtomlinson/gha-find-replace@v3
-        with:
-          find: "Application Application"
-          replace: ${{ steps.namevars.outputs.title }}
-          include: "**/*"
-          exclude: ".git/**"
-          regex: false
+            // 2) Replace token inside file contents (best-effort on text files)
+            const all = walk(root);
+            const files = all.filter(isFile);
+            let replacedCount = 0;
 
-      - name: Rename files & directories
-        shell: bash
-        run: |
-          set -euo pipefail
-          token="${REPLACE_TOKEN}"
-          repl="${NEW_REPO}"
-          while IFS= read -r -d '' p; do
-            base="$(basename "$p")"
-            newbase="${base//$token/$repl}"
-            if [[ "$base" != "$newbase" ]]; then
-              dir="$(dirname "$p")"
-              git mv "$p" "${dir}/${newbase}"
-            fi
-          done < <(find . -depth -name "*${token}*" -print0)
+            for (const file of files) {
+              try {
+                // skip likely-binary by quick sniff for NULs
+                const buf = fs.readFileSync(file);
+                if (buf.includes(0)) continue;
+                let txt = buf.toString('utf8');
+                if (!txt.includes(token)) continue;
+                const newTxt = txt.split(token).join(repl);
+                if (newTxt !== txt) {
+                  fs.writeFileSync(file, newTxt, 'utf8');
+                  replacedCount++;
+                }
+              } catch { /* ignore */ }
+            }
+            core.info(`Replaced contents in ${replacedCount} file(s).`);
+
+            // 3) Rename files & directories whose names contain the token (deepest-first)
+            const pathsToRename = all
+              .filter(p => p.includes(token))
+              .sort((a, b) => b.length - a.length);
+
+            let renameCount = 0;
+            for (const oldPath of pathsToRename) {
+              const newPath = oldPath.split(token).join(repl);
+              if (newPath === oldPath) continue;
+              const newDir = isDir(oldPath) ? newPath : path.dirname(newPath);
+              fs.mkdirSync(newDir, { recursive: true });
+              try {
+                fs.renameSync(oldPath, newPath);
+                renameCount++;
+              } catch (e) {
+                core.warning(`Rename failed ${oldPath} -> ${newPath}: ${e.message}`);
+              }
+            }
+            core.info(`Renamed ${renameCount} path(s).`);
 
       - name: Resolve bot noreply email
         id: bot-email
@@ -268,111 +240,13 @@ jobs:
         run: |
           git remote set-url origin "https://x-access-token:${APP_TOKEN}@github.com/${ORG}/${NEW_REPO}.git"
 
-      - name: Create bootstrap branch, commit, and push
+      - name: Commit and push to development
         run: |
-          set -euo pipefail
-          git checkout -b "${BOOTSTRAP_BRANCH}"
           git config user.name  "${{ steps.bot-email.outputs.name }}"
           git config user.email "${{ steps.bot-email.outputs.email }}"
           git add -A
-          if git diff --cached --quiet; then
-            echo "Nothing to commit"
-          else
-            git commit -m "chore(init): personalize ${NEW_REPO}"
-          fi
-          git push -u origin "${BOOTSTRAP_BRANCH}"
-
-      - name: Open PR into development and merge (GraphQL)
-        id: pr-merge
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ steps.app-token.outputs.token }}
-          script: |
-            const owner = process.env.ORG;
-            const name  = process.env.NEW_REPO;
-            const head  = process.env.BOOTSTRAP_BRANCH;
-            const base  = 'development';
-
-            // Get repository node id
-            const repoQ = await github.graphql(
-              `query($owner:String!, $name:String!){
-                 repository(owner:$owner, name:$name){ id }
-               }`,
-              { owner, name }
-            );
-            const repositoryId = repoQ.repository.id;
-
-            // Find existing open PR from head->base
-            const openPRs = await github.graphql(
-              `query($owner:String!, $name:String!, $head:String!, $base:String!){
-                 repository(owner:$owner, name:$name){
-                   pullRequests(first: 1, states: OPEN, headRefName: $head, baseRefName: $base){
-                     nodes { id number headRefOid }
-                   }
-                 }
-               }`,
-              { owner, name, head, base }
-            );
-
-            let pr = openPRs.repository.pullRequests.nodes[0];
-
-            // Create PR if not found
-            if (!pr) {
-              const create = await github.graphql(
-                `mutation($input: CreatePullRequestInput!){
-                   createPullRequest(input: $input){
-                     pullRequest { id number headRefOid }
-                   }
-                 }`,
-                { input: {
-                    repositoryId,
-                    headRefName: head,
-                    baseRefName: base,
-                    title: `chore(init): personalize ${name}`
-                  }
-                }
-              );
-              pr = create.createPullRequest.pullRequest;
-            }
-
-            // Try to merge PR
-            try {
-              await github.graphql(
-                `mutation($input: MergePullRequestInput!){
-                   mergePullRequest(input: $input){
-                     pullRequest { merged }
-                   }
-                 }`,
-                { input: {
-                    pullRequestId: pr.id,
-                    expectedHeadOid: pr.headRefOid,
-                    mergeMethod: "SQUASH"
-                  }
-                }
-              );
-            } catch (e) {
-              core.setFailed(`Failed to merge PR #${pr.number}: ${e.message}`);
-            }
-
-            // Delete the bootstrap branch ref (best-effort) via GraphQL
-            try {
-              const refQ = await github.graphql(
-                `query($owner:String!, $name:String!, $qref:String!){
-                   repository(owner:$owner, name:$name){
-                     ref(qualifiedName: $qref){ id }
-                   }
-                 }`,
-                { owner, name, qref: `refs/heads/${head}` }
-              );
-              if (refQ.repository.ref?.id) {
-                await github.graphql(
-                  `mutation($input: DeleteRefInput!){
-                     deleteRef(input: $input){ clientMutationId }
-                   }`,
-                  { input: { refId: refQ.repository.ref.id } }
-                );
-              }
-            } catch {}
+          git commit -m "chore(init): personalize ${NEW_REPO}" || echo "Nothing to commit"
+          git push origin HEAD:development
 
       - name: Protect branches (main & development)
         uses: actions/github-script@v7
@@ -395,9 +269,15 @@ jobs:
               required_linear_history: true
             };
             async function protect(branch) {
-              await github.request('PUT /repos/{owner}/{repo}/branches/{branch}/protection', {
-                owner, repo, branch, ...protection, mediaType: { previews: ['luke-cage'] }
-              });
+              try {
+                await github.request('PUT /repos/{owner}/{repo}/branches/{branch}/protection', {
+                  owner, repo, branch,
+                  ...protection,
+                  mediaType: { previews: ['luke-cage'] }
+                });
+              } catch (e) {
+                core.setFailed(`Failed to protect ${branch}: ${e.message}`);
+              }
             }
             await protect('main');
             await protect('development');
