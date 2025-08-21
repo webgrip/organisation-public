@@ -16,7 +16,6 @@ jobs:
     with:
       application_name: ${{ github.event.inputs.application_name }}
     secrets:
-      WEBGRIP_CI_APP_ID: ${{ secrets.WEBGRIP_CI_APP_ID }}
       WEBGRIP_CI_CLIENT_ID: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
-      WEBGRIP_CI_CLIENT_SECRET: ${{ secrets.WEBGRIP_CI_CLIENT_SECRET }}
+      WEBGRIP_CI_APP_PRIVATE_KEY: ${{ secrets.WEBGRIP_CI_APP_PRIVATE_KEY }}
 
