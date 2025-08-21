@@ -43,7 +43,7 @@ jobs:
           private-key: ${{ secrets.WEBGRIP_CI_APP_PRIVATE_KEY }}
           owner: ${{ env.ORG }}
 
-      - name: Create repo from template (no history)
+      - name: Create repo from template (no history) + set topics
         id: gen
         uses: actions/github-script@v7
         with:
@@ -53,7 +53,7 @@ jobs:
             const name = process.env.NEW_REPO;
             const isPrivate = (process.env.VISIBILITY !== 'public');
 
-            const r = await github.request('POST /repos/{template_owner}/{template_repo}/generate', {
+            const { data: repo } = await github.request('POST /repos/{template_owner}/{template_repo}/generate', {
               template_owner: process.env.TEMPLATE_OWNER,
               template_repo: process.env.TEMPLATE_REPO,
               owner: org,
@@ -61,7 +61,15 @@ jobs:
               private: isPrivate,
               include_all_branches: false
             });
-            core.info(`Generated repo: ${r.data.full_name}`);
+            core.info(`Generated repo: ${repo.full_name}`);
+
+            const topics = ["application"];
+            await github.request('PUT /repos/{owner}/{repo}/topics', {
+              owner: org,
+              repo: name,
+              names: topics
+            });
+            core.info(`Added topics: ${topics.join(", ")}`);
 
       - name: Wait for initial default branch
         id: wait-default-branch
