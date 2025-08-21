@@ -28,6 +28,7 @@ jobs:
       VISIBILITY: "public"
       AI_CHANGE: "no"
       APP_BOT_SLUG: ${{ vars.WEBGRIP_CI_BOT_NAME || 'webgrip-ci' }}
+      BOOTSTRAP_BRANCH: bootstrap/init-${{ github.run_id }}
 
     steps:
       - name: Silence local git init default-branch hint
@@ -50,7 +51,6 @@ jobs:
             const org = process.env.ORG;
             const name = process.env.NEW_REPO;
             const isPrivate = (process.env.VISIBILITY !== 'public');
-
             const r = await github.request('POST /repos/{template_owner}/{template_repo}/generate', {
               template_owner: process.env.TEMPLATE_OWNER,
               template_repo: process.env.TEMPLATE_REPO,
@@ -132,43 +132,6 @@ jobs:
               default_branch: 'development'
             });
 
-      - name: Protect branches (main & development)
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ steps.app-token.outputs.token }}
-          script: |
-            const owner = process.env.ORG;
-            const repo  = process.env.NEW_REPO;
-            const protection = {
-                required_status_checks: {
-                    strict: true,
-                    contexts: []
-                },
-                enforce_admins: true,
-                required_pull_request_reviews: {
-                    required_approving_review_count: 1,
-                    require_code_owner_reviews: true,
-                    dismiss_stale_reviews: true
-                },
-                restrictions: null,
-                allow_force_pushes: false,
-                allow_deletions: false,
-                required_linear_history: true
-            };
-            async function protect(branch) {
-            try {
-                await github.request('PUT /repos/{owner}/{repo}/branches/{branch}/protection', {
-                owner, repo, branch,
-                ...protection,
-                mediaType: { previews: ['luke-cage'] }
-                });
-            } catch (e) {
-                core.setFailed(`Failed to protect ${branch}: ${e.message}`);
-            }
-            }
-            await protect('main');
-            await protect('development');
-
       - name: Check out new repo (development)
         uses: actions/checkout@v4
         with:
@@ -225,10 +188,87 @@ jobs:
         run: |
           git remote set-url origin "https://x-access-token:${APP_TOKEN}@github.com/${ORG}/${NEW_REPO}.git"
 
-      - name: Commit and push to development
+      - name: Create bootstrap branch, commit, and push
         run: |
+          set -euo pipefail
+          git checkout -b "${BOOTSTRAP_BRANCH}"
           git config user.name  "${{ steps.bot-email.outputs.name }}"
           git config user.email "${{ steps.bot-email.outputs.email }}"
           git add -A
-          git commit -m "chore(init): personalize ${NEW_REPO}" || echo "Nothing to commit"
-          git push origin HEAD:development
+          if git diff --cached --quiet; then
+            echo "Nothing to commit"
+          else
+            git commit -m "chore(init): personalize ${NEW_REPO}"
+          fi
+          git push -u origin "${BOOTSTRAP_BRANCH}"
+
+      - name: Open PR into development and merge
+        id: pr-merge
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const owner = process.env.ORG;
+            const repo  = process.env.NEW_REPO;
+            const head  = process.env.BOOTSTRAP_BRANCH;
+            const base  = 'development';
+
+            // Create or find PR
+            let pr;
+            const { data: existing } = await github.request('GET /repos/{owner}/{repo}/pulls', {
+              owner, repo, state: 'open', head: `${owner}:${head}`, base
+            });
+            if (existing.length) {
+              pr = existing[0];
+            } else {
+              const { data } = await github.request('POST /repos/{owner}/{repo}/pulls', {
+                owner, repo, head, base, title: `chore(init): personalize ${repo}`
+              });
+              pr = data;
+            }
+            core.info(`PR #${pr.number} created`);
+
+            // Merge PR (squash)
+            try {
+              await github.request('PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge', {
+                owner, repo, pull_number: pr.number, merge_method: 'squash'
+              });
+              core.info(`PR #${pr.number} merged`);
+            } catch (e) {
+              core.setFailed(`Failed to merge PR #${pr.number}: ${e.message}`);
+            }
+
+            // Delete bootstrap branch
+            try {
+              await github.request('DELETE /repos/{owner}/{repo}/git/refs/{ref}', {
+                owner, repo, ref: `heads/${head}`
+              });
+            } catch {}
+
+      - name: Protect branches (main & development)
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const owner = process.env.ORG;
+            const repo  = process.env.NEW_REPO;
+            const protection = {
+              required_status_checks: { strict: true, contexts: [] },
+              enforce_admins: true,
+              required_pull_request_reviews: {
+                required_approving_review_count: 1,
+                require_code_owner_reviews: true,
+                dismiss_stale_reviews: true
+              },
+              restrictions: null,
+              allow_force_pushes: false,
+              allow_deletions: false,
+              required_linear_history: true
+            };
+            async function protect(branch) {
+              await github.request('PUT /repos/{owner}/{repo}/branches/{branch}/protection', {
+                owner, repo, branch, ...protection, mediaType: { previews: ['luke-cage'] }
+              });
+            }
+            await protect('main');
+            await protect('development');
