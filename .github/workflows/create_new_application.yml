@@ -271,7 +271,7 @@ jobs:
           git commit -m "chore(init): personalize ${NEW_REPO}" || echo "Nothing to commit"
           git push origin HEAD:development
 
-      - name: Create/Update Ruleset (main + development)
+      - name: Create or update ruleset (main & development)
         uses: actions/github-script@v7
         with:
           github-token: ${{ steps.app-token.outputs.token }}
@@ -300,10 +300,10 @@ jobs:
                       required_approving_review_count: 1,
                       require_code_owner_review: true,
                       dismiss_stale_reviews_on_push: true,
-                      require_last_push_approval: false
+                      require_last_push_approval: false,
+                      required_review_thread_resolution: true
                     }
                   },
-                  { type: "required_conversation_resolution" },
                   {
                     type: "required_status_checks",
                     parameters: {
@@ -313,7 +313,7 @@ jobs:
                   },
                   { type: "non_fast_forward" },
                   { type: "required_linear_history" },
-                  { type: "deletion", parameters: { block_deletions: true } }
+                  { type: "deletion" }
                 ]
               };
 
