@@ -73,9 +73,9 @@ jobs:
             await github.request('PATCH /repos/{owner}/{repo}', {
               owner: process.env.ORG,
               repo: process.env.NEW_REPO,
-              allow_squash_merge: true,
+              allow_squash_merge: false,
               allow_merge_commit: false,
-              allow_rebase_merge: false,
+              allow_rebase_merge: true,
               delete_branch_on_merge: true
             });
             core.info(`Configured merge options for ${org}/${name}.`);
@@ -293,15 +293,6 @@ jobs:
                     }
                   },
                   {
-                    type: "commit_message_pattern",
-                    parameters: {
-                      name: "Commit message pattern",
-                      negate: false,
-                      operator: "regex",
-                      pattern: "^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert)(\\(.+\\))?: .+"
-                    }
-                  },
-                  {
                     type: "branch_name_pattern",
                     parameters: {
                       name: "Branch name pattern",
@@ -366,7 +357,7 @@ jobs:
               }
             `;
             const title = "chore(init): personalize repository";
-            const body  = "Automated initialization PR from `development` to `main`.";
+            const body  = "Automated initialization PR from \`development\` to \`main\`.";
             const pr = await github.graphql(m, {
               repositoryId,
               title,
