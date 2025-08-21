@@ -14,44 +14,15 @@ on:
       WEBGRIP_CI_APP_PRIVATE_KEY:
         description: 'GitHub App Private RSA Key'
         required: true
-#   workflow_dispatch:
-#     inputs:
-#       application_name:
-#         description: 'the name of the application'
-#         required: true
-#         type: string
-#       owner:
-#         description: "GitHub owner (your username or org). Example: my-org"
-#         required: true
-#         type: string
-#       repo_name:
-#         description: "New repository name. Example: shiny-app"
-#         required: true
-#         type: string
-#       replace_token:
-#         description: 'Placeholder to replace (default: "application-application")'
-#         required: false
-#         default: "application-application"
-#         type: string
-#       visibility:
-#         description: "Repo visibility"
-#         required: true
-#         default: private
-#         type: choice
-#         options: [private, public, internal]
-#       ai_change:
-#         description: "Let AI update README (yes/no)"
-#         required: true
-#         default: "no"
-#         type: choice
-#         options: [no, yes]
 
 jobs:
   bootstrap:
     runs-on: arc-runner-set
     env:
-      OWNER: ${{ github.repository_owner }}
+      ORG: ${{ github.repository_owner }}
       NEW_REPO: ${{ inputs.application_name }}
+      TEMPLATE_OWNER: webgrip
+      TEMPLATE_REPO: application-template
       REPLACE_TOKEN: "application-application"
       VISIBILITY: "public"
       AI_CHANGE: "yes"
@@ -63,30 +34,68 @@ jobs:
         with:
           app-id: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
           private-key: ${{ secrets.WEBGRIP_CI_APP_PRIVATE_KEY }}
-          owner: ${{ env.OWNER }}
+          owner: ${{ env.ORG }}
 
-      - name: Checkout TEMPLATE repository (webgrip/application-template)
+      - name: Create repo from template (no history)
+        id: gen
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const org = process.env.ORG;
+            const name = process.env.NEW_REPO;
+            const isPrivate = (process.env.VISIBILITY !== 'public');
+
+            const r = await github.request('POST /repos/{template_owner}/{template_repo}/generate', {
+              template_owner: process.env.TEMPLATE_OWNER,
+              template_repo: process.env.TEMPLATE_REPO,
+              owner: org,
+              name,
+              private: isPrivate,
+              include_all_branches: false
+            });
+            core.info(`Generated repo: ${r.data.full_name}`);
+
+      - name: Check out the NEW repo
         uses: actions/checkout@v4
         with:
-          repository: webgrip/application-template
+          repository: ${{ env.ORG }}/${{ env.NEW_REPO }}
           fetch-depth: 0
           persist-credentials: false
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: Replace & rename from template token (public action)
-        uses: kota65535/github-template-rename-action@v1
+      - name: Replace token in file contents
+        uses: jacobtomlinson/gha-find-replace@v3
         with:
-          from-name: ${{ env.REPLACE_TOKEN }}
-          to-name: ${{ env.NEW_REPO }}  
-          # Token is only needed if action opens PRs against protected branches; safe to pass:
-          github-token: ${{ steps.app-token.outputs.token }}
+          find: ${{ env.REPLACE_TOKEN }}
+          replace: ${{ env.NEW_REPO }}
+          include: "**/*"
+          exclude: ".git/**"
+          regex: false
+
+      - name: Rename files & directories
+        shell: bash
+        run: |
+          set -euo pipefail
+          token="${REPLACE_TOKEN}"
+          repl="${NEW_REPO}"
+          # Rename deepest paths first so children move before parents
+          while IFS= read -r -d '' p; do
+            base="$(basename "$p")"
+            newbase="${base//$token/$repl}"
+            if [[ "$base" != "$newbase" ]]; then
+              dir="$(dirname "$p")"
+              git mv "$p" "${dir}/${newbase}"
+            fi
+          done < <(find . -depth -name "*${token}*" -print0)
 
       - name: Commit template initialization
         run: |
           git config user.name "webgrip-ci[bot]"
           git config user.email "${{ secrets.WEBGRIP_CI_APP_ID }}+[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "chore(init): rename to ${NEW_REPO}" || echo "Nothing to commit"
+          git commit -m "chore(init): personalize ${NEW_REPO}" || echo "Nothing to commit"
+          git push origin HEAD:main
 
     #   - name: Codex-style AI change (public action)
     #     if: env.AI_CHANGE == 'yes'
@@ -100,33 +109,3 @@ jobs:
     #         --yes
     #         --message "Update README for '${{ env.NEW_REPO }}' with a concise intro + Quickstart.
     #         Keep the diff minimal."
-
-      - name: Create remote repository (org) with App token
-        id: create_repo
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ steps.app-token.outputs.token }}
-          script: |
-            const owner = process.env.OWNER;
-            const name = process.env.NEW_REPO;
-            const visibility = process.env.VISIBILITY;
-            const isPrivate = (visibility !== 'public');
-
-            const r = await github.request('POST /orgs/{org}/repos', {
-              org: owner,
-              name,
-              private: isPrivate,
-              has_wiki: false,
-              has_issues: true,
-              auto_init: false
-            });
-            core.info(`Created: ${r.data.full_name}`);
-
-      - name: Push to new repository (using App token)
-        env:
-          APP_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: |
-          git branch -M main
-          git remote remove origin || true
-          git remote add origin "https://x-access-token:${APP_TOKEN}@github.com/${OWNER}/${NEW_REPO}.git"
-          git push -u origin main
