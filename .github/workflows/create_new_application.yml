@@ -281,12 +281,13 @@ jobs:
             const repo  = process.env.NEW_REPO;
             const protection = {
               required_status_checks: { strict: true, contexts: [] },
-              enforce_admins: true,
+              enforce_admins: false,
               required_pull_request_reviews: {
                 required_approving_review_count: 1,
                 require_code_owner_reviews: true,
                 dismiss_stale_reviews: true
               },
+              required_conversation_resolution: true,
               restrictions: null,
               allow_force_pushes: false,
               allow_deletions: false,
