@@ -16,8 +16,10 @@ on:
         required: true
 
 jobs:
-  bootstrap:
+  create-new-application:
     runs-on: arc-runner-set
+
+    name: Create Application "${{ inputs.application_name }}"
 
     env:
       ORG: ${{ github.repository_owner }}

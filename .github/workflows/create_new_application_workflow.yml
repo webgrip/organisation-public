@@ -11,7 +11,8 @@ on:
         required: true
 
 jobs:
-  run-action:
+  create-new-application:
+    name: Create Application "${{ github.event.inputs.application_name }}"
     uses: ./.github/workflows/create_new_application.yml
     with:
       application_name: ${{ github.event.inputs.application_name }}
