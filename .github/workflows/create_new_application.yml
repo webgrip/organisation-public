@@ -65,7 +65,7 @@ jobs:
     steps:
       - name: Mint GitHub App installation token (no installation-id, use owner)
         id: app-token
-        uses: actions/create-webgrip-ci-token@v2
+        uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
           private-key: ${{ secrets.WEBGRIP_CI_CLIENT_PRIVATE_KEY }}
