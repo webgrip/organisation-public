@@ -19,6 +19,8 @@ jobs:
   bootstrap:
     runs-on: arc-runner-set
 
+    name: ${{ inputs.application_name }}
+
     env:
       ORG: ${{ github.repository_owner }}
       NEW_REPO: ${{ inputs.application_name }}

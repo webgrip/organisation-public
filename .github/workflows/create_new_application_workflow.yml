@@ -12,7 +12,7 @@ on:
 
 jobs:
   create-new-application:
-    name: Create Application "${{ github.event.inputs.application_name }}"
+    name: Create Application
     uses: ./.github/workflows/create_new_application.yml
     with:
       application_name: ${{ github.event.inputs.application_name }}
