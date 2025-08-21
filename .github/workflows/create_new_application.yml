@@ -58,17 +58,14 @@ jobs:
       REPLACE_TOKEN: "application-application"
       VISIBILITY: "public"
       AI_CHANGE: "yes"
-      WEBGRIP_CI_APP_ID: ${{ secrets.WEBGRIP_CI_APP_ID }}
-      WEBGRIP_CI_CLIENT_ID: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
-      WEBGRIP_CI_CLIENT_PRIVATE_KEY: ${{ secrets.WEBGRIP_CI_CLIENT_PRIVATE_KEY }}
 
     steps:
-      - name: Mint GitHub App installation token (no installation-id, use owner)
+      - name: Mint GitHub App installation token (owner-based)
         id: app-token
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ env.WEBGRIP_CI_APP_ID }}
-          private-key: ${{ env.WEBGRIP_CI_CLIENT_PRIVATE_KEY }}
+          app-id: ${{ secrets.WEBGRIP_CI_APP_ID }}
+          private-key: ${{ secrets.WEBGRIP_CI_PRIVATE_KEY }}
           owner: ${{ env.OWNER }}
 
       - name: Checkout TEMPLATE repository (webgrip/application-template)
