@@ -30,7 +30,6 @@ jobs:
       APP_BOT_SLUG: ${{ vars.WEBGRIP_CI_BOT_NAME || 'webgrip-ci' }}
 
     steps:
-      # Optional: avoid the local git "Using 'master'..." hint in checkout logs.
       - name: Silence local git init default-branch hint
         run: git config --global init.defaultBranch main
 
@@ -62,7 +61,7 @@ jobs:
             });
             core.info(`Generated repo: ${r.data.full_name}`);
 
-      - name: Wait for default branch to be ready
+      - name: Wait for initial default branch
         id: wait-default-branch
         uses: actions/github-script@v7
         with:
@@ -70,60 +69,111 @@ jobs:
           script: |
             const owner = process.env.ORG;
             const repo  = process.env.NEW_REPO;
-
             const start = Date.now();
-            const timeoutMs = 180_000;  // 3 minutes
-            let sleepMs = 2_000;        // start at 2s
-            const maxSleepMs = 10_000;  // cap at 10s
-
+            const timeoutMs = 180_000;
+            let sleepMs = 2_000;
+            const maxSleepMs = 10_000;
             const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
-            async function branchReady() {
-              // 1) discover default branch
+            async function ready() {
               const { data: repoData } = await github.request('GET /repos/{owner}/{repo}', { owner, repo });
-              const defaultBranch = repoData.default_branch || 'main';
-
-              // 2) ensure the branch exists and has a commit
+              const branch = repoData.default_branch || 'main';
               try {
-                const { data: b } = await github.request(
-                  'GET /repos/{owner}/{repo}/branches/{branch}',
-                  { owner, repo, branch: defaultBranch }
-                );
-                if (b?.commit?.sha) return defaultBranch;
-              } catch (_) { /* not ready yet */ }
-
-              // 3) fallback: try to resolve commit directly by ref
+                const { data: b } = await github.request('GET /repos/{owner}/{repo}/branches/{branch}', { owner, repo, branch });
+                if (b?.commit?.sha) return { branch, sha: b.commit.sha };
+              } catch {}
               try {
-                const { data: c } = await github.request(
-                  'GET /repos/{owner}/{repo}/commits/{ref}',
-                  { owner, repo, ref: defaultBranch }
-                );
-                if (c?.sha) return defaultBranch;
-              } catch (_) { /* not ready yet */ }
-
+                const { data: c } = await github.request('GET /repos/{owner}/{repo}/commits/{ref}', { owner, repo, ref: branch });
+                if (c?.sha) return { branch, sha: c.sha };
+              } catch {}
               return null;
             }
-
             while (Date.now() - start < timeoutMs) {
-              const br = await branchReady();
-              if (br) {
-                core.info(`Default branch '${br}' is ready.`);
-                core.setOutput('default_branch', br);
-                core.exportVariable('DEFAULT_BRANCH', br);
+              const info = await ready();
+              if (info) {
+                core.setOutput('initial_branch', info.branch);
+                core.setOutput('initial_sha', info.sha);
+                core.exportVariable('INITIAL_BRANCH', info.branch);
+                core.exportVariable('INITIAL_SHA', info.sha);
                 return;
               }
-              core.info(`Default branch not ready yet; sleeping ${sleepMs}ms...`);
               await sleep(sleepMs);
               sleepMs = Math.min(maxSleepMs, Math.floor(sleepMs * 1.6));
             }
-
             core.setFailed('Timed out waiting for the new repo default branch and first commit.');
 
-      - name: Check out the NEW repo (detected default branch)
+      - name: Create development branch from initial commit
+        id: create-dev
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const owner = process.env.ORG;
+            const repo  = process.env.NEW_REPO;
+            const fromSha = process.env.INITIAL_SHA || "${{ steps.wait-default-branch.outputs.initial_sha }}";
+            try {
+              await github.request('GET /repos/{owner}/{repo}/branches/{branch}', { owner, repo, branch: 'development' });
+            } catch {
+              await github.request('POST /repos/{owner}/{repo}/git/refs', {
+                owner, repo,
+                ref: 'refs/heads/development',
+                sha: fromSha
+              });
+            }
+
+      - name: Set default branch to development
+        id: set-default
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            await github.request('PATCH /repos/{owner}/{repo}', {
+              owner: process.env.ORG,
+              repo: process.env.NEW_REPO,
+              default_branch: 'development'
+            });
+
+      - name: Protect branches (main & development)
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const owner = process.env.ORG;
+            const repo  = process.env.NEW_REPO;
+            const protection = {
+                required_status_checks: {
+                    strict: true,
+                    contexts: []
+                },
+                enforce_admins: true,
+                required_pull_request_reviews: {
+                    required_approving_review_count: 1,
+                    require_code_owner_reviews: true,
+                    dismiss_stale_reviews: true
+                },
+                restrictions: null,
+                allow_force_pushes: false,
+                allow_deletions: false,
+                required_linear_history: true
+            };
+            async function protect(branch) {
+            try {
+                await github.request('PUT /repos/{owner}/{repo}/branches/{branch}/protection', {
+                owner, repo, branch,
+                ...protection,
+                mediaType: { previews: ['luke-cage'] }
+                });
+            } catch (e) {
+                core.setFailed(`Failed to protect ${branch}: ${e.message}`);
+            }
+            }
+            await protect('main');
+            await protect('development');
+
+      - name: Check out new repo (development)
         uses: actions/checkout@v4
         with:
           repository: ${{ env.ORG }}/${{ env.NEW_REPO }}
-          ref: ${{ steps.wait-default-branch.outputs.default_branch }}
+          ref: development
           fetch-depth: 0
           persist-credentials: false
           token: ${{ steps.app-token.outputs.token }}
@@ -152,7 +202,7 @@ jobs:
             fi
           done < <(find . -depth -name "*${token}*" -print0)
 
-      - name: Resolve bot noreply email (via public user lookup)
+      - name: Resolve bot noreply email
         id: bot-email
         uses: actions/github-script@v7
         with:
@@ -160,9 +210,14 @@ jobs:
           script: |
             const slug = process.env.APP_BOT_SLUG;
             const username = `${slug}[bot]`;
-            const { data: user } = await github.request('GET /users/{username}', { username });
-            core.setOutput('name', username);
-            core.setOutput('email', `${user.id}+${username}@users.noreply.github.com`);
+            try {
+              const { data: user } = await github.request('GET /users/{username}', { username });
+              core.setOutput('name', username);
+              core.setOutput('email', `${user.id}+${username}@users.noreply.github.com`);
+            } catch {
+              core.setOutput('name', 'github-actions[bot]');
+              core.setOutput('email', '41898282+github-actions[bot]@users.noreply.github.com');
+            }
 
       - name: Authenticate git remote for push
         env:
@@ -170,10 +225,10 @@ jobs:
         run: |
           git remote set-url origin "https://x-access-token:${APP_TOKEN}@github.com/${ORG}/${NEW_REPO}.git"
 
-      - name: Commit and push
+      - name: Commit and push to development
         run: |
-          git config user.name  "${{ steps.bot-email.outputs.name || 'github-actions[bot]' }}"
-          git config user.email "${{ steps.bot-email.outputs.email || '41898282+github-actions[bot]@users.noreply.github.com' }}"
+          git config user.name  "${{ steps.bot-email.outputs.name }}"
+          git config user.email "${{ steps.bot-email.outputs.email }}"
           git add -A
           git commit -m "chore(init): personalize ${NEW_REPO}" || echo "Nothing to commit"
-          git push origin HEAD:${DEFAULT_BRANCH:-main}
+          git push origin HEAD:development
