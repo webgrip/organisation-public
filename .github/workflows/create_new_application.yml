@@ -4,20 +4,21 @@ on:
   workflow_call:
     inputs:
       application_name:
-        description: 'the name of the application'
+        description: "the name of the application (new repo name)"
         required: true
         type: string
     secrets:
       WEBGRIP_CI_CLIENT_ID:
-        description: 'GitHub App Client ID'
+        description: "GitHub App ID (numeric)"
         required: true
       WEBGRIP_CI_APP_PRIVATE_KEY:
-        description: 'GitHub App Private RSA Key'
+        description: "GitHub App private key (PEM)"
         required: true
 
 jobs:
   bootstrap:
     runs-on: arc-runner-set
+
     env:
       ORG: ${{ github.repository_owner }}
       NEW_REPO: ${{ inputs.application_name }}
@@ -25,7 +26,7 @@ jobs:
       TEMPLATE_REPO: application-template
       REPLACE_TOKEN: "application-application"
       VISIBILITY: "public"
-      AI_CHANGE: "yes"
+      AI_CHANGE: "no"
 
     steps:
       - name: Mint GitHub App installation token (owner-based)
@@ -56,10 +57,68 @@ jobs:
             });
             core.info(`Generated repo: ${r.data.full_name}`);
 
-      - name: Check out the NEW repo
+      - name: Wait for default branch to be ready
+        id: wait-default-branch
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const owner = process.env.ORG;
+            const repo  = process.env.NEW_REPO;
+
+            const start = Date.now();
+            const timeoutMs = 180_000;  // 3 minutes
+            let sleepMs = 2_000;        // start at 2s
+            const maxSleepMs = 10_000;  // cap at 10s
+
+            const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+            async function branchReady() {
+              // 1) discover default branch
+              const { data: repoData } = await github.request('GET /repos/{owner}/{repo}', { owner, repo });
+              const defaultBranch = repoData.default_branch || 'main';
+
+              // 2) ensure the branch exists and has a commit
+              try {
+                const { data: b } = await github.request(
+                  'GET /repos/{owner}/{repo}/branches/{branch}',
+                  { owner, repo, branch: defaultBranch }
+                );
+                if (b?.commit?.sha) return defaultBranch;
+              } catch (_) { /* not ready yet */ }
+
+              // 3) fallback: try to resolve commit directly by ref
+              try {
+                const { data: c } = await github.request(
+                  'GET /repos/{owner}/{repo}/commits/{ref}',
+                  { owner, repo, ref: defaultBranch }
+                );
+                if (c?.sha) return defaultBranch;
+              } catch (_) { /* not ready yet */ }
+
+              return null;
+            }
+
+            while (Date.now() - start < timeoutMs) {
+              const br = await branchReady();
+              if (br) {
+                core.info(`Default branch '${br}' is ready.`);
+                core.setOutput('default_branch', br);
+                core.exportVariable('DEFAULT_BRANCH', br);
+                return;
+              }
+              core.info(`Default branch not ready yet; sleeping ${sleepMs}ms...`);
+              await sleep(sleepMs);
+              sleepMs = Math.min(maxSleepMs, Math.floor(sleepMs * 1.6));
+            }
+
+            core.setFailed('Timed out waiting for the new repo default branch and first commit.');
+
+      - name: Check out the NEW repo (detected default branch)
         uses: actions/checkout@v4
         with:
           repository: ${{ env.ORG }}/${{ env.NEW_REPO }}
+          ref: ${{ steps.wait-default-branch.outputs.default_branch }}
           fetch-depth: 0
           persist-credentials: false
           token: ${{ steps.app-token.outputs.token }}
@@ -79,7 +138,6 @@ jobs:
           set -euo pipefail
           token="${REPLACE_TOKEN}"
           repl="${NEW_REPO}"
-          # Rename deepest paths first so children move before parents
           while IFS= read -r -d '' p; do
             base="$(basename "$p")"
             newbase="${base//$token/$repl}"
@@ -89,23 +147,22 @@ jobs:
             fi
           done < <(find . -depth -name "*${token}*" -print0)
 
-      - name: Commit template initialization
+      - name: Resolve bot noreply email
+        id: bot-email
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const app = await github.request('GET /app');
+            const slug = app.data.slug; // e.g., 'webgrip-ci'
+            const u = await github.request('GET /users/{username}', { username: `${slug}[bot]` });
+            core.setOutput('name', `${slug}[bot]`);
+            core.setOutput('email', `${u.data.id}+${slug}[bot]@users.noreply.github.com`);
+
+      - name: Commit and push
         run: |
-          git config user.name "webgrip-ci[bot]"
-          git config user.email "${{ secrets.WEBGRIP_CI_APP_ID }}+[bot]@users.noreply.github.com"
+          git config user.name  "${{ steps.bot-email.outputs.name || 'github-actions[bot]' }}"
+          git config user.email "${{ steps.bot-email.outputs.email || '41898282+github-actions[bot]@users.noreply.github.com' }}"
           git add -A
           git commit -m "chore(init): personalize ${NEW_REPO}" || echo "Nothing to commit"
-          git push origin HEAD:main
-
-    #   - name: Codex-style AI change (public action)
-    #     if: env.AI_CHANGE == 'yes'
-    #     uses: mirrajabi/aider-github-action@v1.1.0
-    #     with:
-    #       api_key_env_name: OPENAI_API_KEY
-    #       api_key_env_value: ${{ secrets.OPENAI_API_KEY }}
-    #       branch: main
-    #       model: gpt-4o-mini
-    #       aider_args: >
-    #         --yes
-    #         --message "Update README for '${{ env.NEW_REPO }}' with a concise intro + Quickstart.
-    #         Keep the diff minimal."
+          git push origin HEAD:${DEFAULT_BRANCH:-main}
