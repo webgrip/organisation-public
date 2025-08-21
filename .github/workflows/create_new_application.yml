@@ -14,8 +14,8 @@ on:
       WEBGRIP_CI_CLIENT_ID:
         description: 'GitHub App Client ID'
         required: true
-      WEBGRIP_CI_CLIENT_PRIVATE_KEY:
-        description: 'GitHub App private key'
+      WEBGRIP_CI_CLIENT_SECRET:
+        description: 'GitHub App Client Secret'
         required: true
 #   workflow_dispatch:
 #     inputs:
@@ -64,8 +64,8 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ secrets.WEBGRIP_CI_APP_ID }}
-          private-key: ${{ secrets.WEBGRIP_CI_PRIVATE_KEY }}
+          app-id: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
+          private-key: ${{ secrets.WEBGRIP_CI_CLIENT_SECRET }}
           owner: ${{ env.OWNER }}
 
       - name: Checkout TEMPLATE repository (webgrip/application-template)
