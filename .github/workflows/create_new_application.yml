@@ -325,6 +325,90 @@ jobs:
 
             await upsertRuleset();
 
+      - name: Ensure gh-pages branch, configure Pages, and set homepage
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            const owner = process.env.ORG;
+            const repo  = process.env.NEW_REPO;
+
+            async function branchExists(branch) {
+              try {
+                await github.request('GET /repos/{owner}/{repo}/branches/{branch}', { owner, repo, branch });
+                return true;
+              } catch (e) {
+                if (e.status === 404) return false;
+                throw e;
+              }
+            }
+
+            async function getBaseSha() {
+              // Prefer development, fall back to main
+              try {
+                const { data } = await github.request('GET /repos/{owner}/{repo}/branches/{branch}', { owner, repo, branch: 'development' });
+                return data.commit.sha;
+              } catch {
+                const { data } = await github.request('GET /repos/{owner}/{repo}/branches/{branch}', { owner, repo, branch: 'main' });
+                return data.commit.sha;
+              }
+            }
+
+            // 1) Ensure gh-pages branch exists
+            if (!(await branchExists('gh-pages'))) {
+              const sha = await getBaseSha();
+              await github.request('POST /repos/{owner}/{repo}/git/refs', {
+                owner, repo,
+                ref: 'refs/heads/gh-pages',
+                sha
+              });
+              core.info('Created gh-pages branch.');
+            } else {
+              core.info('gh-pages branch already exists.');
+            }
+
+            // 2) Configure Pages: Deploy from a branch (gh-pages, path "/")
+            async function getPages() {
+              try {
+                const { data } = await github.request('GET /repos/{owner}/{repo}/pages', { owner, repo });
+                return data;
+              } catch (e) {
+                if (e.status === 404) return null;
+                throw e;
+              }
+            }
+
+            const source = { branch: 'gh-pages', path: '/' };
+            const existing = await getPages();
+
+            if (existing) {
+              await github.request('PUT /repos/{owner}/{repo}/pages', {
+                owner, repo,
+                source
+              });
+              core.info('Updated GitHub Pages to deploy from gh-pages /.');
+            } else {
+              await github.request('POST /repos/{owner}/{repo}/pages', {
+                owner, repo,
+                source
+              });
+              core.info('Enabled GitHub Pages to deploy from gh-pages /.');
+            }
+
+            // Re-fetch to get the canonical Pages URL (html_url)
+            const pagesInfo = await getPages();
+            const pagesUrl = pagesInfo?.html_url;
+            if (pagesUrl) {
+              // 3) Set repo homepage to the Pages URL (equivalent to "Use your GitHub Pages website")
+              await github.request('PATCH /repos/{owner}/{repo}', {
+                owner, repo,
+                homepage: pagesUrl
+              });
+              core.info(`Set repository homepage to ${pagesUrl}`);
+            } else {
+              core.warning('Could not retrieve Pages URL to set repository homepage.');
+            }
+
       - name: Open PR development
         uses: actions/github-script@v7
         with:
