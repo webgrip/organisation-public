@@ -16,10 +16,8 @@ on:
         required: true
 
 jobs:
-  create-new-application:
+  bootstrap:
     runs-on: arc-runner-set
-
-    name: Create Application "${{ inputs.application_name }}"
 
     env:
       ORG: ${{ github.repository_owner }}
@@ -143,11 +141,91 @@ jobs:
           persist-credentials: false
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: Replace token in file contents
+      - name: remove unwanted files
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf CHANGELOG.md
+
+      - name: Derive name variants
+        id: namevars
+        shell: bash
+        run: |
+          set -euo pipefail
+          kebab="${NEW_REPO}"
+          snake="${kebab//-/_}"
+          upper_snake="${snake^^}"
+          IFS=- read -ra parts <<< "$kebab"
+          pascal=""
+          camel=""
+          title=""
+          for i in "${!parts[@]}"; do
+            p="${parts[$i]}"
+            cap="${p^}"
+            pascal+="$cap"
+            title+="$cap "
+            if [[ $i -eq 0 ]]; then camel+="${p,,}"; else camel+="$cap"; fi
+          done
+          title="${title% }"
+          {
+            echo "kebab=$kebab"
+            echo "snake=$snake"
+            echo "upper_snake=$upper_snake"
+            echo "pascal=$pascal"
+            echo "camel=$camel"
+            echo "title=$title"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Replace token (kebab)
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: ${{ env.REPLACE_TOKEN }}
-          replace: ${{ env.NEW_REPO }}
+          replace: ${{ steps.namevars.outputs.kebab }}
+          include: "**/*"
+          exclude: ".git/**"
+          regex: false
+
+      - name: Replace token (snake)
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "application_application"
+          replace: ${{ steps.namevars.outputs.snake }}
+          include: "**/*"
+          exclude: ".git/**"
+          regex: false
+
+      - name: Replace token (UPPER_SNAKE)
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "APPLICATION_APPLICATION"
+          replace: ${{ steps.namevars.outputs.upper_snake }}
+          include: "**/*"
+          exclude: ".git/**"
+          regex: false
+
+      - name: Replace token (PascalCase)
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "ApplicationApplication"
+          replace: ${{ steps.namevars.outputs.pascal }}
+          include: "**/*"
+          exclude: ".git/**"
+          regex: false
+
+      - name: Replace token (camelCase)
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "applicationApplication"
+          replace: ${{ steps.namevars.outputs.camel }}
+          include: "**/*"
+          exclude: ".git/**"
+          regex: false
+
+      - name: Replace token (Title Case with space)
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "Application Application"
+          replace: ${{ steps.namevars.outputs.title }}
           include: "**/*"
           exclude: ".git/**"
           regex: false
@@ -204,47 +282,96 @@ jobs:
           fi
           git push -u origin "${BOOTSTRAP_BRANCH}"
 
-      - name: Open PR into development and merge
+      - name: Open PR into development and merge (GraphQL)
         id: pr-merge
         uses: actions/github-script@v7
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const owner = process.env.ORG;
-            const repo  = process.env.NEW_REPO;
+            const name  = process.env.NEW_REPO;
             const head  = process.env.BOOTSTRAP_BRANCH;
             const base  = 'development';
 
-            // Create or find PR
-            let pr;
-            const { data: existing } = await github.request('GET /repos/{owner}/{repo}/pulls', {
-              owner, repo, state: 'open', head: `${owner}:${head}`, base
-            });
-            if (existing.length) {
-              pr = existing[0];
-            } else {
-              const { data } = await github.request('POST /repos/{owner}/{repo}/pulls', {
-                owner, repo, head, base, title: `chore(init): personalize ${repo}`
-              });
-              pr = data;
-            }
-            core.info(`PR #${pr.number} created`);
+            // Get repository node id
+            const repoQ = await github.graphql(
+              `query($owner:String!, $name:String!){
+                 repository(owner:$owner, name:$name){ id }
+               }`,
+              { owner, name }
+            );
+            const repositoryId = repoQ.repository.id;
 
-            // Merge PR (squash)
+            // Find existing open PR from head->base
+            const openPRs = await github.graphql(
+              `query($owner:String!, $name:String!, $head:String!, $base:String!){
+                 repository(owner:$owner, name:$name){
+                   pullRequests(first: 1, states: OPEN, headRefName: $head, baseRefName: $base){
+                     nodes { id number headRefOid }
+                   }
+                 }
+               }`,
+              { owner, name, head, base }
+            );
+
+            let pr = openPRs.repository.pullRequests.nodes[0];
+
+            // Create PR if not found
+            if (!pr) {
+              const create = await github.graphql(
+                `mutation($input: CreatePullRequestInput!){
+                   createPullRequest(input: $input){
+                     pullRequest { id number headRefOid }
+                   }
+                 }`,
+                { input: {
+                    repositoryId,
+                    headRefName: head,
+                    baseRefName: base,
+                    title: `chore(init): personalize ${name}`
+                  }
+                }
+              );
+              pr = create.createPullRequest.pullRequest;
+            }
+
+            // Try to merge PR
             try {
-              await github.request('PUT /repos/{owner}/{repo}/pulls/{pull_number}/merge', {
-                owner, repo, pull_number: pr.number, merge_method: 'squash'
-              });
-              core.info(`PR #${pr.number} merged`);
+              await github.graphql(
+                `mutation($input: MergePullRequestInput!){
+                   mergePullRequest(input: $input){
+                     pullRequest { merged }
+                   }
+                 }`,
+                { input: {
+                    pullRequestId: pr.id,
+                    expectedHeadOid: pr.headRefOid,
+                    mergeMethod: "SQUASH"
+                  }
+                }
+              );
             } catch (e) {
               core.setFailed(`Failed to merge PR #${pr.number}: ${e.message}`);
             }
 
-            // Delete bootstrap branch
+            // Delete the bootstrap branch ref (best-effort) via GraphQL
             try {
-              await github.request('DELETE /repos/{owner}/{repo}/git/refs/{ref}', {
-                owner, repo, ref: `heads/${head}`
-              });
+              const refQ = await github.graphql(
+                `query($owner:String!, $name:String!, $qref:String!){
+                   repository(owner:$owner, name:$name){
+                     ref(qualifiedName: $qref){ id }
+                   }
+                 }`,
+                { owner, name, qref: `refs/heads/${head}` }
+              );
+              if (refQ.repository.ref?.id) {
+                await github.graphql(
+                  `mutation($input: DeleteRefInput!){
+                     deleteRef(input: $input){ clientMutationId }
+                   }`,
+                  { input: { refId: refQ.repository.ref.id } }
+                );
+              }
             } catch {}
 
       - name: Protect branches (main & development)
