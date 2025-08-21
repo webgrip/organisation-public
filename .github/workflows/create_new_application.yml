@@ -1,4 +1,4 @@
-name: "Create New Application"
+name: "[Call] Create New Application"
 
 on:
   workflow_call:
@@ -163,6 +163,12 @@ jobs:
             const { data: user } = await github.request('GET /users/{username}', { username });
             core.setOutput('name', username);
             core.setOutput('email', `${user.id}+${username}@users.noreply.github.com`);
+
+      - name: Authenticate git remote for push
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          git remote set-url origin "https://x-access-token:${APP_TOKEN}@github.com/${ORG}/${NEW_REPO}.git"
 
       - name: Commit and push
         run: |
