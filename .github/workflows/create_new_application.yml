@@ -49,9 +49,6 @@ on:
 #         type: choice
 #         options: [no, yes]
 
-permissions:
-  contents: read
-
 jobs:
   bootstrap:
     runs-on: arc-runner-set
@@ -61,7 +58,8 @@ jobs:
       REPLACE_TOKEN: "application-application"
       VISIBILITY: "public"
       AI_CHANGE: "yes"
-      APP_ID: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
+      WEBGRIP_CI_APP_ID: ${{ secrets.WEBGRIP_CI_APP_ID }}
+      WEBGRIP_CI_CLIENT_ID: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
       WEBGRIP_CI_CLIENT_PRIVATE_KEY: ${{ secrets.WEBGRIP_CI_CLIENT_PRIVATE_KEY }}
 
     steps:
@@ -69,7 +67,7 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ env.APP_ID }}
+          app-id: ${{ env.WEBGRIP_CI_APP_ID }}
           private-key: ${{ env.WEBGRIP_CI_CLIENT_PRIVATE_KEY }}
           owner: ${{ env.OWNER }}
 
