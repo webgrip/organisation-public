@@ -28,7 +28,7 @@ jobs:
     uses: webgrip/workflows/.github/workflows/create_repo_from_template.yml@main
     with:
       template_owner: ${{ github.repository_owner }}
-      template_repo: '${{ github.repository_owner }}/action-typescript-template'
+      template_repo: 'action-typescript-template'
       new_repo_name: ${{ inputs.action_name }}
       visibility: "public"
       topics: "action"
