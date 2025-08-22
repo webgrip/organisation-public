@@ -1,0 +1,23 @@
+name: "🖌️ Create New Action"
+
+run-name: Create New Action "${{ inputs.action_name }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      action_name:
+        type: string
+        description: 'the name of the action'
+        required: true
+
+jobs:
+  create-new-application:
+    name: Create Application
+    uses: ./.github/workflows/create_new_action.yml
+    with:
+      action_name: ${{ github.event.inputs.action_name }}
+    secrets:
+      WEBGRIP_CI_CLIENT_ID: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
+      WEBGRIP_CI_APP_PRIVATE_KEY: ${{ secrets.WEBGRIP_CI_APP_PRIVATE_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY_CI }}
+      OPENAI_ORG_ID: ${{ secrets.OPENAI_ORG_ID }}

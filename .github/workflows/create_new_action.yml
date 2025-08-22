@@ -1,0 +1,51 @@
+name: "[Call] Create New Github Action"
+
+on:
+  workflow_call:
+    inputs:
+      action_name:
+        description: "the name of the action (new repo name)"
+        required: true
+        type: string
+    secrets:
+      WEBGRIP_CI_CLIENT_ID:
+        description: "GitHub App ID (numeric)"
+        required: true
+      WEBGRIP_CI_APP_PRIVATE_KEY:
+        description: "GitHub App private key (PEM)"
+        required: true
+      OPENAI_API_KEY:
+        description: "OpenAI API key"
+        required: true
+      OPENAI_ORG_ID:
+        description: "OpenAI Organization ID"
+        required: true
+
+jobs:
+
+  create-repo-from-template:
+    name: create ${{ inputs.action_name }}
+    uses: webgrip/workflows/.github/workflows/create_repo_from_template.yml@main
+    with:
+      template_owner: ${{ github.repository_owner }}
+      template_repo: '${{ github.repository_owner }}/action-typescript-template'
+      new_repo_name: ${{ inputs.action_name }}
+      VISIBILITY: "public"
+    secrets:
+        WEBGRIP_CI_CLIENT_ID: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
+        WEBGRIP_CI_APP_PRIVATE_KEY: ${{ secrets.WEBGRIP_CI_APP_PRIVATE_KEY }}
+
+  bootstrap-repo:
+    name: bootstrap ${{ inputs.action_name }}
+    uses: webgrip/workflows/.github/workflows/bootstrap_repo.yml@main
+    with:
+      repo_name: ${{ inputs.action_name }}
+      replace_values: |
+        organisation: ${{ github.repository_owner }}
+        action-action: ${{ inputs.action_name }}
+      delete_files: 'CHANGELOG.md'
+    secrets:
+      WEBGRIP_CI_CLIENT_ID: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
+      WEBGRIP_CI_APP_PRIVATE_KEY: ${{ secrets.WEBGRIP_CI_APP_PRIVATE_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_ORG_ID: ${{ secrets.OPENAI_ORG_ID }}
