@@ -19,4 +19,5 @@ jobs:
     secrets:
       WEBGRIP_CI_CLIENT_ID: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
       WEBGRIP_CI_APP_PRIVATE_KEY: ${{ secrets.WEBGRIP_CI_APP_PRIVATE_KEY }}
-
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY_CI }}
+      OPENAI_ORG_ID: ${{ secrets.OPENAI_ORG_ID }}
