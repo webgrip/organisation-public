@@ -1,6 +1,6 @@
 name: "🖌️🏃‍♂️ Create New Action"
 
-run-name: Create New Action "${{ inputs.action_name }}"
+run-name: Create "${{ inputs.action_name }}"
 
 on:
   workflow_dispatch:
