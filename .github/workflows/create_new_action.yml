@@ -42,10 +42,12 @@ jobs:
     needs: create-repo-from-template
     with:
       repo_name: ${{ inputs.action_name }}
+      delete_files: 'CHANGELOG.md'
       replace_values: |
         organisation: ${{ github.repository_owner }}
         action-action: ${{ inputs.action_name }}
-      delete_files: 'CHANGELOG.md'
+      configure_pages: true
+      create_openai_project: true
     secrets:
       WEBGRIP_CI_CLIENT_ID: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
       WEBGRIP_CI_APP_PRIVATE_KEY: ${{ secrets.WEBGRIP_CI_APP_PRIVATE_KEY }}
