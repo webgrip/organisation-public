@@ -16,10 +16,10 @@ on:
         required: true
       OPENAI_API_KEY:
         description: "OpenAI API key"
-        required: false
+        required: true
       OPENAI_ORG_ID:
         description: "OpenAI Organization ID"
-        required: false
+        required: true
 
 jobs:
   bootstrap:
@@ -339,7 +339,6 @@ jobs:
 
       - name: Create OpenAI Project
         id: openai-project
-        if: ${{ secrets.OPENAI_API_KEY != '' }}
         uses: actions/github-script@v7
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
