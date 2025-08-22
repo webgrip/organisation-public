@@ -1,4 +1,4 @@
-name: "🖌️ Create New Action"
+name: "🖌️🏃‍♂️ Create New Action"
 
 run-name: Create New Action "${{ inputs.action_name }}"
 
