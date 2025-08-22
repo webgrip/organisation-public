@@ -30,7 +30,8 @@ jobs:
       template_owner: ${{ github.repository_owner }}
       template_repo: '${{ github.repository_owner }}/action-typescript-template'
       new_repo_name: ${{ inputs.action_name }}
-      VISIBILITY: "public"
+      visibility: "public"
+      topics: "action"
     secrets:
         WEBGRIP_CI_CLIENT_ID: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
         WEBGRIP_CI_APP_PRIVATE_KEY: ${{ secrets.WEBGRIP_CI_APP_PRIVATE_KEY }}
