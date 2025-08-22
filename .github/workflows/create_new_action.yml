@@ -24,7 +24,7 @@ on:
 jobs:
 
   create-repo-from-template:
-    name: create ${{ inputs.action_name }}
+    name: ${{ inputs.action_name }}
     uses: webgrip/workflows/.github/workflows/create_repo_from_template.yml@main
     with:
       template_owner: ${{ github.repository_owner }}
@@ -37,8 +37,9 @@ jobs:
         WEBGRIP_CI_APP_PRIVATE_KEY: ${{ secrets.WEBGRIP_CI_APP_PRIVATE_KEY }}
 
   bootstrap-repo:
-    name: bootstrap ${{ inputs.action_name }}
+    name: ${{ inputs.action_name }}
     uses: webgrip/workflows/.github/workflows/bootstrap_repo.yml@main
+    needs: create-repo-from-template
     with:
       repo_name: ${{ inputs.action_name }}
       replace_values: |
