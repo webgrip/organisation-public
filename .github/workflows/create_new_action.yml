@@ -47,7 +47,6 @@ jobs:
         organisation: ${{ github.repository_owner }}
         action-action: ${{ inputs.action_name }}
       configure_pages: true
-      create_openai_project: true
     secrets:
       WEBGRIP_CI_CLIENT_ID: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
       WEBGRIP_CI_APP_PRIVATE_KEY: ${{ secrets.WEBGRIP_CI_APP_PRIVATE_KEY }}
