@@ -30,7 +30,7 @@ jobs:
       template_repo: 'application-template'
       new_repo_name: ${{ inputs.application_name }}
       visibility: 'public'
-      topics: 'action'
+      topics: 'application'
     secrets:
         WEBGRIP_CI_CLIENT_ID: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
         WEBGRIP_CI_APP_PRIVATE_KEY: ${{ secrets.WEBGRIP_CI_APP_PRIVATE_KEY }}
