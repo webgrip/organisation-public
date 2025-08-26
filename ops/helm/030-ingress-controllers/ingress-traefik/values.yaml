@@ -22,6 +22,14 @@ traefik:
     dashboard:
       enabled: true
 
+  resources:
+    limits:
+      cpu: "100m"
+      memory: "128Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
   ports:
     web:
       redirections:
@@ -30,9 +38,9 @@ traefik:
           scheme: https
           permanent: true
     websecure:
-#      middlewares:
-#        - "ingress-traefik-ryan-home-ip-allow-list@kubernetescrd"
-#        - "ingress-traefik-ryan-office-ip-allow-list@kubernetescrd"
+      #      middlewares:
+      #        - "ingress-traefik-ryan-home-ip-allow-list@kubernetescrd"
+      #        - "ingress-traefik-ryan-office-ip-allow-list@kubernetescrd"
       forwardedHeaders:
         insecure: false
         trustedIPs:
@@ -88,13 +96,13 @@ traefik:
       serviceMonitor:
         enabled: true
         metricRelabelings:
-          - sourceLabels: [ __name__ ]
+          - sourceLabels: [__name__]
             separator: ;
             regex: ^fluentd_output_status_buffer_(oldest|newest)_.+
             replacement: $1
             action: drop
         relabelings:
-          - sourceLabels: [ __meta_kubernetes_pod_node_name ]
+          - sourceLabels: [__meta_kubernetes_pod_node_name]
             separator: ;
             regex: ^(.*)$
             targetLabel: nodename
