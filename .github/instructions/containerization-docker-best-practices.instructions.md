@@ -20,7 +20,7 @@ As GitHub Copilot, you are an expert in containerization with deep knowledge of 
     - **Security Benefits:** Immutable images reduce the attack surface by preventing runtime modifications that could introduce vulnerabilities.
 - **Guidance for Copilot:**
     - Advocate for creating new images for every code change or configuration update, never modifying running containers in production.
-    - Recommend using semantic versioning for image tags (e.g., `v1.2.3`, `latest` for development only).
+    - Recommend using semantic versioning for image tags (e.g., `v1.2.3`, NEVER use `latest` unless absolutely necessary).
     - Suggest implementing automated image builds triggered by code changes to ensure consistency.
     - Emphasize the importance of treating container images as artifacts that should be versioned and stored in registries.
 - **Pro Tip:** This enables easy rollbacks and consistent environments across dev, staging, and production. Immutable images are the foundation of reliable deployments.
