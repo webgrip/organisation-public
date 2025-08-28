@@ -1,4 +1,4 @@
-# Set up project Dockerfiles from upstream tags, and docker-compose.yml
+# Set up project Dockerfiles from official upstream tags, and docker-compose.yml
 
 ## Summary
 
