@@ -1,0 +1,36 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"],
+      "type": "local",
+      "tools": [
+        "browser_close",
+        "browser_resize",
+        "browser_console_messages",
+        "browser_handle_dialog",
+        "browser_file_upload",
+        "browser_install",
+        "browser_press_key",
+        "browser_navigate",
+        "browser_navigate_back",
+        "browser_navigate_forward",
+        "browser_network_requests",
+        "browser_pdf_save",
+        "browser_take_screenshot",
+        "browser_snapshot",
+        "browser_click"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["context7-mcp@latest"],
+      "type": "local",
+      "tools": [
+        "doc_query",
+        "doc_examples",
+        "doc_versioned"
+      ]
+    }
+  }
+}
