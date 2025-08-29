@@ -72,6 +72,7 @@ Produce comprehensive, accurate, and maintainable documentation for this project
 * [ ] Troubleshooting section covers the most frequent operational issues in this stack.
 * [ ] Every section that relies on upstream facts includes **source citations** (title, URL, retrieval date).
 * [ ] No secrets or sensitive tokens are included anywhere in the docs.
+* [ ] There are NO dead links or references. **ESPECIALLY** to upstream sources. Check everything.
 
 ---
 
