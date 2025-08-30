@@ -9,9 +9,10 @@ Create two Helm charts:
 
 The output must mirror the YAML shape shown below (anchors, sections, dependency layout), while enforcing our policies:
 
-* Images **must** be our org images (built in `ops/`); tags are **pinned** (no `:latest`).
+* Images **must** be our org images (built in `ops/`); tags are **pinned** (no `:latest`) **everywhere except the Helm value for the deployed image**, which may be `latest` per our rollout convention.
 * Values must include `_shared_config` with `&hostname` and `&url` anchors, namespace, env, ingress, resources, persistence, and Redis settings.
-* Charts must declare dependencies exactly as specified for the chosen stack (swap names/versions appropriately).
+* Charts must declare dependencies **only** on official or active community-maintained charts (never the bwj app template).
+* **Research online** to locate the official/community chart for the chosen app; record the repository URL and version in the PR.
 
 ---
 
@@ -30,7 +31,6 @@ Each file must validate with `helm lint`.
 
 > Replace `<stack>` with the stack name (e.g., `invoiceninja-application`, `firefly-application`, `searxng-application`).
 > Replace `<org-repo>` with your org image (e.g., `webgrip/<stack>`).
-> Replace `<PINNED_TAG>` with an immutable, pinned tag (no `latest`).
 > Replace dependency names/versions/repositories with the correct ones for the chosen app.
 
 ### `ops/helm/<stack>-application/values.yaml`
@@ -45,7 +45,7 @@ _shared_config:
 <app-key>:
   image:
     repository: <org-repo>
-    tag: "<PINNED_TAG>"      # pinned; do not use :latest
+    tag: "latest"
     pullPolicy: Always
   global:
     fallbackDefaults:
@@ -139,7 +139,7 @@ version: 0.2.0
 appVersion: "<APP_VERSION_PINNED>"
 
 dependencies:
-  # Primary app chart if you consume an upstream/operator-style chart:
+  # Primary app chart if you consume an official/community-maintained chart:
   - name: <app-key>
     version: <APP_CHART_VERSION_PINNED>
     repository: <OCI_OR_HELM_REPOSITORY_URL>
@@ -181,26 +181,38 @@ some-app-secret: "<PLACEHOLDER_OR_ENCRYPTED_VALUE>"
 
 ---
 
+## Research & selection rules (must follow)
+
+* **Locate official or active community-maintained charts** for the chosen app (never the bwj app template).
+* Validate “active” by checking **recent commits/releases** and open issues/PRs. Prefer OCI registries with signed artifacts when available.
+* Record in the PR description for each dependency: **chart name**, **version**, **repository URL**, and **why it qualifies** (official or active community-maintained).
+* Pin **chart versions** in `Chart.yaml` and **our app image tags** in your `ops/` Dockerfiles (no floating tags).
+* Use our org images in values (repository `<org-repo>`). Our Dockerfiles in `ops/` must `FROM` pinned upstream images.
+
+---
+
 ## Constraints & rules
 
-* **Pinned image tags only**; never use `:latest`.
-* **Use our org images** (the images built from `ops/`), not upstream images.
-* **Ingress** must set class `ingress-traefik` and the cert-manager issuer `letsencrypt-traefik`; TLS secret name follows `letsencrypt-<stack>`.
-* **Namespace** is the stack name (e.g., `invoiceninja-application`).
-* **Env** must include `TZ`, `INSTANCE_NAME`, and `BASE_URL`. Add only the keys explicitly supported by the app.
-* **Persistence** uses `do-block-storage` by default; size defaults to `1Gi` unless the app requires more.
-* **Redis** section is optional; include only if the application supports/uses it.
-* **Secrets chart** must be installable independently and **before** the main chart; main chart must rely on `valueFrom.secretKeyRef` for sensitive values.
-* All content must pass `helm lint` and a dry run (`helm install --dry-run --debug`).
+* **Pinned image tags everywhere** in `ops/` builds and CI; **the only exception** is the Helm value `image.tag: "latest"` for the deployed app image, which maps to our org’s “current” tag policy.
+* **Do not** depend on bwj app template. Use **official** or **active community** charts only.
+* **Ingress**: class `ingress-traefik`, issuer `letsencrypt-traefik`; TLS secret `letsencrypt-<stack>`.
+* **Namespace** equals `<stack>`.
+* **Env**: must include `TZ`, `INSTANCE_NAME`, `BASE_URL`; add only keys recognized by the app.
+* **Persistence**: default `do-block-storage`, `1Gi` unless the app requires more.
+* **Redis**: include section only if used by the app and wire env accordingly.
+* Everything must pass `helm lint` and `helm install --dry-run --debug`.
 
 ---
 
 ## Acceptance criteria
 
-* [ ] Charts and values follow the structure above (anchors, sections, and keys present).
-* [ ] All images in values reference our org repo and **pinned** tags.
-* [ ] Ingress/Service/Resources/Persistence fields are present and reasonably defaulted.
-* [ ] Optional Redis section included only when required by the app and correctly wired.
-* [ ] Secrets chart exists, deploys first, and keys are referenced from the main chart.
-* [ ] `helm lint` passes for both charts; dry-run install succeeds with placeholder values.
-* [ ] README updated with install order and sample `helm install` commands (secrets → app).
+* [ ] Charts and values exactly follow the structure above (anchors, sections, keys).
+* [ ] Dependencies point to **official or active community-maintained** charts, with repo URLs and pinned versions captured in the PR.
+* [ ] Image repository points to our org; `image.tag` in values is `"latest"` per policy, but our `ops/` images and CI are strictly pinned.
+* [ ] Ingress/Service/Resources/Persistence are present and sane; Redis included only when required.
+* [ ] Secrets chart deploys first; main chart references secrets via `valueFrom.secretKeyRef`.
+* [ ] `helm lint` passes for both charts; dry-run install succeeds with placeholders.
+
+---
+
+**Notes for the PR:** include links to the chosen charts’ repositories/OCI indexes, the pinned versions, and a one-liner on their activity (last release/commit).
