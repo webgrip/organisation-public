@@ -1,0 +1,1436 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Documentation for WebGrip's public APIs and services." name="description"/>
+<link href="../../cluster-architecture/security-model/" rel="prev"/>
+<link href="../certificate-management/" rel="next"/>
+<link href="../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.5" name="generator"/>
+<title>Ingress &amp; Load Balancing - WebGrip Public TechDocs</title>
+<link href="../../assets/stylesheets/main.8608ea7d.min.css" rel="stylesheet"/>
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet">
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#ingress-load-balancing">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="WebGrip Public TechDocs" class="md-header__button md-logo" data-md-component="logo" href="../.." title="WebGrip Public TechDocs">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            WebGrip Public TechDocs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Ingress &amp; Load Balancing
+            
+          </span>
+</div>
+</div>
+</div>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../..">
+        
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../overview/">
+        
+  
+    
+  
+  Overview
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../cluster-architecture/infrastructure-overview/">
+          
+  
+  Cluster Architecture
+
+        </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="./">
+          
+  
+  Platform Components
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../service-catalog/backstage-integration/">
+          
+  
+  Service Catalog
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../operations-runbooks/deployment-procedures/">
+          
+  
+  Operations Runbooks
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../developer-workflows/onboarding-guide/">
+          
+  
+  Developer Workflows
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../governance-standards/architecture-decisions/">
+          
+  
+  Governance &amp; Standards
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="WebGrip Public TechDocs" class="md-nav__button md-logo" data-md-component="logo" href="../.." title="WebGrip Public TechDocs">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    WebGrip Public TechDocs
+  </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../overview/">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../cluster-architecture/infrastructure-overview/">
+<span class="md-ellipsis">
+    Cluster Architecture
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+<span class="md-ellipsis">
+    Platform Components
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            Platform Components
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    Ingress &amp; Load Balancing
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    Ingress &amp; Load Balancing
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#traefik-overview">
+<span class="md-ellipsis">
+      Traefik Overview
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#architecture">
+<span class="md-ellipsis">
+      Architecture
+    </span>
+</a>
+<nav aria-label="Architecture" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#traefik-components">
+<span class="md-ellipsis">
+      Traefik Components
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#traffic-flow">
+<span class="md-ellipsis">
+      Traffic Flow
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#configuration">
+<span class="md-ellipsis">
+      Configuration
+    </span>
+</a>
+<nav aria-label="Configuration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#helm-chart-configuration">
+<span class="md-ellipsis">
+      Helm Chart Configuration
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#service-configuration">
+<span class="md-ellipsis">
+      Service Configuration
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#routing-configuration">
+<span class="md-ellipsis">
+      Routing Configuration
+    </span>
+</a>
+<nav aria-label="Routing Configuration" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#ingressroute-resources">
+<span class="md-ellipsis">
+      IngressRoute Resources
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#routing-rules">
+<span class="md-ellipsis">
+      Routing Rules
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#middleware">
+<span class="md-ellipsis">
+      Middleware
+    </span>
+</a>
+<nav aria-label="Middleware" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#custom-middleware">
+<span class="md-ellipsis">
+      Custom Middleware
+    </span>
+</a>
+<nav aria-label="Custom Middleware" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#default-headers-middleware">
+<span class="md-ellipsis">
+      Default Headers Middleware
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#rate-limiting-middleware">
+<span class="md-ellipsis">
+      Rate Limiting Middleware
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#authentication-middleware">
+<span class="md-ellipsis">
+      Authentication Middleware
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#middleware-chaining">
+<span class="md-ellipsis">
+      Middleware Chaining
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tls-and-certificate-management">
+<span class="md-ellipsis">
+      TLS and Certificate Management
+    </span>
+</a>
+<nav aria-label="TLS and Certificate Management" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#integration-with-cert-manager">
+<span class="md-ellipsis">
+      Integration with cert-manager
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tls-configuration">
+<span class="md-ellipsis">
+      TLS Configuration
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#load-balancing">
+<span class="md-ellipsis">
+      Load Balancing
+    </span>
+</a>
+<nav aria-label="Load Balancing" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#load-balancing-algorithms">
+<span class="md-ellipsis">
+      Load Balancing Algorithms
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#health-checks">
+<span class="md-ellipsis">
+      Health Checks
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#observability">
+<span class="md-ellipsis">
+      Observability
+    </span>
+</a>
+<nav aria-label="Observability" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#metrics-collection">
+<span class="md-ellipsis">
+      Metrics Collection
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#dashboard-access">
+<span class="md-ellipsis">
+      Dashboard Access
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#access-logging">
+<span class="md-ellipsis">
+      Access Logging
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#performance-optimization">
+<span class="md-ellipsis">
+      Performance Optimization
+    </span>
+</a>
+<nav aria-label="Performance Optimization" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#connection-management">
+<span class="md-ellipsis">
+      Connection Management
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#caching">
+<span class="md-ellipsis">
+      Caching
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#compression">
+<span class="md-ellipsis">
+      Compression
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#high-availability">
+<span class="md-ellipsis">
+      High Availability
+    </span>
+</a>
+<nav aria-label="High Availability" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#deployment-strategy">
+<span class="md-ellipsis">
+      Deployment Strategy
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#circuit-breaker">
+<span class="md-ellipsis">
+      Circuit Breaker
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#troubleshooting">
+<span class="md-ellipsis">
+      Troubleshooting
+    </span>
+</a>
+<nav aria-label="Troubleshooting" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#common-issues">
+<span class="md-ellipsis">
+      Common Issues
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#debugging-tools">
+<span class="md-ellipsis">
+      Debugging Tools
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#next-steps">
+<span class="md-ellipsis">
+      Next Steps
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../certificate-management/">
+<span class="md-ellipsis">
+    Certificate Management
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../monitoring-observability.md">
+<span class="md-ellipsis">
+    Monitoring &amp; Observability
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../cicd-infrastructure.md">
+<span class="md-ellipsis">
+    CI/CD Infrastructure
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../secret-management.md">
+<span class="md-ellipsis">
+    Secret Management
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../service-catalog/backstage-integration/">
+<span class="md-ellipsis">
+    Service Catalog
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../operations-runbooks/deployment-procedures/">
+<span class="md-ellipsis">
+    Operations Runbooks
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../developer-workflows/onboarding-guide/">
+<span class="md-ellipsis">
+    Developer Workflows
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../../governance-standards/architecture-decisions/">
+<span class="md-ellipsis">
+    Governance &amp; Standards
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="ingress-load-balancing">Ingress &amp; Load Balancing<a class="headerlink" href="#ingress-load-balancing" title="Permanent link">¶</a></h1>
+<p>The WebGrip platform uses <strong><a href="https://traefik.io/">Traefik</a></strong> as the primary ingress controller, providing advanced traffic management, automatic service discovery, and comprehensive observability for HTTP and TCP traffic.</p>
+<h2 id="traefik-overview">Traefik Overview<a class="headerlink" href="#traefik-overview" title="Permanent link">¶</a></h2>
+<p><strong>Technology</strong>: Traefik v3.1
+<strong>Configuration</strong>: <a href="../../../../ops/helm/030-ingress-controllers/ingress-traefik/"><code>ops/helm/030-ingress-controllers/ingress-traefik/</code></a>
+<strong>Custom Middleware</strong>: <a href="../../../../ops/helm/030-ingress-controllers/ingress-traefik-custom-middlewares/"><code>ops/helm/030-ingress-controllers/ingress-traefik-custom-middlewares/</code></a></p>
+<p>Traefik serves as the <strong>edge router</strong> for the platform, providing:</p>
+<ul>
+<li><strong>🔍 Automatic Service Discovery</strong>: Native Kubernetes integration</li>
+<li><strong>🔒 TLS Termination</strong>: Integration with cert-manager for automatic certificates</li>
+<li><strong>⚡ High Performance</strong>: Efficient reverse proxy with minimal overhead</li>
+<li><strong>📊 Built-in Observability</strong>: Metrics, tracing, and access logging</li>
+<li><strong>🛡️ Security Features</strong>: Rate limiting, authentication, and access control</li>
+</ul>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">¶</a></h2>
+<h3 id="traefik-components">Traefik Components<a class="headerlink" href="#traefik-components" title="Permanent link">¶</a></h3>
+<p><img src="data:image/svg+xml;base64,PHN2ZyBhcmlhLXJvbGVkZXNjcmlwdGlvbj0iZmxvd2NoYXJ0LXYyIiByb2xlPSJncmFwaGljcy1kb2N1bWVudCBkb2N1bWVudCIgdmlld0JveD0iMCAwIDEyNzQuNjkxNDA2MjUgOTQ0IiBzdHlsZT0ibWF4LXdpZHRoOiAxMjc0LjY5cHg7IGJhY2tncm91bmQtY29sb3I6IHdoaXRlOyIgY2xhc3M9ImZsb3djaGFydCIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGlkPSJteS1zdmciPjxzdHlsZT4jbXktc3Zne2ZvbnQtZmFtaWx5OiJ0cmVidWNoZXQgbXMiLHZlcmRhbmEsYXJpYWwsc2Fucy1zZXJpZjtmb250LXNpemU6MTZweDtmaWxsOiMzMzM7fSNteS1zdmcgLmVycm9yLWljb257ZmlsbDojNTUyMjIyO30jbXktc3ZnIC5lcnJvci10ZXh0e2ZpbGw6IzU1MjIyMjtzdHJva2U6IzU1MjIyMjt9I215LXN2ZyAuZWRnZS10aGlja25lc3Mtbm9ybWFse3N0cm9rZS13aWR0aDoxcHg7fSNteS1zdmcgLmVkZ2UtdGhpY2tuZXNzLXRoaWNre3N0cm9rZS13aWR0aDozLjVweDt9I215LXN2ZyAuZWRnZS1wYXR0ZXJuLXNvbGlke3N0cm9rZS1kYXNoYXJyYXk6MDt9I215LXN2ZyAuZWRnZS10aGlja25lc3MtaW52aXNpYmxle3N0cm9rZS13aWR0aDowO2ZpbGw6bm9uZTt9I215LXN2ZyAuZWRnZS1wYXR0ZXJuLWRhc2hlZHtzdHJva2UtZGFzaGFycmF5OjM7fSNteS1zdmcgLmVkZ2UtcGF0dGVybi1kb3R0ZWR7c3Ryb2tlLWRhc2hhcnJheToyO30jbXktc3ZnIC5tYXJrZXJ7ZmlsbDojMzMzMzMzO3N0cm9rZTojMzMzMzMzO30jbXktc3ZnIC5tYXJrZXIuY3Jvc3N7c3Ryb2tlOiMzMzMzMzM7fSNteS1zdmcgc3Zne2ZvbnQtZmFtaWx5OiJ0cmVidWNoZXQgbXMiLHZlcmRhbmEsYXJpYWwsc2Fucy1zZXJpZjtmb250LXNpemU6MTZweDt9I215LXN2ZyBwe21hcmdpbjowO30jbXktc3ZnIC5sYWJlbHtmb250LWZhbWlseToidHJlYnVjaGV0IG1zIix2ZXJkYW5hLGFyaWFsLHNhbnMtc2VyaWY7Y29sb3I6IzMzMzt9I215LXN2ZyAuY2x1c3Rlci1sYWJlbCB0ZXh0e2ZpbGw6IzMzMzt9I215LXN2ZyAuY2x1c3Rlci1sYWJlbCBzcGFue2NvbG9yOiMzMzM7fSNteS1zdmcgLmNsdXN0ZXItbGFiZWwgc3BhbiBwe2JhY2tncm91bmQtY29sb3I6dHJhbnNwYXJlbnQ7fSNteS1zdmcgLmxhYmVsIHRleHQsI215LXN2ZyBzcGFue2ZpbGw6IzMzMztjb2xvcjojMzMzO30jbXktc3ZnIC5ub2RlIHJlY3QsI215LXN2ZyAubm9kZSBjaXJjbGUsI215LXN2ZyAubm9kZSBlbGxpcHNlLCNteS1zdmcgLm5vZGUgcG9seWdvbiwjbXktc3ZnIC5ub2RlIHBhdGh7ZmlsbDojRUNFQ0ZGO3N0cm9rZTojOTM3MERCO3N0cm9rZS13aWR0aDoxcHg7fSNteS1zdmcgLnJvdWdoLW5vZGUgLmxhYmVsIHRleHQsI215LXN2ZyAubm9kZSAubGFiZWwgdGV4dCwjbXktc3ZnIC5pbWFnZS1zaGFwZSAubGFiZWwsI215LXN2ZyAuaWNvbi1zaGFwZSAubGFiZWx7dGV4dC1hbmNob3I6bWlkZGxlO30jbXktc3ZnIC5ub2RlIC5rYXRleCBwYXRoe2ZpbGw6IzAwMDtzdHJva2U6IzAwMDtzdHJva2Utd2lkdGg6MXB4O30jbXktc3ZnIC5yb3VnaC1ub2RlIC5sYWJlbCwjbXktc3ZnIC5ub2RlIC5sYWJlbCwjbXktc3ZnIC5pbWFnZS1zaGFwZSAubGFiZWwsI215LXN2ZyAuaWNvbi1zaGFwZSAubGFiZWx7dGV4dC1hbGlnbjpjZW50ZXI7fSNteS1zdmcgLm5vZGUuY2xpY2thYmxle2N1cnNvcjpwb2ludGVyO30jbXktc3ZnIC5yb290IC5hbmNob3IgcGF0aHtmaWxsOiMzMzMzMzMhaW1wb3J0YW50O3N0cm9rZS13aWR0aDowO3N0cm9rZTojMzMzMzMzO30jbXktc3ZnIC5hcnJvd2hlYWRQYXRoe2ZpbGw6IzMzMzMzMzt9I215LXN2ZyAuZWRnZVBhdGggLnBhdGh7c3Ryb2tlOiMzMzMzMzM7c3Ryb2tlLXdpZHRoOjIuMHB4O30jbXktc3ZnIC5mbG93Y2hhcnQtbGlua3tzdHJva2U6IzMzMzMzMztmaWxsOm5vbmU7fSNteS1zdmcgLmVkZ2VMYWJlbHtiYWNrZ3JvdW5kLWNvbG9yOnJnYmEoMjMyLDIzMiwyMzIsIDAuOCk7dGV4dC1hbGlnbjpjZW50ZXI7fSNteS1zdmcgLmVkZ2VMYWJlbCBwe2JhY2tncm91bmQtY29sb3I6cmdiYSgyMzIsMjMyLDIzMiwgMC44KTt9I215LXN2ZyAuZWRnZUxhYmVsIHJlY3R7b3BhY2l0eTowLjU7YmFja2dyb3VuZC1jb2xvcjpyZ2JhKDIzMiwyMzIsMjMyLCAwLjgpO2ZpbGw6cmdiYSgyMzIsMjMyLDIzMiwgMC44KTt9I215LXN2ZyAubGFiZWxCa2d7YmFja2dyb3VuZC1jb2xvcjpyZ2JhKDIzMiwgMjMyLCAyMzIsIDAuNSk7fSNteS1zdmcgLmNsdXN0ZXIgcmVjdHtmaWxsOiNmZmZmZGU7c3Ryb2tlOiNhYWFhMzM7c3Ryb2tlLXdpZHRoOjFweDt9I215LXN2ZyAuY2x1c3RlciB0ZXh0e2ZpbGw6IzMzMzt9I215LXN2ZyAuY2x1c3RlciBzcGFue2NvbG9yOiMzMzM7fSNteS1zdmcgZGl2Lm1lcm1haWRUb29sdGlwe3Bvc2l0aW9uOmFic29sdXRlO3RleHQtYWxpZ246Y2VudGVyO21heC13aWR0aDoyMDBweDtwYWRkaW5nOjJweDtmb250LWZhbWlseToidHJlYnVjaGV0IG1zIix2ZXJkYW5hLGFyaWFsLHNhbnMtc2VyaWY7Zm9udC1zaXplOjEycHg7YmFja2dyb3VuZDpoc2woODAsIDEwMCUsIDk2LjI3NDUwOTgwMzklKTtib3JkZXI6MXB4IHNvbGlkICNhYWFhMzM7Ym9yZGVyLXJhZGl1czoycHg7cG9pbnRlci1ldmVudHM6bm9uZTt6LWluZGV4OjEwMDt9I215LXN2ZyAuZmxvd2NoYXJ0VGl0bGVUZXh0e3RleHQtYW5jaG9yOm1pZGRsZTtmb250LXNpemU6MThweDtmaWxsOiMzMzM7fSNteS1zdmcgcmVjdC50ZXh0e2ZpbGw6bm9uZTtzdHJva2Utd2lkdGg6MDt9I215LXN2ZyAuaWNvbi1zaGFwZSwjbXktc3ZnIC5pbWFnZS1zaGFwZXtiYWNrZ3JvdW5kLWNvbG9yOnJnYmEoMjMyLDIzMiwyMzIsIDAuOCk7dGV4dC1hbGlnbjpjZW50ZXI7fSNteS1zdmcgLmljb24tc2hhcGUgcCwjbXktc3ZnIC5pbWFnZS1zaGFwZSBwe2JhY2tncm91bmQtY29sb3I6cmdiYSgyMzIsMjMyLDIzMiwgMC44KTtwYWRkaW5nOjJweDt9I215LXN2ZyAuaWNvbi1zaGFwZSByZWN0LCNteS1zdmcgLmltYWdlLXNoYXBlIHJlY3R7b3BhY2l0eTowLjU7YmFja2dyb3VuZC1jb2xvcjpyZ2JhKDIzMiwyMzIsMjMyLCAwLjgpO2ZpbGw6cmdiYSgyMzIsMjMyLDIzMiwgMC44KTt9I215LXN2ZyA6cm9vdHstLW1lcm1haWQtZm9udC1mYW1pbHk6InRyZWJ1Y2hldCBtcyIsdmVyZGFuYSxhcmlhbCxzYW5zLXNlcmlmO308L3N0eWxlPjxnPjxtYXJrZXIgb3JpZW50PSJhdXRvIiBtYXJrZXJIZWlnaHQ9IjgiIG1hcmtlcldpZHRoPSI4IiBtYXJrZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIHJlZlk9IjUiIHJlZlg9IjUiIHZpZXdCb3g9IjAgMCAxMCAxMCIgY2xhc3M9Im1hcmtlciBmbG93Y2hhcnQtdjIiIGlkPSJteS1zdmdfZmxvd2NoYXJ0LXYyLXBvaW50RW5kIj48cGF0aCBzdHlsZT0ic3Ryb2tlLXdpZHRoOiAxOyBzdHJva2UtZGFzaGFycmF5OiAxLCAwOyIgY2xhc3M9ImFycm93TWFya2VyUGF0aCIgZD0iTSAwIDAgTCAxMCA1IEwgMCAxMCB6Ii8+PC9tYXJrZXI+PG1hcmtlciBvcmllbnQ9ImF1dG8iIG1hcmtlckhlaWdodD0iOCIgbWFya2VyV2lkdGg9IjgiIG1hcmtlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcmVmWT0iNSIgcmVmWD0iNC41IiB2aWV3Qm94PSIwIDAgMTAgMTAiIGNsYXNzPSJtYXJrZXIgZmxvd2NoYXJ0LXYyIiBpZD0ibXktc3ZnX2Zsb3djaGFydC12Mi1wb2ludFN0YXJ0Ij48cGF0aCBzdHlsZT0ic3Ryb2tlLXdpZHRoOiAxOyBzdHJva2UtZGFzaGFycmF5OiAxLCAwOyIgY2xhc3M9ImFycm93TWFya2VyUGF0aCIgZD0iTSAwIDUgTCAxMCAxMCBMIDEwIDAgeiIvPjwvbWFya2VyPjxtYXJrZXIgb3JpZW50PSJhdXRvIiBtYXJrZXJIZWlnaHQ9IjExIiBtYXJrZXJXaWR0aD0iMTEiIG1hcmtlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcmVmWT0iNSIgcmVmWD0iMTEiIHZpZXdCb3g9IjAgMCAxMCAxMCIgY2xhc3M9Im1hcmtlciBmbG93Y2hhcnQtdjIiIGlkPSJteS1zdmdfZmxvd2NoYXJ0LXYyLWNpcmNsZUVuZCI+PGNpcmNsZSBzdHlsZT0ic3Ryb2tlLXdpZHRoOiAxOyBzdHJva2UtZGFzaGFycmF5OiAxLCAwOyIgY2xhc3M9ImFycm93TWFya2VyUGF0aCIgcj0iNSIgY3k9IjUiIGN4PSI1Ii8+PC9tYXJrZXI+PG1hcmtlciBvcmllbnQ9ImF1dG8iIG1hcmtlckhlaWdodD0iMTEiIG1hcmtlcldpZHRoPSIxMSIgbWFya2VyVW5pdHM9InVzZXJTcGFjZU9uVXNlIiByZWZZPSI1IiByZWZYPSItMSIgdmlld0JveD0iMCAwIDEwIDEwIiBjbGFzcz0ibWFya2VyIGZsb3djaGFydC12MiIgaWQ9Im15LXN2Z19mbG93Y2hhcnQtdjItY2lyY2xlU3RhcnQiPjxjaXJjbGUgc3R5bGU9InN0cm9rZS13aWR0aDogMTsgc3Ryb2tlLWRhc2hhcnJheTogMSwgMDsiIGNsYXNzPSJhcnJvd01hcmtlclBhdGgiIHI9IjUiIGN5PSI1IiBjeD0iNSIvPjwvbWFya2VyPjxtYXJrZXIgb3JpZW50PSJhdXRvIiBtYXJrZXJIZWlnaHQ9IjExIiBtYXJrZXJXaWR0aD0iMTEiIG1hcmtlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcmVmWT0iNS4yIiByZWZYPSIxMiIgdmlld0JveD0iMCAwIDExIDExIiBjbGFzcz0ibWFya2VyIGNyb3NzIGZsb3djaGFydC12MiIgaWQ9Im15LXN2Z19mbG93Y2hhcnQtdjItY3Jvc3NFbmQiPjxwYXRoIHN0eWxlPSJzdHJva2Utd2lkdGg6IDI7IHN0cm9rZS1kYXNoYXJyYXk6IDEsIDA7IiBjbGFzcz0iYXJyb3dNYXJrZXJQYXRoIiBkPSJNIDEsMSBsIDksOSBNIDEwLDEgbCAtOSw5Ii8+PC9tYXJrZXI+PG1hcmtlciBvcmllbnQ9ImF1dG8iIG1hcmtlckhlaWdodD0iMTEiIG1hcmtlcldpZHRoPSIxMSIgbWFya2VyVW5pdHM9InVzZXJTcGFjZU9uVXNlIiByZWZZPSI1LjIiIHJlZlg9Ii0xIiB2aWV3Qm94PSIwIDAgMTEgMTEiIGNsYXNzPSJtYXJrZXIgY3Jvc3MgZmxvd2NoYXJ0LXYyIiBpZD0ibXktc3ZnX2Zsb3djaGFydC12Mi1jcm9zc1N0YXJ0Ij48cGF0aCBzdHlsZT0ic3Ryb2tlLXdpZHRoOiAyOyBzdHJva2UtZGFzaGFycmF5OiAxLCAwOyIgY2xhc3M9ImFycm93TWFya2VyUGF0aCIgZD0iTSAxLDEgbCA5LDkgTSAxMCwxIGwgLTksOSIvPjwvbWFya2VyPjxnIGNsYXNzPSJyb290Ij48ZyBjbGFzcz0iY2x1c3RlcnMiPjxnIGRhdGEtbG9vaz0iY2xhc3NpYyIgaWQ9InN1YkdyYXBoNSIgY2xhc3M9ImNsdXN0ZXIiPjxyZWN0IGhlaWdodD0iMjU4IiB3aWR0aD0iMjYxLjI2NTYyNSIgeT0iOCIgeD0iMTAwNS40MjU3ODEyNSIgc3R5bGU9IiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwNDYuNDg4MjgxMjUsIDgpIiBjbGFzcz0iY2x1c3Rlci1sYWJlbCI+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIyNCIgd2lkdGg9IjE3OS4xNDA2MjUiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IHRhYmxlLWNlbGw7IHdoaXRlLXNwYWNlOiBub3dyYXA7IGxpbmUtaGVpZ2h0OiAxLjU7IG1heC13aWR0aDogMjAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0ibm9kZUxhYmVsIj48cD5DZXJ0aWZpY2F0ZSBNYW5hZ2VtZW50PC9wPjwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyBkYXRhLWxvb2s9ImNsYXNzaWMiIGlkPSJzdWJHcmFwaDQiIGNsYXNzPSJjbHVzdGVyIj48cmVjdCBoZWlnaHQ9IjEwNCIgd2lkdGg9IjY3MyIgeT0iODMyIiB4PSI4IiBzdHlsZT0iIi8+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjgwLjE3OTY4NzUsIDgzMikiIGNsYXNzPSJjbHVzdGVyLWxhYmVsIj48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjI0IiB3aWR0aD0iMTI4LjY0MDYyNSI+PGRpdiBzdHlsZT0iZGlzcGxheTogdGFibGUtY2VsbDsgd2hpdGUtc3BhY2U6IG5vd3JhcDsgbGluZS1oZWlnaHQ6IDEuNTsgbWF4LXdpZHRoOiAyMDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJub2RlTGFiZWwiPjxwPkJhY2tlbmQgU2VydmljZXM8L3A+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIGRhdGEtbG9vaz0iY2xhc3NpYyIgaWQ9InN1YkdyYXBoMyIgY2xhc3M9ImNsdXN0ZXIiPjxyZWN0IGhlaWdodD0iMzM3IiB3aWR0aD0iNTQxLjI2NTYyNSIgeT0iNDQ1IiB4PSI0NS4wMzEyNSIgc3R5bGU9IiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDI2NC40MTQwNjI1LCA0NDUpIiBjbGFzcz0iY2x1c3Rlci1sYWJlbCI+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIyNCIgd2lkdGg9IjEwMi41Ij48ZGl2IHN0eWxlPSJkaXNwbGF5OiB0YWJsZS1jZWxsOyB3aGl0ZS1zcGFjZTogbm93cmFwOyBsaW5lLWhlaWdodDogMS41OyBtYXgtd2lkdGg6IDIwMHB4OyB0ZXh0LWFsaWduOiBjZW50ZXI7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9Im5vZGVMYWJlbCI+PHA+Um91dGluZyBMYXllcjwvcD48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgZGF0YS1sb29rPSJjbGFzc2ljIiBpZD0ic3ViR3JhcGgyIiBjbGFzcz0iY2x1c3RlciI+PHJlY3QgaGVpZ2h0PSIyMzMiIHdpZHRoPSI2MDUuNTAzOTA2MjUiIHk9IjMxNiIgeD0iNjA2LjI5Njg3NSIgc3R5bGU9IiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDg1NC41NzIyNjU2MjUsIDMxNikiIGNsYXNzPSJjbHVzdGVyLWxhYmVsIj48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjI0IiB3aWR0aD0iMTA4Ljk1MzEyNSI+PGRpdiBzdHlsZT0iZGlzcGxheTogdGFibGUtY2VsbDsgd2hpdGUtc3BhY2U6IG5vd3JhcDsgbGluZS1oZWlnaHQ6IDEuNTsgbWF4LXdpZHRoOiAyMDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJub2RlTGFiZWwiPjxwPlRyYWVmaWsgSW5ncmVzczwvcD48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgZGF0YS1sb29rPSJjbGFzc2ljIiBpZD0ic3ViR3JhcGgxIiBjbGFzcz0iY2x1c3RlciI+PHJlY3QgaGVpZ2h0PSIxMDQiIHdpZHRoPSIzNzQuNzE4NzUiIHk9IjE2MiIgeD0iNTY5LjQzMzU5Mzc1IiBzdHlsZT0iIi8+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNzAzLjgwODU5Mzc1LCAxNjIpIiBjbGFzcz0iY2x1c3Rlci1sYWJlbCI+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIyNCIgd2lkdGg9IjEwNS45Njg3NSI+PGRpdiBzdHlsZT0iZGlzcGxheTogdGFibGUtY2VsbDsgd2hpdGUtc3BhY2U6IG5vd3JhcDsgbGluZS1oZWlnaHQ6IDEuNTsgbWF4LXdpZHRoOiAyMDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJub2RlTGFiZWwiPjxwPkxvYWQgQmFsYW5jZXI8L3A+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIGRhdGEtbG9vaz0iY2xhc3NpYyIgaWQ9IkV4dGVybmFsIiBjbGFzcz0iY2x1c3RlciI+PHJlY3QgaGVpZ2h0PSIxMDQiIHdpZHRoPSI0MjUuOTY4NzUiIHk9IjgiIHg9IjUzOS44NjMyODEyNSIgc3R5bGU9IiIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDcyMi4yMzA0Njg3NSwgOCkiIGNsYXNzPSJjbHVzdGVyLWxhYmVsIj48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjI0IiB3aWR0aD0iNjEuMjM0Mzc1Ij48ZGl2IHN0eWxlPSJkaXNwbGF5OiB0YWJsZS1jZWxsOyB3aGl0ZS1zcGFjZTogbm93cmFwOyBsaW5lLWhlaWdodDogMS41OyBtYXgtd2lkdGg6IDIwMHB4OyB0ZXh0LWFsaWduOiBjZW50ZXI7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9Im5vZGVMYWJlbCI+PHA+RXh0ZXJuYWw8L3A+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjwvZz48ZyBjbGFzcz0iZWRnZVBhdGhzIj48cGF0aCBtYXJrZXItZW5kPSJ1cmwoI215LXN2Z19mbG93Y2hhcnQtdjItcG9pbnRFbmQpIiBzdHlsZT0iIiBjbGFzcz0iZWRnZS10aGlja25lc3Mtbm9ybWFsIGVkZ2UtcGF0dGVybi1zb2xpZCBlZGdlLXRoaWNrbmVzcy1ub3JtYWwgZWRnZS1wYXR0ZXJuLXNvbGlkIGZsb3djaGFydC1saW5rIiBpZD0iTF9JTlRFUk5FVF9MQl8wIiBkPSJNNjYwLjMwMSw4N0w2NjAuMzAxLDkxLjE2N0M2NjAuMzAxLDk1LjMzMyw2NjAuMzAxLDEwMy42NjcsNjYwLjMwMSwxMTJDNjYwLjMwMSwxMjAuMzMzLDY2MC4zMDEsMTI4LjY2Nyw2NjAuMzAxLDEzN0M2NjAuMzAxLDE0NS4zMzMsNjYwLjMwMSwxNTMuNjY3LDY2NS4xMDQsMTYxLjU4OUM2NjkuOTA4LDE2OS41MTIsNjc5LjUxNSwxNzcuMDI0LDY4NC4zMTksMTgwLjc4TDY4OS4xMjMsMTg0LjUzNiIvPjxwYXRoIG1hcmtlci1lbmQ9InVybCgjbXktc3ZnX2Zsb3djaGFydC12Mi1wb2ludEVuZCkiIHN0eWxlPSIiIGNsYXNzPSJlZGdlLXRoaWNrbmVzcy1ub3JtYWwgZWRnZS1wYXR0ZXJuLXNvbGlkIGVkZ2UtdGhpY2tuZXNzLW5vcm1hbCBlZGdlLXBhdHRlcm4tc29saWQgZmxvd2NoYXJ0LWxpbmsiIGlkPSJMX1VTRVJTX0xCXzEiIGQ9Ik04NjMuMjg1LDg3TDg2My4yODUsOTEuMTY3Qzg2My4yODUsOTUuMzMzLDg2My4yODUsMTAzLjY2Nyw4NjMuMjg1LDExMkM4NjMuMjg1LDEyMC4zMzMsODYzLjI4NSwxMjguNjY3LDg2My4yODUsMTM3Qzg2My4yODUsMTQ1LjMzMyw4NjMuMjg1LDE1My42NjcsODUyLjk3MiwxNjEuNzYzQzg0Mi42NTksMTY5Ljg1OSw4MjIuMDMzLDE3Ny43MTcsODExLjcyLDE4MS42NDdMODAxLjQwNywxODUuNTc2Ii8+PHBhdGggbWFya2VyLWVuZD0idXJsKCNteS1zdmdfZmxvd2NoYXJ0LXYyLXBvaW50RW5kKSIgc3R5bGU9IiIgY2xhc3M9ImVkZ2UtdGhpY2tuZXNzLW5vcm1hbCBlZGdlLXBhdHRlcm4tc29saWQgZWRnZS10aGlja25lc3Mtbm9ybWFsIGVkZ2UtcGF0dGVybi1zb2xpZCBmbG93Y2hhcnQtbGluayIgaWQ9IkxfTEJfVFJBRUZJS18yIiBkPSJNNzI2LjgwNSwyNDFMNzI2LjgwNSwyNDUuMTY3QzcyNi44MDUsMjQ5LjMzMyw3MjYuODA1LDI1Ny42NjcsNzI2LjgwNSwyNjZDNzI2LjgwNSwyNzQuMzMzLDcyNi44MDUsMjgyLjY2Nyw3MjYuODA1LDI5MUM3MjYuODA1LDI5OS4zMzMsNzI2LjgwNSwzMDcuNjY3LDczMS4zMjgsMzE1LjU3NUM3MzUuODUyLDMyMy40ODMsNzQ0Ljg5OCwzMzAuOTY3LDc0OS40MjIsMzM0LjcwOUw3NTMuOTQ1LDMzOC40NSIvPjxwYXRoIG1hcmtlci1lbmQ9InVybCgjbXktc3ZnX2Zsb3djaGFydC12Mi1wb2ludEVuZCkiIHN0eWxlPSIiIGNsYXNzPSJlZGdlLXRoaWNrbmVzcy1ub3JtYWwgZWRnZS1wYXR0ZXJuLXNvbGlkIGVkZ2UtdGhpY2tuZXNzLW5vcm1hbCBlZGdlLXBhdHRlcm4tc29saWQgZmxvd2NoYXJ0LWxpbmsiIGlkPSJMX1RSQUVGSUtfREFTSEJPQVJEXzMiIGQ9Ik04MTYuNTAyLDM5NUw4MjAuNjQzLDM5OS4xNjdDODI0Ljc4NCw0MDMuMzMzLDgzMy4wNjYsNDExLjY2Nyw4MzcuMjA3LDQyMEM4NDEuMzQ4LDQyOC4zMzMsODQxLjM0OCw0MzYuNjY3LDg0MS4zNDgsNDQ0LjMzM0M4NDEuMzQ4LDQ1Miw4NDEuMzQ4LDQ1OSw4NDEuMzQ4LDQ2Mi41TDg0MS4zNDgsNDY2Ii8+PHBhdGggbWFya2VyLWVuZD0idXJsKCNteS1zdmdfZmxvd2NoYXJ0LXYyLXBvaW50RW5kKSIgc3R5bGU9IiIgY2xhc3M9ImVkZ2UtdGhpY2tuZXNzLW5vcm1hbCBlZGdlLXBhdHRlcm4tc29saWQgZWRnZS10aGlja25lc3Mtbm9ybWFsIGVkZ2UtcGF0dGVybi1zb2xpZCBmbG93Y2hhcnQtbGluayIgaWQ9IkxfVFJBRUZJS19NRVRSSUNTXzQiIGQ9Ik04NjEuNzkzLDM4MC43NjNMODk4Ljc0NywzODcuMzAzQzkzNS43MDIsMzkzLjg0MiwxMDA5LjYxMSw0MDYuOTIxLDEwNDYuNTY1LDQxNy42MjdDMTA4My41Miw0MjguMzMzLDEwODMuNTIsNDM2LjY2NywxMDgzLjUyLDQ0NC4zMzNDMTA4My41Miw0NTIsMTA4My41Miw0NTksMTA4My41Miw0NjIuNUwxMDgzLjUyLDQ2NiIvPjxwYXRoIG1hcmtlci1lbmQ9InVybCgjbXktc3ZnX2Zsb3djaGFydC12Mi1wb2ludEVuZCkiIHN0eWxlPSIiIGNsYXNzPSJlZGdlLXRoaWNrbmVzcy1ub3JtYWwgZWRnZS1wYXR0ZXJuLXNvbGlkIGVkZ2UtdGhpY2tuZXNzLW5vcm1hbCBlZGdlLXBhdHRlcm4tc29saWQgZmxvd2NoYXJ0LWxpbmsiIGlkPSJMX1RSQUVGSUtfUk9VVEVSXzUiIGQ9Ik03NTEuODM1LDM5NUw3NDUuOTk3LDM5OS4xNjdDNzQwLjE1OCw0MDMuMzMzLDcyOC40ODEsNDExLjY2Nyw3MjIuNjQzLDQyMEM3MTYuODA1LDQyOC4zMzMsNzE2LjgwNSw0MzYuNjY3LDY2NC43MDIsNDQ3LjIwOUM2MTIuNiw0NTcuNzUxLDUwOC4zOTQsNDcwLjUwMiw0NTYuMjkyLDQ3Ni44NzdMNDA0LjE4OSw0ODMuMjUzIi8+PHBhdGggbWFya2VyLWVuZD0idXJsKCNteS1zdmdfZmxvd2NoYXJ0LXYyLXBvaW50RW5kKSIgc3R5bGU9IiIgY2xhc3M9ImVkZ2UtdGhpY2tuZXNzLW5vcm1hbCBlZGdlLXBhdHRlcm4tc29saWQgZWRnZS10aGlja25lc3Mtbm9ybWFsIGVkZ2UtcGF0dGVybi1zb2xpZCBmbG93Y2hhcnQtbGluayIgaWQ9IkxfUk9VVEVSX01JRERMRVdBUkVfNiIgZD0iTTI5MS44NDQsNTI0TDI5MS44NDQsNTI4LjE2N0MyOTEuODQ0LDUzMi4zMzMsMjkxLjg0NCw1NDAuNjY3LDI5MS44NDQsNTQ5QzI5MS44NDQsNTU3LjMzMywyOTEuODQ0LDU2NS42NjcsMjkxLjg0NCw1NzMuMzMzQzI5MS44NDQsNTgxLDI5MS44NDQsNTg4LDI5MS44NDQsNTkxLjVMMjkxLjg0NCw1OTUiLz48cGF0aCBtYXJrZXItZW5kPSJ1cmwoI215LXN2Z19mbG93Y2hhcnQtdjItcG9pbnRFbmQpIiBzdHlsZT0iIiBjbGFzcz0iZWRnZS10aGlja25lc3Mtbm9ybWFsIGVkZ2UtcGF0dGVybi1zb2xpZCBlZGdlLXRoaWNrbmVzcy1ub3JtYWwgZWRnZS1wYXR0ZXJuLXNvbGlkIGZsb3djaGFydC1saW5rIiBpZD0iTF9NSURETEVXQVJFX1NFUlZJQ0VfNyIgZD0iTTI5MS44NDQsNjUzTDI5MS44NDQsNjU3LjE2N0MyOTEuODQ0LDY2MS4zMzMsMjkxLjg0NCw2NjkuNjY3LDI5MS44NDQsNjc3LjMzM0MyOTEuODQ0LDY4NSwyOTEuODQ0LDY5MiwyOTEuODQ0LDY5NS41TDI5MS44NDQsNjk5Ii8+PHBhdGggbWFya2VyLWVuZD0idXJsKCNteS1zdmdfZmxvd2NoYXJ0LXYyLXBvaW50RW5kKSIgc3R5bGU9IiIgY2xhc3M9ImVkZ2UtdGhpY2tuZXNzLW5vcm1hbCBlZGdlLXBhdHRlcm4tc29saWQgZWRnZS10aGlja25lc3Mtbm9ybWFsIGVkZ2UtcGF0dGVybi1zb2xpZCBmbG93Y2hhcnQtbGluayIgaWQ9IkxfU0VSVklDRV9BUFAxXzgiIGQ9Ik0yMDMuMzQ3LDc1N0wxODkuNjkxLDc2MS4xNjdDMTc2LjAzNCw3NjUuMzMzLDE0OC43Miw3NzMuNjY3LDEzNS4wNjMsNzgyQzEyMS40MDYsNzkwLjMzMywxMjEuNDA2LDc5OC42NjcsMTIxLjQwNiw4MDdDMTIxLjQwNiw4MTUuMzMzLDEyMS40MDYsODIzLjY2NywxMjEuNDA2LDgzMS4zMzNDMTIxLjQwNiw4MzksMTIxLjQwNiw4NDYsMTIxLjQwNiw4NDkuNUwxMjEuNDA2LDg1MyIvPjxwYXRoIG1hcmtlci1lbmQ9InVybCgjbXktc3ZnX2Zsb3djaGFydC12Mi1wb2ludEVuZCkiIHN0eWxlPSIiIGNsYXNzPSJlZGdlLXRoaWNrbmVzcy1ub3JtYWwgZWRnZS1wYXR0ZXJuLXNvbGlkIGVkZ2UtdGhpY2tuZXNzLW5vcm1hbCBlZGdlLXBhdHRlcm4tc29saWQgZmxvd2NoYXJ0LWxpbmsiIGlkPSJMX1NFUlZJQ0VfQVBQMl85IiBkPSJNMzEwLjczMSw3NTdMMzEzLjY0NSw3NjEuMTY3QzMxNi41Niw3NjUuMzMzLDMyMi4zODksNzczLjY2NywzMjUuMzA0LDc4MkMzMjguMjE5LDc5MC4zMzMsMzI4LjIxOSw3OTguNjY3LDMyOC4yMTksODA3QzMyOC4yMTksODE1LjMzMywzMjguMjE5LDgyMy42NjcsMzI4LjIxOSw4MzEuMzMzQzMyOC4yMTksODM5LDMyOC4yMTksODQ2LDMyOC4yMTksODQ5LjVMMzI4LjIxOSw4NTMiLz48cGF0aCBtYXJrZXItZW5kPSJ1cmwoI215LXN2Z19mbG93Y2hhcnQtdjItcG9pbnRFbmQpIiBzdHlsZT0iIiBjbGFzcz0iZWRnZS10aGlja25lc3Mtbm9ybWFsIGVkZ2UtcGF0dGVybi1zb2xpZCBlZGdlLXRoaWNrbmVzcy1ub3JtYWwgZWRnZS1wYXR0ZXJuLXNvbGlkIGZsb3djaGFydC1saW5rIiBpZD0iTF9TRVJWSUNFX1BMQVRGT1JNXzEwIiBkPSJNMzg2LjQ2MSw3NDguOTYyTDQxMy45MzYsNzU0LjQ2OEM0NDEuNDExLDc1OS45NzUsNDk2LjM2Miw3NzAuOTg3LDUyMy44MzcsNzgwLjY2QzU1MS4zMTMsNzkwLjMzMyw1NTEuMzEzLDc5OC42NjcsNTUxLjMxMyw4MDdDNTUxLjMxMyw4MTUuMzMzLDU1MS4zMTMsODIzLjY2Nyw1NTEuMzEzLDgzMS4zMzNDNTUxLjMxMyw4MzksNTUxLjMxMyw4NDYsNTUxLjMxMyw4NDkuNUw1NTEuMzEzLDg1MyIvPjxwYXRoIG1hcmtlci1lbmQ9InVybCgjbXktc3ZnX2Zsb3djaGFydC12Mi1wb2ludEVuZCkiIHN0eWxlPSIiIGNsYXNzPSJlZGdlLXRoaWNrbmVzcy1ub3JtYWwgZWRnZS1wYXR0ZXJuLXNvbGlkIGVkZ2UtdGhpY2tuZXNzLW5vcm1hbCBlZGdlLXBhdHRlcm4tc29saWQgZmxvd2NoYXJ0LWxpbmsiIGlkPSJMX0NFUlRfQUNNRV8xMSIgZD0iTTExMzYuMDU5LDg3TDExMzYuMDU5LDkxLjE2N0MxMTM2LjA1OSw5NS4zMzMsMTEzNi4wNTksMTAzLjY2NywxMTM2LjA1OSwxMTJDMTEzNi4wNTksMTIwLjMzMywxMTM2LjA1OSwxMjguNjY3LDExMzYuMDU5LDEzN0MxMTM2LjA1OSwxNDUuMzMzLDExMzYuMDU5LDE1My42NjcsMTEzNi4wNTksMTYxLjMzM0MxMTM2LjA1OSwxNjksMTEzNi4wNTksMTc2LDExMzYuMDU5LDE3OS41TDExMzYuMDU5LDE4MyIvPjxwYXRoIG1hcmtlci1lbmQ9InVybCgjbXktc3ZnX2Zsb3djaGFydC12Mi1wb2ludEVuZCkiIHN0eWxlPSIiIGNsYXNzPSJlZGdlLXRoaWNrbmVzcy1ub3JtYWwgZWRnZS1wYXR0ZXJuLXNvbGlkIGVkZ2UtdGhpY2tuZXNzLW5vcm1hbCBlZGdlLXBhdHRlcm4tc29saWQgZmxvd2NoYXJ0LWxpbmsiIGlkPSJMX0FDTUVfVFJBRUZJS18xMiIgZD0iTTExMzYuMDU5LDI0MUwxMTM2LjA1OSwyNDUuMTY3QzExMzYuMDU5LDI0OS4zMzMsMTEzNi4wNTksMjU3LjY2NywxMTM2LjA1OSwyNjZDMTEzNi4wNTksMjc0LjMzMywxMTM2LjA1OSwyODIuNjY3LDExMzYuMDU5LDI5MUMxMTM2LjA1OSwyOTkuMzMzLDExMzYuMDU5LDMwNy42NjcsMTA5MS4wMDcsMzE4LjU5NkMxMDQ1Ljk1NSwzMjkuNTI2LDk1NS44NTIsMzQzLjA1Myw5MTAuOCwzNDkuODE2TDg2NS43NDksMzU2LjU3OSIvPjwvZz48ZyBjbGFzcz0iZWRnZUxhYmVscyI+PGcgY2xhc3M9ImVkZ2VMYWJlbCI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwgMCkiIGNsYXNzPSJsYWJlbCI+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIwIiB3aWR0aD0iMCI+PGRpdiBzdHlsZT0iZGlzcGxheTogdGFibGUtY2VsbDsgd2hpdGUtc3BhY2U6IG5vd3JhcDsgbGluZS1oZWlnaHQ6IDEuNTsgbWF4LXdpZHRoOiAyMDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyIgY2xhc3M9ImxhYmVsQmtnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9ImVkZ2VMYWJlbCI+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIGNsYXNzPSJlZGdlTGFiZWwiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsIDApIiBjbGFzcz0ibGFiZWwiPjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMCIgd2lkdGg9IjAiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IHRhYmxlLWNlbGw7IHdoaXRlLXNwYWNlOiBub3dyYXA7IGxpbmUtaGVpZ2h0OiAxLjU7IG1heC13aWR0aDogMjAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiIGNsYXNzPSJsYWJlbEJrZyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJlZGdlTGFiZWwiPjwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyBjbGFzcz0iZWRnZUxhYmVsIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLCAwKSIgY2xhc3M9ImxhYmVsIj48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjAiIHdpZHRoPSIwIj48ZGl2IHN0eWxlPSJkaXNwbGF5OiB0YWJsZS1jZWxsOyB3aGl0ZS1zcGFjZTogbm93cmFwOyBsaW5lLWhlaWdodDogMS41OyBtYXgtd2lkdGg6IDIwMHB4OyB0ZXh0LWFsaWduOiBjZW50ZXI7IiBjbGFzcz0ibGFiZWxCa2ciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0iZWRnZUxhYmVsIj48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgY2xhc3M9ImVkZ2VMYWJlbCI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwgMCkiIGNsYXNzPSJsYWJlbCI+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIwIiB3aWR0aD0iMCI+PGRpdiBzdHlsZT0iZGlzcGxheTogdGFibGUtY2VsbDsgd2hpdGUtc3BhY2U6IG5vd3JhcDsgbGluZS1oZWlnaHQ6IDEuNTsgbWF4LXdpZHRoOiAyMDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyIgY2xhc3M9ImxhYmVsQmtnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9ImVkZ2VMYWJlbCI+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIGNsYXNzPSJlZGdlTGFiZWwiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsIDApIiBjbGFzcz0ibGFiZWwiPjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMCIgd2lkdGg9IjAiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IHRhYmxlLWNlbGw7IHdoaXRlLXNwYWNlOiBub3dyYXA7IGxpbmUtaGVpZ2h0OiAxLjU7IG1heC13aWR0aDogMjAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiIGNsYXNzPSJsYWJlbEJrZyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJlZGdlTGFiZWwiPjwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyBjbGFzcz0iZWRnZUxhYmVsIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLCAwKSIgY2xhc3M9ImxhYmVsIj48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjAiIHdpZHRoPSIwIj48ZGl2IHN0eWxlPSJkaXNwbGF5OiB0YWJsZS1jZWxsOyB3aGl0ZS1zcGFjZTogbm93cmFwOyBsaW5lLWhlaWdodDogMS41OyBtYXgtd2lkdGg6IDIwMHB4OyB0ZXh0LWFsaWduOiBjZW50ZXI7IiBjbGFzcz0ibGFiZWxCa2ciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0iZWRnZUxhYmVsIj48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgY2xhc3M9ImVkZ2VMYWJlbCI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwgMCkiIGNsYXNzPSJsYWJlbCI+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIwIiB3aWR0aD0iMCI+PGRpdiBzdHlsZT0iZGlzcGxheTogdGFibGUtY2VsbDsgd2hpdGUtc3BhY2U6IG5vd3JhcDsgbGluZS1oZWlnaHQ6IDEuNTsgbWF4LXdpZHRoOiAyMDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyIgY2xhc3M9ImxhYmVsQmtnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9ImVkZ2VMYWJlbCI+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIGNsYXNzPSJlZGdlTGFiZWwiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsIDApIiBjbGFzcz0ibGFiZWwiPjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMCIgd2lkdGg9IjAiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IHRhYmxlLWNlbGw7IHdoaXRlLXNwYWNlOiBub3dyYXA7IGxpbmUtaGVpZ2h0OiAxLjU7IG1heC13aWR0aDogMjAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiIGNsYXNzPSJsYWJlbEJrZyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJlZGdlTGFiZWwiPjwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyBjbGFzcz0iZWRnZUxhYmVsIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLCAwKSIgY2xhc3M9ImxhYmVsIj48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjAiIHdpZHRoPSIwIj48ZGl2IHN0eWxlPSJkaXNwbGF5OiB0YWJsZS1jZWxsOyB3aGl0ZS1zcGFjZTogbm93cmFwOyBsaW5lLWhlaWdodDogMS41OyBtYXgtd2lkdGg6IDIwMHB4OyB0ZXh0LWFsaWduOiBjZW50ZXI7IiBjbGFzcz0ibGFiZWxCa2ciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0iZWRnZUxhYmVsIj48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgY2xhc3M9ImVkZ2VMYWJlbCI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwgMCkiIGNsYXNzPSJsYWJlbCI+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIwIiB3aWR0aD0iMCI+PGRpdiBzdHlsZT0iZGlzcGxheTogdGFibGUtY2VsbDsgd2hpdGUtc3BhY2U6IG5vd3JhcDsgbGluZS1oZWlnaHQ6IDEuNTsgbWF4LXdpZHRoOiAyMDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyIgY2xhc3M9ImxhYmVsQmtnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9ImVkZ2VMYWJlbCI+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIGNsYXNzPSJlZGdlTGFiZWwiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsIDApIiBjbGFzcz0ibGFiZWwiPjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMCIgd2lkdGg9IjAiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IHRhYmxlLWNlbGw7IHdoaXRlLXNwYWNlOiBub3dyYXA7IGxpbmUtaGVpZ2h0OiAxLjU7IG1heC13aWR0aDogMjAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiIGNsYXNzPSJsYWJlbEJrZyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJlZGdlTGFiZWwiPjwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyBjbGFzcz0iZWRnZUxhYmVsIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLCAwKSIgY2xhc3M9ImxhYmVsIj48Zm9yZWlnbk9iamVjdCBoZWlnaHQ9IjAiIHdpZHRoPSIwIj48ZGl2IHN0eWxlPSJkaXNwbGF5OiB0YWJsZS1jZWxsOyB3aGl0ZS1zcGFjZTogbm93cmFwOyBsaW5lLWhlaWdodDogMS41OyBtYXgtd2lkdGg6IDIwMHB4OyB0ZXh0LWFsaWduOiBjZW50ZXI7IiBjbGFzcz0ibGFiZWxCa2ciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0iZWRnZUxhYmVsIj48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgY2xhc3M9ImVkZ2VMYWJlbCI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwgMCkiIGNsYXNzPSJsYWJlbCI+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIwIiB3aWR0aD0iMCI+PGRpdiBzdHlsZT0iZGlzcGxheTogdGFibGUtY2VsbDsgd2hpdGUtc3BhY2U6IG5vd3JhcDsgbGluZS1oZWlnaHQ6IDEuNTsgbWF4LXdpZHRoOiAyMDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyIgY2xhc3M9ImxhYmVsQmtnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9ImVkZ2VMYWJlbCI+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjwvZz48ZyBjbGFzcz0ibm9kZXMiPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDY2MC4zMDA3ODEyNSwgNjApIiBpZD0iZmxvd2NoYXJ0LUlOVEVSTkVULTAiIGNsYXNzPSJub2RlIGRlZmF1bHQiPjxyZWN0IGhlaWdodD0iNTQiIHdpZHRoPSIxNzAuODc1IiB5PSItMjciIHg9Ii04NS40Mzc1IiBzdHlsZT0iIiBjbGFzcz0iYmFzaWMgbGFiZWwtY29udGFpbmVyIi8+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTU1LjQzNzUsIC0xMikiIHN0eWxlPSIiIGNsYXNzPSJsYWJlbCI+PHJlY3QvPjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMjQiIHdpZHRoPSIxMTAuODc1Ij48ZGl2IHN0eWxlPSJkaXNwbGF5OiB0YWJsZS1jZWxsOyB3aGl0ZS1zcGFjZTogbm93cmFwOyBsaW5lLWhlaWdodDogMS41OyBtYXgtd2lkdGg6IDIwMHB4OyB0ZXh0LWFsaWduOiBjZW50ZXI7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9Im5vZGVMYWJlbCI+PHA+SW50ZXJuZXQgVHJhZmZpYzwvcD48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoODYzLjI4NTE1NjI1LCA2MCkiIGlkPSJmbG93Y2hhcnQtVVNFUlMtMSIgY2xhc3M9Im5vZGUgZGVmYXVsdCI+PHJlY3QgaGVpZ2h0PSI1NCIgd2lkdGg9IjEzNS4wOTM3NSIgeT0iLTI3IiB4PSItNjcuNTQ2ODc1IiBzdHlsZT0iIiBjbGFzcz0iYmFzaWMgbGFiZWwtY29udGFpbmVyIi8+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTM3LjU0Njg3NSwgLTEyKSIgc3R5bGU9IiIgY2xhc3M9ImxhYmVsIj48cmVjdC8+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIyNCIgd2lkdGg9Ijc1LjA5Mzc1Ij48ZGl2IHN0eWxlPSJkaXNwbGF5OiB0YWJsZS1jZWxsOyB3aGl0ZS1zcGFjZTogbm93cmFwOyBsaW5lLWhlaWdodDogMS41OyBtYXgtd2lkdGg6IDIwMHB4OyB0ZXh0LWFsaWduOiBjZW50ZXI7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9Im5vZGVMYWJlbCI+PHA+RW5kIFVzZXJzPC9wPjwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg3MjYuODA0Njg3NSwgMjE0KSIgaWQ9ImZsb3djaGFydC1MQi0yIiBjbGFzcz0ibm9kZSBkZWZhdWx0Ij48cmVjdCBoZWlnaHQ9IjU0IiB3aWR0aD0iMjEzLjQ2ODc1IiB5PSItMjciIHg9Ii0xMDYuNzM0Mzc1IiBzdHlsZT0iIiBjbGFzcz0iYmFzaWMgbGFiZWwtY29udGFpbmVyIi8+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTc2LjczNDM3NSwgLTEyKSIgc3R5bGU9IiIgY2xhc3M9ImxhYmVsIj48cmVjdC8+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIyNCIgd2lkdGg9IjE1My40Njg3NSI+PGRpdiBzdHlsZT0iZGlzcGxheTogdGFibGUtY2VsbDsgd2hpdGUtc3BhY2U6IG5vd3JhcDsgbGluZS1oZWlnaHQ6IDEuNTsgbWF4LXdpZHRoOiAyMDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJub2RlTGFiZWwiPjxwPkNsb3VkIExvYWQgQmFsYW5jZXI8L3A+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDc4OS42Njc5Njg3NSwgMzY4KSIgaWQ9ImZsb3djaGFydC1UUkFFRklLLTMiIGNsYXNzPSJub2RlIGRlZmF1bHQiPjxyZWN0IGhlaWdodD0iNTQiIHdpZHRoPSIxNDQuMjUiIHk9Ii0yNyIgeD0iLTcyLjEyNSIgc3R5bGU9IiIgY2xhc3M9ImJhc2ljIGxhYmVsLWNvbnRhaW5lciIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC00Mi4xMjUsIC0xMikiIHN0eWxlPSIiIGNsYXNzPSJsYWJlbCI+PHJlY3QvPjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMjQiIHdpZHRoPSI4NC4yNSI+PGRpdiBzdHlsZT0iZGlzcGxheTogdGFibGUtY2VsbDsgd2hpdGUtc3BhY2U6IG5vd3JhcDsgbGluZS1oZWlnaHQ6IDEuNTsgbWF4LXdpZHRoOiAyMDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJub2RlTGFiZWwiPjxwPlRyYWVmaWsgUG9kPC9wPjwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg4NDEuMzQ3NjU2MjUsIDQ5NykiIGlkPSJmbG93Y2hhcnQtREFTSEJPQVJELTQiIGNsYXNzPSJub2RlIGRlZmF1bHQiPjxyZWN0IGhlaWdodD0iNTQiIHdpZHRoPSIxOTcuNzgxMjUiIHk9Ii0yNyIgeD0iLTk4Ljg5MDYyNSIgc3R5bGU9IiIgY2xhc3M9ImJhc2ljIGxhYmVsLWNvbnRhaW5lciIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC02OC44OTA2MjUsIC0xMikiIHN0eWxlPSIiIGNsYXNzPSJsYWJlbCI+PHJlY3QvPjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMjQiIHdpZHRoPSIxMzcuNzgxMjUiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IHRhYmxlLWNlbGw7IHdoaXRlLXNwYWNlOiBub3dyYXA7IGxpbmUtaGVpZ2h0OiAxLjU7IG1heC13aWR0aDogMjAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0ibm9kZUxhYmVsIj48cD5UcmFlZmlrIERhc2hib2FyZDwvcD48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTA4My41MTk1MzEyNSwgNDk3KSIgaWQ9ImZsb3djaGFydC1NRVRSSUNTLTUiIGNsYXNzPSJub2RlIGRlZmF1bHQiPjxyZWN0IGhlaWdodD0iNTQiIHdpZHRoPSIxODYuNTYyNSIgeT0iLTI3IiB4PSItOTMuMjgxMjUiIHN0eWxlPSIiIGNsYXNzPSJiYXNpYyBsYWJlbC1jb250YWluZXIiLz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtNjMuMjgxMjUsIC0xMikiIHN0eWxlPSIiIGNsYXNzPSJsYWJlbCI+PHJlY3QvPjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMjQiIHdpZHRoPSIxMjYuNTYyNSI+PGRpdiBzdHlsZT0iZGlzcGxheTogdGFibGUtY2VsbDsgd2hpdGUtc3BhY2U6IG5vd3JhcDsgbGluZS1oZWlnaHQ6IDEuNTsgbWF4LXdpZHRoOiAyMDBweDsgdGV4dC1hbGlnbjogY2VudGVyOyIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGh0bWwiPjxzcGFuIGNsYXNzPSJub2RlTGFiZWwiPjxwPk1ldHJpY3MgRW5kcG9pbnQ8L3A+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDI5MS44NDM3NSwgNDk3KSIgaWQ9ImZsb3djaGFydC1ST1VURVItNiIgY2xhc3M9Im5vZGUgZGVmYXVsdCI+PHJlY3QgaGVpZ2h0PSI1NCIgd2lkdGg9IjIxNi43NSIgeT0iLTI3IiB4PSItMTA4LjM3NSIgc3R5bGU9IiIgY2xhc3M9ImJhc2ljIGxhYmVsLWNvbnRhaW5lciIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC03OC4zNzUsIC0xMikiIHN0eWxlPSIiIGNsYXNzPSJsYWJlbCI+PHJlY3QvPjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMjQiIHdpZHRoPSIxNTYuNzUiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IHRhYmxlLWNlbGw7IHdoaXRlLXNwYWNlOiBub3dyYXA7IGxpbmUtaGVpZ2h0OiAxLjU7IG1heC13aWR0aDogMjAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0ibm9kZUxhYmVsIj48cD5Sb3V0ZXIgQ29uZmlndXJhdGlvbjwvcD48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjkxLjg0Mzc1LCA2MjYpIiBpZD0iZmxvd2NoYXJ0LU1JRERMRVdBUkUtNyIgY2xhc3M9Im5vZGUgZGVmYXVsdCI+PHJlY3QgaGVpZ2h0PSI1NCIgd2lkdGg9IjE5MS40Mzc1IiB5PSItMjciIHg9Ii05NS43MTg3NSIgc3R5bGU9IiIgY2xhc3M9ImJhc2ljIGxhYmVsLWNvbnRhaW5lciIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC02NS43MTg3NSwgLTEyKSIgc3R5bGU9IiIgY2xhc3M9ImxhYmVsIj48cmVjdC8+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIyNCIgd2lkdGg9IjEzMS40Mzc1Ij48ZGl2IHN0eWxlPSJkaXNwbGF5OiB0YWJsZS1jZWxsOyB3aGl0ZS1zcGFjZTogbm93cmFwOyBsaW5lLWhlaWdodDogMS41OyBtYXgtd2lkdGg6IDIwMHB4OyB0ZXh0LWFsaWduOiBjZW50ZXI7IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94aHRtbCI+PHNwYW4gY2xhc3M9Im5vZGVMYWJlbCI+PHA+TWlkZGxld2FyZSBTdGFjazwvcD48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjkxLjg0Mzc1LCA3MzApIiBpZD0iZmxvd2NoYXJ0LVNFUlZJQ0UtOCIgY2xhc3M9Im5vZGUgZGVmYXVsdCI+PHJlY3QgaGVpZ2h0PSI1NCIgd2lkdGg9IjE4OS4yMzQzNzUiIHk9Ii0yNyIgeD0iLTk0LjYxNzE4NzUiIHN0eWxlPSIiIGNsYXNzPSJiYXNpYyBsYWJlbC1jb250YWluZXIiLz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtNjQuNjE3MTg3NSwgLTEyKSIgc3R5bGU9IiIgY2xhc3M9ImxhYmVsIj48cmVjdC8+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIyNCIgd2lkdGg9IjEyOS4yMzQzNzUiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IHRhYmxlLWNlbGw7IHdoaXRlLXNwYWNlOiBub3dyYXA7IGxpbmUtaGVpZ2h0OiAxLjU7IG1heC13aWR0aDogMjAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0ibm9kZUxhYmVsIj48cD5TZXJ2aWNlIERpc2NvdmVyeTwvcD48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTIxLjQwNjI1LCA4ODQpIiBpZD0iZmxvd2NoYXJ0LUFQUDEtOSIgY2xhc3M9Im5vZGUgZGVmYXVsdCI+PHJlY3QgaGVpZ2h0PSI1NCIgd2lkdGg9IjE1Ni44MTI1IiB5PSItMjciIHg9Ii03OC40MDYyNSIgc3R5bGU9IiIgY2xhc3M9ImJhc2ljIGxhYmVsLWNvbnRhaW5lciIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC00OC40MDYyNSwgLTEyKSIgc3R5bGU9IiIgY2xhc3M9ImxhYmVsIj48cmVjdC8+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIyNCIgd2lkdGg9Ijk2LjgxMjUiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IHRhYmxlLWNlbGw7IHdoaXRlLXNwYWNlOiBub3dyYXA7IGxpbmUtaGVpZ2h0OiAxLjU7IG1heC13aWR0aDogMjAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0ibm9kZUxhYmVsIj48cD5BcHBsaWNhdGlvbiAxPC9wPjwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMjguMjE4NzUsIDg4NCkiIGlkPSJmbG93Y2hhcnQtQVBQMi0xMCIgY2xhc3M9Im5vZGUgZGVmYXVsdCI+PHJlY3QgaGVpZ2h0PSI1NCIgd2lkdGg9IjE1Ni44MTI1IiB5PSItMjciIHg9Ii03OC40MDYyNSIgc3R5bGU9IiIgY2xhc3M9ImJhc2ljIGxhYmVsLWNvbnRhaW5lciIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC00OC40MDYyNSwgLTEyKSIgc3R5bGU9IiIgY2xhc3M9ImxhYmVsIj48cmVjdC8+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIyNCIgd2lkdGg9Ijk2LjgxMjUiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IHRhYmxlLWNlbGw7IHdoaXRlLXNwYWNlOiBub3dyYXA7IGxpbmUtaGVpZ2h0OiAxLjU7IG1heC13aWR0aDogMjAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0ibm9kZUxhYmVsIj48cD5BcHBsaWNhdGlvbiAyPC9wPjwvc3Bhbj48L2Rpdj48L2ZvcmVpZ25PYmplY3Q+PC9nPjwvZz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1NTEuMzEyNSwgODg0KSIgaWQ9ImZsb3djaGFydC1QTEFURk9STS0xMSIgY2xhc3M9Im5vZGUgZGVmYXVsdCI+PHJlY3QgaGVpZ2h0PSI1NCIgd2lkdGg9IjE4OS4zNzUiIHk9Ii0yNyIgeD0iLTk0LjY4NzUiIHN0eWxlPSIiIGNsYXNzPSJiYXNpYyBsYWJlbC1jb250YWluZXIiLz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtNjQuNjg3NSwgLTEyKSIgc3R5bGU9IiIgY2xhc3M9ImxhYmVsIj48cmVjdC8+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIyNCIgd2lkdGg9IjEyOS4zNzUiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IHRhYmxlLWNlbGw7IHdoaXRlLXNwYWNlOiBub3dyYXA7IGxpbmUtaGVpZ2h0OiAxLjU7IG1heC13aWR0aDogMjAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0ibm9kZUxhYmVsIj48cD5QbGF0Zm9ybSBTZXJ2aWNlczwvcD48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTEzNi4wNTg1OTM3NSwgNjApIiBpZD0iZmxvd2NoYXJ0LUNFUlQtMTIiIGNsYXNzPSJub2RlIGRlZmF1bHQiPjxyZWN0IGhlaWdodD0iNTQiIHdpZHRoPSIxNjAuNjU2MjUiIHk9Ii0yNyIgeD0iLTgwLjMyODEyNSIgc3R5bGU9IiIgY2xhc3M9ImJhc2ljIGxhYmVsLWNvbnRhaW5lciIvPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKC01MC4zMjgxMjUsIC0xMikiIHN0eWxlPSIiIGNsYXNzPSJsYWJlbCI+PHJlY3QvPjxmb3JlaWduT2JqZWN0IGhlaWdodD0iMjQiIHdpZHRoPSIxMDAuNjU2MjUiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IHRhYmxlLWNlbGw7IHdoaXRlLXNwYWNlOiBub3dyYXA7IGxpbmUtaGVpZ2h0OiAxLjU7IG1heC13aWR0aDogMjAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0ibm9kZUxhYmVsIj48cD5jZXJ0LW1hbmFnZXI8L3A+PC9zcGFuPjwvZGl2PjwvZm9yZWlnbk9iamVjdD48L2c+PC9nPjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDExMzYuMDU4NTkzNzUsIDIxNCkiIGlkPSJmbG93Y2hhcnQtQUNNRS0xMyIgY2xhc3M9Im5vZGUgZGVmYXVsdCI+PHJlY3QgaGVpZ2h0PSI1NCIgd2lkdGg9IjE5MS4yNjU2MjUiIHk9Ii0yNyIgeD0iLTk1LjYzMjgxMjUiIHN0eWxlPSIiIGNsYXNzPSJiYXNpYyBsYWJlbC1jb250YWluZXIiLz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtNjUuNjMyODEyNSwgLTEyKSIgc3R5bGU9IiIgY2xhc3M9ImxhYmVsIj48cmVjdC8+PGZvcmVpZ25PYmplY3QgaGVpZ2h0PSIyNCIgd2lkdGg9IjEzMS4yNjU2MjUiPjxkaXYgc3R5bGU9ImRpc3BsYXk6IHRhYmxlLWNlbGw7IHdoaXRlLXNwYWNlOiBub3dyYXA7IGxpbmUtaGVpZ2h0OiAxLjU7IG1heC13aWR0aDogMjAwcHg7IHRleHQtYWxpZ246IGNlbnRlcjsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hodG1sIj48c3BhbiBjbGFzcz0ibm9kZUxhYmVsIj48cD5BQ01FIENlcnRpZmljYXRlczwvcD48L3NwYW4+PC9kaXY+PC9mb3JlaWduT2JqZWN0PjwvZz48L2c+PC9nPjwvZz48L2c+PC9zdmc+"/></p>
+<h3 id="traffic-flow">Traffic Flow<a class="headerlink" href="#traffic-flow" title="Permanent link">¶</a></h3>
+<p>The request flow through Traefik follows this pattern:</p>
+<p><img src="data:image/svg+xml;base64,PHN2ZyBhcmlhLXJvbGVkZXNjcmlwdGlvbj0ic2VxdWVuY2UiIHJvbGU9ImdyYXBoaWNzLWRvY3VtZW50IGRvY3VtZW50IiB2aWV3Qm94PSItNTAgLTEwIDEyODUgODc5IiBzdHlsZT0ibWF4LXdpZHRoOiAxMjg1cHg7IGJhY2tncm91bmQtY29sb3I6IHdoaXRlOyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGlkPSJteS1zdmciPjxnPjxyZWN0IGNsYXNzPSJhY3RvciBhY3Rvci1ib3R0b20iIHJ5PSIzIiByeD0iMyIgbmFtZT0iUG9kIiBoZWlnaHQ9IjY1IiB3aWR0aD0iMTUwIiBzdHJva2U9IiM2NjYiIGZpbGw9IiNlYWVhZWEiIHk9Ijc5MyIgeD0iMTAzNSIvPjx0ZXh0IHN0eWxlPSJ0ZXh0LWFuY2hvcjogbWlkZGxlOyBmb250LXNpemU6IDE2cHg7IGZvbnQtd2VpZ2h0OiA0MDA7IiBjbGFzcz0iYWN0b3IgYWN0b3ItYm94IiBhbGlnbm1lbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiB5PSI4MjUuNSIgeD0iMTExMCI+PHRzcGFuIGR5PSIwIiB4PSIxMTEwIj5BcHBsaWNhdGlvbiBQb2Q8L3RzcGFuPjwvdGV4dD48L2c+PGc+PHJlY3QgY2xhc3M9ImFjdG9yIGFjdG9yLWJvdHRvbSIgcnk9IjMiIHJ4PSIzIiBuYW1lPSJTZXJ2aWNlIiBoZWlnaHQ9IjY1IiB3aWR0aD0iMTUwIiBzdHJva2U9IiM2NjYiIGZpbGw9IiNlYWVhZWEiIHk9Ijc5MyIgeD0iODEzIi8+PHRleHQgc3R5bGU9InRleHQtYW5jaG9yOiBtaWRkbGU7IGZvbnQtc2l6ZTogMTZweDsgZm9udC13ZWlnaHQ6IDQwMDsiIGNsYXNzPSJhY3RvciBhY3Rvci1ib3giIGFsaWdubWVudC1iYXNlbGluZT0iY2VudHJhbCIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHk9IjgyNS41IiB4PSI4ODgiPjx0c3BhbiBkeT0iMCIgeD0iODg4Ij5LOHMgU2VydmljZTwvdHNwYW4+PC90ZXh0PjwvZz48Zz48cmVjdCBjbGFzcz0iYWN0b3IgYWN0b3ItYm90dG9tIiByeT0iMyIgcng9IjMiIG5hbWU9Ik1pZGRsZXdhcmUiIGhlaWdodD0iNjUiIHdpZHRoPSIxNTAiIHN0cm9rZT0iIzY2NiIgZmlsbD0iI2VhZWFlYSIgeT0iNzkzIiB4PSI2MDQiLz48dGV4dCBzdHlsZT0idGV4dC1hbmNob3I6IG1pZGRsZTsgZm9udC1zaXplOiAxNnB4OyBmb250LXdlaWdodDogNDAwOyIgY2xhc3M9ImFjdG9yIGFjdG9yLWJveCIgYWxpZ25tZW50LWJhc2VsaW5lPSJjZW50cmFsIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgeT0iODI1LjUiIHg9IjY3OSI+PHRzcGFuIGR5PSIwIiB4PSI2NzkiPk1pZGRsZXdhcmU8L3RzcGFuPjwvdGV4dD48L2c+PGc+PHJlY3QgY2xhc3M9ImFjdG9yIGFjdG9yLWJvdHRvbSIgcnk9IjMiIHJ4PSIzIiBuYW1lPSJUcmFlZmlrIiBoZWlnaHQ9IjY1IiB3aWR0aD0iMTUwIiBzdHJva2U9IiM2NjYiIGZpbGw9IiNlYWVhZWEiIHk9Ijc5MyIgeD0iNDAwIi8+PHRleHQgc3R5bGU9InRleHQtYW5jaG9yOiBtaWRkbGU7IGZvbnQtc2l6ZTogMTZweDsgZm9udC13ZWlnaHQ6IDQwMDsiIGNsYXNzPSJhY3RvciBhY3Rvci1ib3giIGFsaWdubWVudC1iYXNlbGluZT0iY2VudHJhbCIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHk9IjgyNS41IiB4PSI0NzUiPjx0c3BhbiBkeT0iMCIgeD0iNDc1Ij5UcmFlZmlrIEluZ3Jlc3M8L3RzcGFuPjwvdGV4dD48L2c+PGc+PHJlY3QgY2xhc3M9ImFjdG9yIGFjdG9yLWJvdHRvbSIgcnk9IjMiIHJ4PSIzIiBuYW1lPSJMQiIgaGVpZ2h0PSI2NSIgd2lkdGg9IjE1MCIgc3Ryb2tlPSIjNjY2IiBmaWxsPSIjZWFlYWVhIiB5PSI3OTMiIHg9IjIwMCIvPjx0ZXh0IHN0eWxlPSJ0ZXh0LWFuY2hvcjogbWlkZGxlOyBmb250LXNpemU6IDE2cHg7IGZvbnQtd2VpZ2h0OiA0MDA7IiBjbGFzcz0iYWN0b3IgYWN0b3ItYm94IiBhbGlnbm1lbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiB5PSI4MjUuNSIgeD0iMjc1Ij48dHNwYW4gZHk9IjAiIHg9IjI3NSI+TG9hZCBCYWxhbmNlcjwvdHNwYW4+PC90ZXh0PjwvZz48Zz48cmVjdCBjbGFzcz0iYWN0b3IgYWN0b3ItYm90dG9tIiByeT0iMyIgcng9IjMiIG5hbWU9IkNsaWVudCIgaGVpZ2h0PSI2NSIgd2lkdGg9IjE1MCIgc3Ryb2tlPSIjNjY2IiBmaWxsPSIjZWFlYWVhIiB5PSI3OTMiIHg9IjAiLz48dGV4dCBzdHlsZT0idGV4dC1hbmNob3I6IG1pZGRsZTsgZm9udC1zaXplOiAxNnB4OyBmb250LXdlaWdodDogNDAwOyIgY2xhc3M9ImFjdG9yIGFjdG9yLWJveCIgYWxpZ25tZW50LWJhc2VsaW5lPSJjZW50cmFsIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgeT0iODI1LjUiIHg9Ijc1Ij48dHNwYW4gZHk9IjAiIHg9Ijc1Ij5DbGllbnQ8L3RzcGFuPjwvdGV4dD48L2c+PGc+PGxpbmUgbmFtZT0iUG9kIiBzdHJva2U9IiM5OTkiIHN0cm9rZS13aWR0aD0iMC41cHgiIGNsYXNzPSJhY3Rvci1saW5lIDIwMCIgeTI9Ijc5MyIgeDI9IjExMTAiIHkxPSI2NSIgeDE9IjExMTAiIGlkPSJhY3RvcjUiLz48ZyBpZD0icm9vdC01Ij48cmVjdCBjbGFzcz0iYWN0b3IgYWN0b3ItdG9wIiByeT0iMyIgcng9IjMiIG5hbWU9IlBvZCIgaGVpZ2h0PSI2NSIgd2lkdGg9IjE1MCIgc3Ryb2tlPSIjNjY2IiBmaWxsPSIjZWFlYWVhIiB5PSIwIiB4PSIxMDM1Ii8+PHRleHQgc3R5bGU9InRleHQtYW5jaG9yOiBtaWRkbGU7IGZvbnQtc2l6ZTogMTZweDsgZm9udC13ZWlnaHQ6IDQwMDsiIGNsYXNzPSJhY3RvciBhY3Rvci1ib3giIGFsaWdubWVudC1iYXNlbGluZT0iY2VudHJhbCIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHk9IjMyLjUiIHg9IjExMTAiPjx0c3BhbiBkeT0iMCIgeD0iMTExMCI+QXBwbGljYXRpb24gUG9kPC90c3Bhbj48L3RleHQ+PC9nPjwvZz48Zz48bGluZSBuYW1lPSJTZXJ2aWNlIiBzdHJva2U9IiM5OTkiIHN0cm9rZS13aWR0aD0iMC41cHgiIGNsYXNzPSJhY3Rvci1saW5lIDIwMCIgeTI9Ijc5MyIgeDI9Ijg4OCIgeTE9IjY1IiB4MT0iODg4IiBpZD0iYWN0b3I0Ii8+PGcgaWQ9InJvb3QtNCI+PHJlY3QgY2xhc3M9ImFjdG9yIGFjdG9yLXRvcCIgcnk9IjMiIHJ4PSIzIiBuYW1lPSJTZXJ2aWNlIiBoZWlnaHQ9IjY1IiB3aWR0aD0iMTUwIiBzdHJva2U9IiM2NjYiIGZpbGw9IiNlYWVhZWEiIHk9IjAiIHg9IjgxMyIvPjx0ZXh0IHN0eWxlPSJ0ZXh0LWFuY2hvcjogbWlkZGxlOyBmb250LXNpemU6IDE2cHg7IGZvbnQtd2VpZ2h0OiA0MDA7IiBjbGFzcz0iYWN0b3IgYWN0b3ItYm94IiBhbGlnbm1lbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiB5PSIzMi41IiB4PSI4ODgiPjx0c3BhbiBkeT0iMCIgeD0iODg4Ij5LOHMgU2VydmljZTwvdHNwYW4+PC90ZXh0PjwvZz48L2c+PGc+PGxpbmUgbmFtZT0iTWlkZGxld2FyZSIgc3Ryb2tlPSIjOTk5IiBzdHJva2Utd2lkdGg9IjAuNXB4IiBjbGFzcz0iYWN0b3ItbGluZSAyMDAiIHkyPSI3OTMiIHgyPSI2NzkiIHkxPSI2NSIgeDE9IjY3OSIgaWQ9ImFjdG9yMyIvPjxnIGlkPSJyb290LTMiPjxyZWN0IGNsYXNzPSJhY3RvciBhY3Rvci10b3AiIHJ5PSIzIiByeD0iMyIgbmFtZT0iTWlkZGxld2FyZSIgaGVpZ2h0PSI2NSIgd2lkdGg9IjE1MCIgc3Ryb2tlPSIjNjY2IiBmaWxsPSIjZWFlYWVhIiB5PSIwIiB4PSI2MDQiLz48dGV4dCBzdHlsZT0idGV4dC1hbmNob3I6IG1pZGRsZTsgZm9udC1zaXplOiAxNnB4OyBmb250LXdlaWdodDogNDAwOyIgY2xhc3M9ImFjdG9yIGFjdG9yLWJveCIgYWxpZ25tZW50LWJhc2VsaW5lPSJjZW50cmFsIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgeT0iMzIuNSIgeD0iNjc5Ij48dHNwYW4gZHk9IjAiIHg9IjY3OSI+TWlkZGxld2FyZTwvdHNwYW4+PC90ZXh0PjwvZz48L2c+PGc+PGxpbmUgbmFtZT0iVHJhZWZpayIgc3Ryb2tlPSIjOTk5IiBzdHJva2Utd2lkdGg9IjAuNXB4IiBjbGFzcz0iYWN0b3ItbGluZSAyMDAiIHkyPSI3OTMiIHgyPSI0NzUiIHkxPSI2NSIgeDE9IjQ3NSIgaWQ9ImFjdG9yMiIvPjxnIGlkPSJyb290LTIiPjxyZWN0IGNsYXNzPSJhY3RvciBhY3Rvci10b3AiIHJ5PSIzIiByeD0iMyIgbmFtZT0iVHJhZWZpayIgaGVpZ2h0PSI2NSIgd2lkdGg9IjE1MCIgc3Ryb2tlPSIjNjY2IiBmaWxsPSIjZWFlYWVhIiB5PSIwIiB4PSI0MDAiLz48dGV4dCBzdHlsZT0idGV4dC1hbmNob3I6IG1pZGRsZTsgZm9udC1zaXplOiAxNnB4OyBmb250LXdlaWdodDogNDAwOyIgY2xhc3M9ImFjdG9yIGFjdG9yLWJveCIgYWxpZ25tZW50LWJhc2VsaW5lPSJjZW50cmFsIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgeT0iMzIuNSIgeD0iNDc1Ij48dHNwYW4gZHk9IjAiIHg9IjQ3NSI+VHJhZWZpayBJbmdyZXNzPC90c3Bhbj48L3RleHQ+PC9nPjwvZz48Zz48bGluZSBuYW1lPSJMQiIgc3Ryb2tlPSIjOTk5IiBzdHJva2Utd2lkdGg9IjAuNXB4IiBjbGFzcz0iYWN0b3ItbGluZSAyMDAiIHkyPSI3OTMiIHgyPSIyNzUiIHkxPSI2NSIgeDE9IjI3NSIgaWQ9ImFjdG9yMSIvPjxnIGlkPSJyb290LTEiPjxyZWN0IGNsYXNzPSJhY3RvciBhY3Rvci10b3AiIHJ5PSIzIiByeD0iMyIgbmFtZT0iTEIiIGhlaWdodD0iNjUiIHdpZHRoPSIxNTAiIHN0cm9rZT0iIzY2NiIgZmlsbD0iI2VhZWFlYSIgeT0iMCIgeD0iMjAwIi8+PHRleHQgc3R5bGU9InRleHQtYW5jaG9yOiBtaWRkbGU7IGZvbnQtc2l6ZTogMTZweDsgZm9udC13ZWlnaHQ6IDQwMDsiIGNsYXNzPSJhY3RvciBhY3Rvci1ib3giIGFsaWdubWVudC1iYXNlbGluZT0iY2VudHJhbCIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHk9IjMyLjUiIHg9IjI3NSI+PHRzcGFuIGR5PSIwIiB4PSIyNzUiPkxvYWQgQmFsYW5jZXI8L3RzcGFuPjwvdGV4dD48L2c+PC9nPjxnPjxsaW5lIG5hbWU9IkNsaWVudCIgc3Ryb2tlPSIjOTk5IiBzdHJva2Utd2lkdGg9IjAuNXB4IiBjbGFzcz0iYWN0b3ItbGluZSAyMDAiIHkyPSI3OTMiIHgyPSI3NSIgeTE9IjY1IiB4MT0iNzUiIGlkPSJhY3RvcjAiLz48ZyBpZD0icm9vdC0wIj48cmVjdCBjbGFzcz0iYWN0b3IgYWN0b3ItdG9wIiByeT0iMyIgcng9IjMiIG5hbWU9IkNsaWVudCIgaGVpZ2h0PSI2NSIgd2lkdGg9IjE1MCIgc3Ryb2tlPSIjNjY2IiBmaWxsPSIjZWFlYWVhIiB5PSIwIiB4PSIwIi8+PHRleHQgc3R5bGU9InRleHQtYW5jaG9yOiBtaWRkbGU7IGZvbnQtc2l6ZTogMTZweDsgZm9udC13ZWlnaHQ6IDQwMDsiIGNsYXNzPSJhY3RvciBhY3Rvci1ib3giIGFsaWdubWVudC1iYXNlbGluZT0iY2VudHJhbCIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHk9IjMyLjUiIHg9Ijc1Ij48dHNwYW4gZHk9IjAiIHg9Ijc1Ij5DbGllbnQ8L3RzcGFuPjwvdGV4dD48L2c+PC9nPjxzdHlsZT4jbXktc3Zne2ZvbnQtZmFtaWx5OiJ0cmVidWNoZXQgbXMiLHZlcmRhbmEsYXJpYWwsc2Fucy1zZXJpZjtmb250LXNpemU6MTZweDtmaWxsOiMzMzM7fSNteS1zdmcgLmVycm9yLWljb257ZmlsbDojNTUyMjIyO30jbXktc3ZnIC5lcnJvci10ZXh0e2ZpbGw6IzU1MjIyMjtzdHJva2U6IzU1MjIyMjt9I215LXN2ZyAuZWRnZS10aGlja25lc3Mtbm9ybWFse3N0cm9rZS13aWR0aDoxcHg7fSNteS1zdmcgLmVkZ2UtdGhpY2tuZXNzLXRoaWNre3N0cm9rZS13aWR0aDozLjVweDt9I215LXN2ZyAuZWRnZS1wYXR0ZXJuLXNvbGlke3N0cm9rZS1kYXNoYXJyYXk6MDt9I215LXN2ZyAuZWRnZS10aGlja25lc3MtaW52aXNpYmxle3N0cm9rZS13aWR0aDowO2ZpbGw6bm9uZTt9I215LXN2ZyAuZWRnZS1wYXR0ZXJuLWRhc2hlZHtzdHJva2UtZGFzaGFycmF5OjM7fSNteS1zdmcgLmVkZ2UtcGF0dGVybi1kb3R0ZWR7c3Ryb2tlLWRhc2hhcnJheToyO30jbXktc3ZnIC5tYXJrZXJ7ZmlsbDojMzMzMzMzO3N0cm9rZTojMzMzMzMzO30jbXktc3ZnIC5tYXJrZXIuY3Jvc3N7c3Ryb2tlOiMzMzMzMzM7fSNteS1zdmcgc3Zne2ZvbnQtZmFtaWx5OiJ0cmVidWNoZXQgbXMiLHZlcmRhbmEsYXJpYWwsc2Fucy1zZXJpZjtmb250LXNpemU6MTZweDt9I215LXN2ZyBwe21hcmdpbjowO30jbXktc3ZnIC5hY3RvcntzdHJva2U6aHNsKDI1OS42MjYxNjgyMjQzLCA1OS43NzY1MzYzMTI4JSwgODcuOTAxOTYwNzg0MyUpO2ZpbGw6I0VDRUNGRjt9I215LXN2ZyB0ZXh0LmFjdG9yJmd0O3RzcGFue2ZpbGw6YmxhY2s7c3Ryb2tlOm5vbmU7fSNteS1zdmcgLmFjdG9yLWxpbmV7c3Ryb2tlOmhzbCgyNTkuNjI2MTY4MjI0MywgNTkuNzc2NTM2MzEyOCUsIDg3LjkwMTk2MDc4NDMlKTt9I215LXN2ZyAubWVzc2FnZUxpbmUwe3N0cm9rZS13aWR0aDoxLjU7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZTojMzMzO30jbXktc3ZnIC5tZXNzYWdlTGluZTF7c3Ryb2tlLXdpZHRoOjEuNTtzdHJva2UtZGFzaGFycmF5OjIsMjtzdHJva2U6IzMzMzt9I215LXN2ZyAjYXJyb3doZWFkIHBhdGh7ZmlsbDojMzMzO3N0cm9rZTojMzMzO30jbXktc3ZnIC5zZXF1ZW5jZU51bWJlcntmaWxsOndoaXRlO30jbXktc3ZnICNzZXF1ZW5jZW51bWJlcntmaWxsOiMzMzM7fSNteS1zdmcgI2Nyb3NzaGVhZCBwYXRoe2ZpbGw6IzMzMztzdHJva2U6IzMzMzt9I215LXN2ZyAubWVzc2FnZVRleHR7ZmlsbDojMzMzO3N0cm9rZTpub25lO30jbXktc3ZnIC5sYWJlbEJveHtzdHJva2U6aHNsKDI1OS42MjYxNjgyMjQzLCA1OS43NzY1MzYzMTI4JSwgODcuOTAxOTYwNzg0MyUpO2ZpbGw6I0VDRUNGRjt9I215LXN2ZyAubGFiZWxUZXh0LCNteS1zdmcgLmxhYmVsVGV4dCZndDt0c3BhbntmaWxsOmJsYWNrO3N0cm9rZTpub25lO30jbXktc3ZnIC5sb29wVGV4dCwjbXktc3ZnIC5sb29wVGV4dCZndDt0c3BhbntmaWxsOmJsYWNrO3N0cm9rZTpub25lO30jbXktc3ZnIC5sb29wTGluZXtzdHJva2Utd2lkdGg6MnB4O3N0cm9rZS1kYXNoYXJyYXk6MiwyO3N0cm9rZTpoc2woMjU5LjYyNjE2ODIyNDMsIDU5Ljc3NjUzNjMxMjglLCA4Ny45MDE5NjA3ODQzJSk7ZmlsbDpoc2woMjU5LjYyNjE2ODIyNDMsIDU5Ljc3NjUzNjMxMjglLCA4Ny45MDE5NjA3ODQzJSk7fSNteS1zdmcgLm5vdGV7c3Ryb2tlOiNhYWFhMzM7ZmlsbDojZmZmNWFkO30jbXktc3ZnIC5ub3RlVGV4dCwjbXktc3ZnIC5ub3RlVGV4dCZndDt0c3BhbntmaWxsOmJsYWNrO3N0cm9rZTpub25lO30jbXktc3ZnIC5hY3RpdmF0aW9uMHtmaWxsOiNmNGY0ZjQ7c3Ryb2tlOiM2NjY7fSNteS1zdmcgLmFjdGl2YXRpb24xe2ZpbGw6I2Y0ZjRmNDtzdHJva2U6IzY2Njt9I215LXN2ZyAuYWN0aXZhdGlvbjJ7ZmlsbDojZjRmNGY0O3N0cm9rZTojNjY2O30jbXktc3ZnIC5hY3RvclBvcHVwTWVudXtwb3NpdGlvbjphYnNvbHV0ZTt9I215LXN2ZyAuYWN0b3JQb3B1cE1lbnVQYW5lbHtwb3NpdGlvbjphYnNvbHV0ZTtmaWxsOiNFQ0VDRkY7Ym94LXNoYWRvdzowcHggOHB4IDE2cHggMHB4IHJnYmEoMCwwLDAsMC4yKTtmaWx0ZXI6ZHJvcC1zaGFkb3coM3B4IDVweCAycHggcmdiKDAgMCAwIC8gMC40KSk7fSNteS1zdmcgLmFjdG9yLW1hbiBsaW5le3N0cm9rZTpoc2woMjU5LjYyNjE2ODIyNDMsIDU5Ljc3NjUzNjMxMjglLCA4Ny45MDE5NjA3ODQzJSk7ZmlsbDojRUNFQ0ZGO30jbXktc3ZnIC5hY3Rvci1tYW4gY2lyY2xlLCNteS1zdmcgbGluZXtzdHJva2U6aHNsKDI1OS42MjYxNjgyMjQzLCA1OS43NzY1MzYzMTI4JSwgODcuOTAxOTYwNzg0MyUpO2ZpbGw6I0VDRUNGRjtzdHJva2Utd2lkdGg6MnB4O30jbXktc3ZnIDpyb290ey0tbWVybWFpZC1mb250LWZhbWlseToidHJlYnVjaGV0IG1zIix2ZXJkYW5hLGFyaWFsLHNhbnMtc2VyaWY7fTwvc3R5bGU+PGcvPjxkZWZzPjxzeW1ib2wgaGVpZ2h0PSIyNCIgd2lkdGg9IjI0IiBpZD0iY29tcHV0ZXIiPjxwYXRoIGQ9Ik0yIDJ2MTNoMjB2LTEzaC0yMHptMTggMTFoLTE2di05aDE2djl6bS0xMC4yMjggNmwuNDY2LTFoMy41MjRsLjQ2NyAxaC00LjQ1N3ptMTQuMjI4IDNoLTI0bDItNmgyLjEwNGwtMS4zMyA0aDE4LjQ1bC0xLjI5Ny00aDIuMDczbDIgNnptLTUtMTBoLTE0di03aDE0djd6IiB0cmFuc2Zvcm09InNjYWxlKC41KSIvPjwvc3ltYm9sPjwvZGVmcz48ZGVmcz48c3ltYm9sIGNsaXAtcnVsZT0iZXZlbm9kZCIgZmlsbC1ydWxlPSJldmVub2RkIiBpZD0iZGF0YWJhc2UiPjxwYXRoIGQ9Ik0xMi4yNTguMDAxbC4yNTYuMDA0LjI1NS4wMDUuMjUzLjAwOC4yNTEuMDEuMjQ5LjAxMi4yNDcuMDE1LjI0Ni4wMTYuMjQyLjAxOS4yNDEuMDIuMjM5LjAyMy4yMzYuMDI0LjIzMy4wMjcuMjMxLjAyOC4yMjkuMDMxLjIyNS4wMzIuMjIzLjAzNC4yMi4wMzYuMjE3LjAzOC4yMTQuMDQuMjExLjA0MS4yMDguMDQzLjIwNS4wNDUuMjAxLjA0Ni4xOTguMDQ4LjE5NC4wNS4xOTEuMDUxLjE4Ny4wNTMuMTgzLjA1NC4xOC4wNTYuMTc1LjA1Ny4xNzIuMDU5LjE2OC4wNi4xNjMuMDYxLjE2LjA2My4xNTUuMDY0LjE1LjA2Ni4wNzQuMDMzLjA3My4wMzMuMDcxLjAzNC4wNy4wMzQuMDY5LjAzNS4wNjguMDM1LjA2Ny4wMzUuMDY2LjAzNS4wNjQuMDM2LjA2NC4wMzYuMDYyLjAzNi4wNi4wMzYuMDYuMDM3LjA1OC4wMzcuMDU4LjAzNy4wNTUuMDM4LjA1NS4wMzguMDUzLjAzOC4wNTIuMDM4LjA1MS4wMzkuMDUuMDM5LjA0OC4wMzkuMDQ3LjAzOS4wNDUuMDQuMDQ0LjA0LjA0My4wNC4wNDEuMDQuMDQuMDQxLjAzOS4wNDEuMDM3LjA0MS4wMzYuMDQxLjAzNC4wNDEuMDMzLjA0Mi4wMzIuMDQyLjAzLjA0Mi4wMjkuMDQyLjAyNy4wNDIuMDI2LjA0My4wMjQuMDQzLjAyMy4wNDMuMDIxLjA0My4wMi4wNDMuMDE4LjA0NC4wMTcuMDQzLjAxNS4wNDQuMDEzLjA0NC4wMTIuMDQ0LjAxMS4wNDUuMDA5LjA0NC4wMDcuMDQ1LjAwNi4wNDUuMDA0LjA0NS4wMDIuMDQ1LjAwMS4wNDV2MTdsLS4wMDEuMDQ1LS4wMDIuMDQ1LS4wMDQuMDQ1LS4wMDYuMDQ1LS4wMDcuMDQ1LS4wMDkuMDQ0LS4wMTEuMDQ1LS4wMTIuMDQ0LS4wMTMuMDQ0LS4wMTUuMDQ0LS4wMTcuMDQzLS4wMTguMDQ0LS4wMi4wNDMtLjAyMS4wNDMtLjAyMy4wNDMtLjAyNC4wNDMtLjAyNi4wNDMtLjAyNy4wNDItLjAyOS4wNDItLjAzLjA0Mi0uMDMyLjA0Mi0uMDMzLjA0Mi0uMDM0LjA0MS0uMDM2LjA0MS0uMDM3LjA0MS0uMDM5LjA0MS0uMDQuMDQxLS4wNDEuMDQtLjA0My4wNC0uMDQ0LjA0LS4wNDUuMDQtLjA0Ny4wMzktLjA0OC4wMzktLjA1LjAzOS0uMDUxLjAzOS0uMDUyLjAzOC0uMDUzLjAzOC0uMDU1LjAzOC0uMDU1LjAzOC0uMDU4LjAzNy0uMDU4LjAzNy0uMDYuMDM3LS4wNi4wMzYtLjA2Mi4wMzYtLjA2NC4wMzYtLjA2NC4wMzYtLjA2Ni4wMzUtLjA2Ny4wMzUtLjA2OC4wMzUtLjA2OS4wMzUtLjA3LjAzNC0uMDcxLjAzNC0uMDczLjAzMy0uMDc0LjAzMy0uMTUuMDY2LS4xNTUuMDY0LS4xNi4wNjMtLjE2My4wNjEtLjE2OC4wNi0uMTcyLjA1OS0uMTc1LjA1Ny0uMTguMDU2LS4xODMuMDU0LS4xODcuMDUzLS4xOTEuMDUxLS4xOTQuMDUtLjE5OC4wNDgtLjIwMS4wNDYtLjIwNS4wNDUtLjIwOC4wNDMtLjIxMS4wNDEtLjIxNC4wNC0uMjE3LjAzOC0uMjIuMDM2LS4yMjMuMDM0LS4yMjUuMDMyLS4yMjkuMDMxLS4yMzEuMDI4LS4yMzMuMDI3LS4yMzYuMDI0LS4yMzkuMDIzLS4yNDEuMDItLjI0Mi4wMTktLjI0Ni4wMTYtLjI0Ny4wMTUtLjI0OS4wMTItLjI1MS4wMS0uMjUzLjAwOC0uMjU1LjAwNS0uMjU2LjAwNC0uMjU4LjAwMS0uMjU4LS4wMDEtLjI1Ni0uMDA0LS4yNTUtLjAwNS0uMjUzLS4wMDgtLjI1MS0uMDEtLjI0OS0uMDEyLS4yNDctLjAxNS0uMjQ1LS4wMTYtLjI0My0uMDE5LS4yNDEtLjAyLS4yMzgtLjAyMy0uMjM2LS4wMjQtLjIzNC0uMDI3LS4yMzEtLjAyOC0uMjI4LS4wMzEtLjIyNi0uMDMyLS4yMjMtLjAzNC0uMjItLjAzNi0uMjE3LS4wMzgtLjIxNC0uMDQtLjIxMS0uMDQxLS4yMDgtLjA0My0uMjA0LS4wNDUtLjIwMS0uMDQ2LS4xOTgtLjA0OC0uMTk1LS4wNS0uMTktLjA1MS0uMTg3LS4wNTMtLjE4NC0uMDU0LS4xNzktLjA1Ni0uMTc2LS4wNTctLjE3Mi0uMDU5LS4xNjctLjA2LS4xNjQtLjA2MS0uMTU5LS4wNjMtLjE1NS0uMDY0LS4xNTEtLjA2Ni0uMDc0LS4wMzMtLjA3Mi0uMDMzLS4wNzItLjAzNC0uMDctLjAzNC0uMDY5LS4wMzUtLjA2OC0uMDM1LS4wNjctLjAzNS0uMDY2LS4wMzUtLjA2NC0uMDM2LS4wNjMtLjAzNi0uMDYyLS4wMzYtLjA2MS0uMDM2LS4wNi0uMDM3LS4wNTgtLjAzNy0uMDU3LS4wMzctLjA1Ni0uMDM4LS4wNTUtLjAzOC0uMDUzLS4wMzgtLjA1Mi0uMDM4LS4wNTEtLjAzOS0uMDQ5LS4wMzktLjA0OS0uMDM5LS4wNDYtLjAzOS0uMDQ2LS4wNC0uMDQ0LS4wNC0uMDQzLS4wNC0uMDQxLS4wNC0uMDQtLjA0MS0uMDM5LS4wNDEtLjAzNy0uMDQxLS4wMzYtLjA0MS0uMDM0LS4wNDEtLjAzMy0uMDQyLS4wMzItLjA0Mi0uMDMtLjA0Mi0uMDI5LS4wNDItLjAyNy0uMDQyLS4wMjYtLjA0My0uMDI0LS4wNDMtLjAyMy0uMDQzLS4wMjEtLjA0My0uMDItLjA0My0uMDE4LS4wNDQtLjAxNy0uMDQzLS4wMTUtLjA0NC0uMDEzLS4wNDQtLjAxMi0uMDQ0LS4wMTEtLjA0NS0uMDA5LS4wNDQtLjAwNy0uMDQ1LS4wMDYtLjA0NS0uMDA0LS4wNDUtLjAwMi0uMDQ1LS4wMDEtLjA0NXYtMTdsLjAwMS0uMDQ1LjAwMi0uMDQ1LjAwNC0uMDQ1LjAwNi0uMDQ1LjAwNy0uMDQ1LjAwOS0uMDQ0LjAxMS0uMDQ1LjAxMi0uMDQ0LjAxMy0uMDQ0LjAxNS0uMDQ0LjAxNy0uMDQzLjAxOC0uMDQ0LjAyLS4wNDMuMDIxLS4wNDMuMDIzLS4wNDMuMDI0LS4wNDMuMDI2LS4wNDMuMDI3LS4wNDIuMDI5LS4wNDIuMDMtLjA0Mi4wMzItLjA0Mi4wMzMtLjA0Mi4wMzQtLjA0MS4wMzYtLjA0MS4wMzctLjA0MS4wMzktLjA0MS4wNC0uMDQxLjA0MS0uMDQuMDQzLS4wNC4wNDQtLjA0LjA0Ni0uMDQuMDQ2LS4wMzkuMDQ5LS4wMzkuMDQ5LS4wMzkuMDUxLS4wMzkuMDUyLS4wMzguMDUzLS4wMzguMDU1LS4wMzguMDU2LS4wMzguMDU3LS4wMzcuMDU4LS4wMzcuMDYtLjAzNy4wNjEtLjAzNi4wNjItLjAzNi4wNjMtLjAzNi4wNjQtLjAzNi4wNjYtLjAzNS4wNjctLjAzNS4wNjgtLjAzNS4wNjktLjAzNS4wNy0uMDM0LjA3Mi0uMDM0LjA3Mi0uMDMzLjA3NC0uMDMzLjE1MS0uMDY2LjE1NS0uMDY0LjE1OS0uMDYzLjE2NC0uMDYxLjE2Ny0uMDYuMTcyLS4wNTkuMTc2LS4wNTcuMTc5LS4wNTYuMTg0LS4wNTQuMTg3LS4wNTMuMTktLjA1MS4xOTUtLjA1LjE5OC0uMDQ4LjIwMS0uMDQ2LjIwNC0uMDQ1LjIwOC0uMDQzLjIxMS0uMDQxLjIxNC0uMDQuMjE3LS4wMzguMjItLjAzNi4yMjMtLjAzNC4yMjYtLjAzMi4yMjgtLjAzMS4yMzEtLjAyOC4yMzQtLjAyNy4yMzYtLjAyNC4yMzgtLjAyMy4yNDEtLjAyLjI0My0uMDE5LjI0NS0uMDE2LjI0Ny0uMDE1LjI0OS0uMDEyLjI1MS0uMDEuMjUzLS4wMDguMjU1LS4wMDUuMjU2LS4wMDQuMjU4LS4wMDEuMjU4LjAwMXptLTkuMjU4IDIwLjQ5OXYuMDFsLjAwMS4wMjEuMDAzLjAyMS4wMDQuMDIyLjAwNS4wMjEuMDA2LjAyMi4wMDcuMDIyLjAwOS4wMjMuMDEuMDIyLjAxMS4wMjMuMDEyLjAyMy4wMTMuMDIzLjAxNS4wMjMuMDE2LjAyNC4wMTcuMDIzLjAxOC4wMjQuMDE5LjAyNC4wMjEuMDI0LjAyMi4wMjUuMDIzLjAyNC4wMjQuMDI1LjA1Mi4wNDkuMDU2LjA1LjA2MS4wNTEuMDY2LjA1MS4wNy4wNTEuMDc1LjA1MS4wNzkuMDUyLjA4NC4wNTIuMDg4LjA1Mi4wOTIuMDUyLjA5Ny4wNTIuMTAyLjA1MS4xMDUuMDUyLjExLjA1Mi4xMTQuMDUxLjExOS4wNTEuMTIzLjA1MS4xMjcuMDUuMTMxLjA1LjEzNS4wNS4xMzkuMDQ4LjE0NC4wNDkuMTQ3LjA0Ny4xNTIuMDQ3LjE1NS4wNDcuMTYuMDQ1LjE2My4wNDUuMTY3LjA0My4xNzEuMDQzLjE3Ni4wNDEuMTc4LjA0MS4xODMuMDM5LjE4Ny4wMzkuMTkuMDM3LjE5NC4wMzUuMTk3LjAzNS4yMDIuMDMzLjIwNC4wMzEuMjA5LjAzLjIxMi4wMjkuMjE2LjAyNy4yMTkuMDI1LjIyMi4wMjQuMjI2LjAyMS4yMy4wMi4yMzMuMDE4LjIzNi4wMTYuMjQuMDE1LjI0My4wMTIuMjQ2LjAxLjI0OS4wMDguMjUzLjAwNS4yNTYuMDA0LjI1OS4wMDEuMjYtLjAwMS4yNTctLjAwNC4yNTQtLjAwNS4yNS0uMDA4LjI0Ny0uMDExLjI0NC0uMDEyLjI0MS0uMDE0LjIzNy0uMDE2LjIzMy0uMDE4LjIzMS0uMDIxLjIyNi0uMDIxLjIyNC0uMDI0LjIyLS4wMjYuMjE2LS4wMjcuMjEyLS4wMjguMjEtLjAzMS4yMDUtLjAzMS4yMDItLjAzNC4xOTgtLjAzNC4xOTQtLjAzNi4xOTEtLjAzNy4xODctLjAzOS4xODMtLjA0LjE3OS0uMDQuMTc1LS4wNDIuMTcyLS4wNDMuMTY4LS4wNDQuMTYzLS4wNDUuMTYtLjA0Ni4xNTUtLjA0Ni4xNTItLjA0Ny4xNDgtLjA0OC4xNDMtLjA0OS4xMzktLjA0OS4xMzYtLjA1LjEzMS0uMDUuMTI2LS4wNS4xMjMtLjA1MS4xMTgtLjA1Mi4xMTQtLjA1MS4xMS0uMDUyLjEwNi0uMDUyLjEwMS0uMDUyLjA5Ni0uMDUyLjA5Mi0uMDUyLjA4OC0uMDUzLjA4My0uMDUxLjA3OS0uMDUyLjA3NC0uMDUyLjA3LS4wNTEuMDY1LS4wNTEuMDYtLjA1MS4wNTYtLjA1LjA1MS0uMDUuMDIzLS4wMjQuMDIzLS4wMjUuMDIxLS4wMjQuMDItLjAyNC4wMTktLjAyNC4wMTgtLjAyNC4wMTctLjAyNC4wMTUtLjAyMy4wMTQtLjAyNC4wMTMtLjAyMy4wMTItLjAyMy4wMS0uMDIzLjAxLS4wMjIuMDA4LS4wMjIuMDA2LS4wMjIuMDA2LS4wMjIuMDA0LS4wMjIuMDA0LS4wMjEuMDAxLS4wMjEuMDAxLS4wMjF2LTQuMTI3bC0uMDc3LjA1NS0uMDguMDUzLS4wODMuMDU0LS4wODUuMDUzLS4wODcuMDUyLS4wOS4wNTItLjA5My4wNTEtLjA5NS4wNS0uMDk3LjA1LS4xLjA0OS0uMTAyLjA0OS0uMTA1LjA0OC0uMTA2LjA0Ny0uMTA5LjA0Ny0uMTExLjA0Ni0uMTE0LjA0NS0uMTE1LjA0NS0uMTE4LjA0NC0uMTIuMDQzLS4xMjIuMDQyLS4xMjQuMDQyLS4xMjYuMDQxLS4xMjguMDQtLjEzLjA0LS4xMzIuMDM4LS4xMzQuMDM4LS4xMzUuMDM3LS4xMzguMDM3LS4xMzkuMDM1LS4xNDIuMDM1LS4xNDMuMDM0LS4xNDQuMDMzLS4xNDcuMDMyLS4xNDguMDMxLS4xNS4wMy0uMTUxLjAzLS4xNTMuMDI5LS4xNTQuMDI3LS4xNTYuMDI3LS4xNTguMDI2LS4xNTkuMDI1LS4xNjEuMDI0LS4xNjIuMDIzLS4xNjMuMDIyLS4xNjUuMDIxLS4xNjYuMDItLjE2Ny4wMTktLjE2OS4wMTgtLjE2OS4wMTctLjE3MS4wMTYtLjE3My4wMTUtLjE3My4wMTQtLjE3NS4wMTMtLjE3NS4wMTItLjE3Ny4wMTEtLjE3OC4wMS0uMTc5LjAwOC0uMTc5LjAwOC0uMTgxLjAwNi0uMTgyLjAwNS0uMTgyLjAwNC0uMTg0LjAwMy0uMTg0LjAwMmgtLjM3bC0uMTg0LS4wMDItLjE4NC0uMDAzLS4xODItLjAwNC0uMTgyLS4wMDUtLjE4MS0uMDA2LS4xNzktLjAwOC0uMTc5LS4wMDgtLjE3OC0uMDEtLjE3Ni0uMDExLS4xNzYtLjAxMi0uMTc1LS4wMTMtLjE3My0uMDE0LS4xNzItLjAxNS0uMTcxLS4wMTYtLjE3LS4wMTctLjE2OS0uMDE4LS4xNjctLjAxOS0uMTY2LS4wMi0uMTY1LS4wMjEtLjE2My0uMDIyLS4xNjItLjAyMy0uMTYxLS4wMjQtLjE1OS0uMDI1LS4xNTctLjAyNi0uMTU2LS4wMjctLjE1NS0uMDI3LS4xNTMtLjAyOS0uMTUxLS4wMy0uMTUtLjAzLS4xNDgtLjAzMS0uMTQ2LS4wMzItLjE0NS0uMDMzLS4xNDMtLjAzNC0uMTQxLS4wMzUtLjE0LS4wMzUtLjEzNy0uMDM3LS4xMzYtLjAzNy0uMTM0LS4wMzgtLjEzMi0uMDM4LS4xMy0uMDQtLjEyOC0uMDQtLjEyNi0uMDQxLS4xMjQtLjA0Mi0uMTIyLS4wNDItLjEyLS4wNDQtLjExNy0uMDQzLS4xMTYtLjA0NS0uMTEzLS4wNDUtLjExMi0uMDQ2LS4xMDktLjA0Ny0uMTA2LS4wNDctLjEwNS0uMDQ4LS4xMDItLjA0OS0uMS0uMDQ5LS4wOTctLjA1LS4wOTUtLjA1LS4wOTMtLjA1Mi0uMDktLjA1MS0uMDg3LS4wNTItLjA4NS0uMDUzLS4wODMtLjA1NC0uMDgtLjA1NC0uMDc3LS4wNTR2NC4xMjd6bTAtNS42NTR2LjAxMWwuMDAxLjAyMS4wMDMuMDIxLjAwNC4wMjEuMDA1LjAyMi4wMDYuMDIyLjAwNy4wMjIuMDA5LjAyMi4wMS4wMjIuMDExLjAyMy4wMTIuMDIzLjAxMy4wMjMuMDE1LjAyNC4wMTYuMDIzLjAxNy4wMjQuMDE4LjAyNC4wMTkuMDI0LjAyMS4wMjQuMDIyLjAyNC4wMjMuMDI1LjAyNC4wMjQuMDUyLjA1LjA1Ni4wNS4wNjEuMDUuMDY2LjA1MS4wNy4wNTEuMDc1LjA1Mi4wNzkuMDUxLjA4NC4wNTIuMDg4LjA1Mi4wOTIuMDUyLjA5Ny4wNTIuMTAyLjA1Mi4xMDUuMDUyLjExLjA1MS4xMTQuMDUxLjExOS4wNTIuMTIzLjA1LjEyNy4wNTEuMTMxLjA1LjEzNS4wNDkuMTM5LjA0OS4xNDQuMDQ4LjE0Ny4wNDguMTUyLjA0Ny4xNTUuMDQ2LjE2LjA0NS4xNjMuMDQ1LjE2Ny4wNDQuMTcxLjA0Mi4xNzYuMDQyLjE3OC4wNC4xODMuMDQuMTg3LjAzOC4xOS4wMzcuMTk0LjAzNi4xOTcuMDM0LjIwMi4wMzMuMjA0LjAzMi4yMDkuMDMuMjEyLjAyOC4yMTYuMDI3LjIxOS4wMjUuMjIyLjAyNC4yMjYuMDIyLjIzLjAyLjIzMy4wMTguMjM2LjAxNi4yNC4wMTQuMjQzLjAxMi4yNDYuMDEuMjQ5LjAwOC4yNTMuMDA2LjI1Ni4wMDMuMjU5LjAwMS4yNi0uMDAxLjI1Ny0uMDAzLjI1NC0uMDA2LjI1LS4wMDguMjQ3LS4wMS4yNDQtLjAxMi4yNDEtLjAxNS4yMzctLjAxNi4yMzMtLjAxOC4yMzEtLjAyLjIyNi0uMDIyLjIyNC0uMDI0LjIyLS4wMjUuMjE2LS4wMjcuMjEyLS4wMjkuMjEtLjAzLjIwNS0uMDMyLjIwMi0uMDMzLjE5OC0uMDM1LjE5NC0uMDM2LjE5MS0uMDM3LjE4Ny0uMDM5LjE4My0uMDM5LjE3OS0uMDQxLjE3NS0uMDQyLjE3Mi0uMDQzLjE2OC0uMDQ0LjE2My0uMDQ1LjE2LS4wNDUuMTU1LS4wNDcuMTUyLS4wNDcuMTQ4LS4wNDguMTQzLS4wNDguMTM5LS4wNS4xMzYtLjA0OS4xMzEtLjA1LjEyNi0uMDUxLjEyMy0uMDUxLjExOC0uMDUxLjExNC0uMDUyLjExLS4wNTIuMTA2LS4wNTIuMTAxLS4wNTIuMDk2LS4wNTIuMDkyLS4wNTIuMDg4LS4wNTIuMDgzLS4wNTIuMDc5LS4wNTIuMDc0LS4wNTEuMDctLjA1Mi4wNjUtLjA1MS4wNi0uMDUuMDU2LS4wNTEuMDUxLS4wNDkuMDIzLS4wMjUuMDIzLS4wMjQuMDIxLS4wMjUuMDItLjAyNC4wMTktLjAyNC4wMTgtLjAyNC4wMTctLjAyNC4wMTUtLjAyMy4wMTQtLjAyMy4wMTMtLjAyNC4wMTItLjAyMi4wMS0uMDIzLjAxLS4wMjMuMDA4LS4wMjIuMDA2LS4wMjIuMDA2LS4wMjIuMDA0LS4wMjEuMDA0LS4wMjIuMDAxLS4wMjEuMDAxLS4wMjF2LTQuMTM5bC0uMDc3LjA1NC0uMDguMDU0LS4wODMuMDU0LS4wODUuMDUyLS4wODcuMDUzLS4wOS4wNTEtLjA5My4wNTEtLjA5NS4wNTEtLjA5Ny4wNS0uMS4wNDktLjEwMi4wNDktLjEwNS4wNDgtLjEwNi4wNDctLjEwOS4wNDctLjExMS4wNDYtLjExNC4wNDUtLjExNS4wNDQtLjExOC4wNDQtLjEyLjA0NC0uMTIyLjA0Mi0uMTI0LjA0Mi0uMTI2LjA0MS0uMTI4LjA0LS4xMy4wMzktLjEzMi4wMzktLjEzNC4wMzgtLjEzNS4wMzctLjEzOC4wMzYtLjEzOS4wMzYtLjE0Mi4wMzUtLjE0My4wMzMtLjE0NC4wMzMtLjE0Ny4wMzMtLjE0OC4wMzEtLjE1LjAzLS4xNTEuMDMtLjE1My4wMjgtLjE1NC4wMjgtLjE1Ni4wMjctLjE1OC4wMjYtLjE1OS4wMjUtLjE2MS4wMjQtLjE2Mi4wMjMtLjE2My4wMjItLjE2NS4wMjEtLjE2Ni4wMi0uMTY3LjAxOS0uMTY5LjAxOC0uMTY5LjAxNy0uMTcxLjAxNi0uMTczLjAxNS0uMTczLjAxNC0uMTc1LjAxMy0uMTc1LjAxMi0uMTc3LjAxMS0uMTc4LjAwOS0uMTc5LjAwOS0uMTc5LjAwNy0uMTgxLjAwNy0uMTgyLjAwNS0uMTgyLjAwNC0uMTg0LjAwMy0uMTg0LjAwMmgtLjM3bC0uMTg0LS4wMDItLjE4NC0uMDAzLS4xODItLjAwNC0uMTgyLS4wMDUtLjE4MS0uMDA3LS4xNzktLjAwNy0uMTc5LS4wMDktLjE3OC0uMDA5LS4xNzYtLjAxMS0uMTc2LS4wMTItLjE3NS0uMDEzLS4xNzMtLjAxNC0uMTcyLS4wMTUtLjE3MS0uMDE2LS4xNy0uMDE3LS4xNjktLjAxOC0uMTY3LS4wMTktLjE2Ni0uMDItLjE2NS0uMDIxLS4xNjMtLjAyMi0uMTYyLS4wMjMtLjE2MS0uMDI0LS4xNTktLjAyNS0uMTU3LS4wMjYtLjE1Ni0uMDI3LS4xNTUtLjAyOC0uMTUzLS4wMjgtLjE1MS0uMDMtLjE1LS4wMy0uMTQ4LS4wMzEtLjE0Ni0uMDMzLS4xNDUtLjAzMy0uMTQzLS4wMzMtLjE0MS0uMDM1LS4xNC0uMDM2LS4xMzctLjAzNi0uMTM2LS4wMzctLjEzNC0uMDM4LS4xMzItLjAzOS0uMTMtLjAzOS0uMTI4LS4wNC0uMTI2LS4wNDEtLjEyNC0uMDQyLS4xMjItLjA0My0uMTItLjA0My0uMTE3LS4wNDQtLjExNi0uMDQ0LS4xMTMtLjA0Ni0uMTEyLS4wNDYtLjEwOS0uMDQ2LS4xMDYtLjA0Ny0uMTA1LS4wNDgtLjEwMi0uMDQ5LS4xLS4wNDktLjA5Ny0uMDUtLjA5NS0uMDUxLS4wOTMtLjA1MS0uMDktLjA1MS0uMDg3LS4wNTMtLjA4NS0uMDUyLS4wODMtLjA1NC0uMDgtLjA1NC0uMDc3LS4wNTR2NC4xMzl6bTAtNS42NjZ2LjAxMWwuMDAxLjAyLjAwMy4wMjIuMDA0LjAyMS4wMDUuMDIyLjAwNi4wMjEuMDA3LjAyMi4wMDkuMDIzLjAxLjAyMi4wMTEuMDIzLjAxMi4wMjMuMDEzLjAyMy4wMTUuMDIzLjAxNi4wMjQuMDE3LjAyNC4wMTguMDIzLjAxOS4wMjQuMDIxLjAyNS4wMjIuMDI0LjAyMy4wMjQuMDI0LjAyNS4wNTIuMDUuMDU2LjA1LjA2MS4wNS4wNjYuMDUxLjA3LjA1MS4wNzUuMDUyLjA3OS4wNTEuMDg0LjA1Mi4wODguMDUyLjA5Mi4wNTIuMDk3LjA1Mi4xMDIuMDUyLjEwNS4wNTEuMTEuMDUyLjExNC4wNTEuMTE5LjA1MS4xMjMuMDUxLjEyNy4wNS4xMzEuMDUuMTM1LjA1LjEzOS4wNDkuMTQ0LjA0OC4xNDcuMDQ4LjE1Mi4wNDcuMTU1LjA0Ni4xNi4wNDUuMTYzLjA0NS4xNjcuMDQzLjE3MS4wNDMuMTc2LjA0Mi4xNzguMDQuMTgzLjA0LjE4Ny4wMzguMTkuMDM3LjE5NC4wMzYuMTk3LjAzNC4yMDIuMDMzLjIwNC4wMzIuMjA5LjAzLjIxMi4wMjguMjE2LjAyNy4yMTkuMDI1LjIyMi4wMjQuMjI2LjAyMS4yMy4wMi4yMzMuMDE4LjIzNi4wMTcuMjQuMDE0LjI0My4wMTIuMjQ2LjAxLjI0OS4wMDguMjUzLjAwNi4yNTYuMDAzLjI1OS4wMDEuMjYtLjAwMS4yNTctLjAwMy4yNTQtLjAwNi4yNS0uMDA4LjI0Ny0uMDEuMjQ0LS4wMTMuMjQxLS4wMTQuMjM3LS4wMTYuMjMzLS4wMTguMjMxLS4wMi4yMjYtLjAyMi4yMjQtLjAyNC4yMi0uMDI1LjIxNi0uMDI3LjIxMi0uMDI5LjIxLS4wMy4yMDUtLjAzMi4yMDItLjAzMy4xOTgtLjAzNS4xOTQtLjAzNi4xOTEtLjAzNy4xODctLjAzOS4xODMtLjAzOS4xNzktLjA0MS4xNzUtLjA0Mi4xNzItLjA0My4xNjgtLjA0NC4xNjMtLjA0NS4xNi0uMDQ1LjE1NS0uMDQ3LjE1Mi0uMDQ3LjE0OC0uMDQ4LjE0My0uMDQ5LjEzOS0uMDQ5LjEzNi0uMDQ5LjEzMS0uMDUxLjEyNi0uMDUuMTIzLS4wNTEuMTE4LS4wNTIuMTE0LS4wNTEuMTEtLjA1Mi4xMDYtLjA1Mi4xMDEtLjA1Mi4wOTYtLjA1Mi4wOTItLjA1Mi4wODgtLjA1Mi4wODMtLjA1Mi4wNzktLjA1Mi4wNzQtLjA1Mi4wNy0uMDUxLjA2NS0uMDUxLjA2LS4wNTEuMDU2LS4wNS4wNTEtLjA0OS4wMjMtLjAyNS4wMjMtLjAyNS4wMjEtLjAyNC4wMi0uMDI0LjAxOS0uMDI0LjAxOC0uMDI0LjAxNy0uMDI0LjAxNS0uMDIzLjAxNC0uMDI0LjAxMy0uMDIzLjAxMi0uMDIzLjAxLS4wMjIuMDEtLjAyMy4wMDgtLjAyMi4wMDYtLjAyMi4wMDYtLjAyMi4wMDQtLjAyMi4wMDQtLjAyMS4wMDEtLjAyMS4wMDEtLjAyMXYtNC4xNTNsLS4wNzcuMDU0LS4wOC4wNTQtLjA4My4wNTMtLjA4NS4wNTMtLjA4Ny4wNTMtLjA5LjA1MS0uMDkzLjA1MS0uMDk1LjA1MS0uMDk3LjA1LS4xLjA0OS0uMTAyLjA0OC0uMTA1LjA0OC0uMTA2LjA0OC0uMTA5LjA0Ni0uMTExLjA0Ni0uMTE0LjA0Ni0uMTE1LjA0NC0uMTE4LjA0NC0uMTIuMDQzLS4xMjIuMDQzLS4xMjQuMDQyLS4xMjYuMDQxLS4xMjguMDQtLjEzLjAzOS0uMTMyLjAzOS0uMTM0LjAzOC0uMTM1LjAzNy0uMTM4LjAzNi0uMTM5LjAzNi0uMTQyLjAzNC0uMTQzLjAzNC0uMTQ0LjAzMy0uMTQ3LjAzMi0uMTQ4LjAzMi0uMTUuMDMtLjE1MS4wMy0uMTUzLjAyOC0uMTU0LjAyOC0uMTU2LjAyNy0uMTU4LjAyNi0uMTU5LjAyNC0uMTYxLjAyNC0uMTYyLjAyMy0uMTYzLjAyMy0uMTY1LjAyMS0uMTY2LjAyLS4xNjcuMDE5LS4xNjkuMDE4LS4xNjkuMDE3LS4xNzEuMDE2LS4xNzMuMDE1LS4xNzMuMDE0LS4xNzUuMDEzLS4xNzUuMDEyLS4xNzcuMDEtLjE3OC4wMS0uMTc5LjAwOS0uMTc5LjAwNy0uMTgxLjAwNi0uMTgyLjAwNi0uMTgyLjAwNC0uMTg0LjAwMy0uMTg0LjAwMS0uMTg1LjAwMS0uMTg1LS4wMDEtLjE4NC0uMDAxLS4xODQtLjAwMy0uMTgyLS4wMDQtLjE4Mi0uMDA2LS4xODEtLjAwNi0uMTc5LS4wMDctLjE3OS0uMDA5LS4xNzgtLjAxLS4xNzYtLjAxLS4xNzYtLjAxMi0uMTc1LS4wMTMtLjE3My0uMDE0LS4xNzItLjAxNS0uMTcxLS4wMTYtLjE3LS4wMTctLjE2OS0uMDE4LS4xNjctLjAxOS0uMTY2LS4wMi0uMTY1LS4wMjEtLjE2My0uMDIzLS4xNjItLjAyMy0uMTYxLS4wMjQtLjE1OS0uMDI0LS4xNTctLjAyNi0uMTU2LS4wMjctLjE1NS0uMDI4LS4xNTMtLjAyOC0uMTUxLS4wMy0uMTUtLjAzLS4xNDgtLjAzMi0uMTQ2LS4wMzItLjE0NS0uMDMzLS4xNDMtLjAzNC0uMTQxLS4wMzQtLjE0LS4wMzYtLjEzNy0uMDM2LS4xMzYtLjAzNy0uMTM0LS4wMzgtLjEzMi0uMDM5LS4xMy0uMDM5LS4xMjgtLjA0MS0uMTI2LS4wNDEtLjEyNC0uMDQxLS4xMjItLjA0My0uMTItLjA0My0uMTE3LS4wNDQtLjExNi0uMDQ0LS4xMTMtLjA0Ni0uMTEyLS4wNDYtLjEwOS0uMDQ2LS4xMDYtLjA0OC0uMTA1LS4wNDgtLjEwMi0uMDQ4LS4xLS4wNS0uMDk3LS4wNDktLjA5NS0uMDUxLS4wOTMtLjA1MS0uMDktLjA1Mi0uMDg3LS4wNTItLjA4NS0uMDUzLS4wODMtLjA1My0uMDgtLjA1NC0uMDc3LS4wNTR2NC4xNTN6bTguNzQtOC4xNzlsLS4yNTcuMDA0LS4yNTQuMDA1LS4yNS4wMDgtLjI0Ny4wMTEtLjI0NC4wMTItLjI0MS4wMTQtLjIzNy4wMTYtLjIzMy4wMTgtLjIzMS4wMjEtLjIyNi4wMjItLjIyNC4wMjMtLjIyLjAyNi0uMjE2LjAyNy0uMjEyLjAyOC0uMjEuMDMxLS4yMDUuMDMyLS4yMDIuMDMzLS4xOTguMDM0LS4xOTQuMDM2LS4xOTEuMDM4LS4xODcuMDM4LS4xODMuMDQtLjE3OS4wNDEtLjE3NS4wNDItLjE3Mi4wNDMtLjE2OC4wNDMtLjE2My4wNDUtLjE2LjA0Ni0uMTU1LjA0Ni0uMTUyLjA0OC0uMTQ4LjA0OC0uMTQzLjA0OC0uMTM5LjA0OS0uMTM2LjA1LS4xMzEuMDUtLjEyNi4wNTEtLjEyMy4wNTEtLjExOC4wNTEtLjExNC4wNTItLjExLjA1Mi0uMTA2LjA1Mi0uMTAxLjA1Mi0uMDk2LjA1Mi0uMDkyLjA1Mi0uMDg4LjA1Mi0uMDgzLjA1Mi0uMDc5LjA1Mi0uMDc0LjA1MS0uMDcuMDUyLS4wNjUuMDUxLS4wNi4wNS0uMDU2LjA1LS4wNTEuMDUtLjAyMy4wMjUtLjAyMy4wMjQtLjAyMS4wMjQtLjAyLjAyNS0uMDE5LjAyNC0uMDE4LjAyNC0uMDE3LjAyMy0uMDE1LjAyNC0uMDE0LjAyMy0uMDEzLjAyMy0uMDEyLjAyMy0uMDEuMDIzLS4wMS4wMjItLjAwOC4wMjItLjAwNi4wMjMtLjAwNi4wMjEtLjAwNC4wMjItLjAwNC4wMjEtLjAwMS4wMjEtLjAwMS4wMjEuMDAxLjAyMS4wMDEuMDIxLjAwNC4wMjEuMDA0LjAyMi4wMDYuMDIxLjAwNi4wMjMuMDA4LjAyMi4wMS4wMjIuMDEuMDIzLjAxMi4wMjMuMDEzLjAyMy4wMTQuMDIzLjAxNS4wMjQuMDE3LjAyMy4wMTguMDI0LjAxOS4wMjQuMDIuMDI1LjAyMS4wMjQuMDIzLjAyNC4wMjMuMDI1LjA1MS4wNS4wNTYuMDUuMDYuMDUuMDY1LjA1MS4wNy4wNTIuMDc0LjA1MS4wNzkuMDUyLjA4My4wNTIuMDg4LjA1Mi4wOTIuMDUyLjA5Ni4wNTIuMTAxLjA1Mi4xMDYuMDUyLjExLjA1Mi4xMTQuMDUyLjExOC4wNTEuMTIzLjA1MS4xMjYuMDUxLjEzMS4wNS4xMzYuMDUuMTM5LjA0OS4xNDMuMDQ4LjE0OC4wNDguMTUyLjA0OC4xNTUuMDQ2LjE2LjA0Ni4xNjMuMDQ1LjE2OC4wNDMuMTcyLjA0My4xNzUuMDQyLjE3OS4wNDEuMTgzLjA0LjE4Ny4wMzguMTkxLjAzOC4xOTQuMDM2LjE5OC4wMzQuMjAyLjAzMy4yMDUuMDMyLjIxLjAzMS4yMTIuMDI4LjIxNi4wMjcuMjIuMDI2LjIyNC4wMjMuMjI2LjAyMi4yMzEuMDIxLjIzMy4wMTguMjM3LjAxNi4yNDEuMDE0LjI0NC4wMTIuMjQ3LjAxMS4yNS4wMDguMjU0LjAwNS4yNTcuMDA0LjI2LjAwMS4yNi0uMDAxLjI1Ny0uMDA0LjI1NC0uMDA1LjI1LS4wMDguMjQ3LS4wMTEuMjQ0LS4wMTIuMjQxLS4wMTQuMjM3LS4wMTYuMjMzLS4wMTguMjMxLS4wMjEuMjI2LS4wMjIuMjI0LS4wMjMuMjItLjAyNi4yMTYtLjAyNy4yMTItLjAyOC4yMS0uMDMxLjIwNS0uMDMyLjIwMi0uMDMzLjE5OC0uMDM0LjE5NC0uMDM2LjE5MS0uMDM4LjE4Ny0uMDM4LjE4My0uMDQuMTc5LS4wNDEuMTc1LS4wNDIuMTcyLS4wNDMuMTY4LS4wNDMuMTYzLS4wNDUuMTYtLjA0Ni4xNTUtLjA0Ni4xNTItLjA0OC4xNDgtLjA0OC4xNDMtLjA0OC4xMzktLjA0OS4xMzYtLjA1LjEzMS0uMDUuMTI2LS4wNTEuMTIzLS4wNTEuMTE4LS4wNTEuMTE0LS4wNTIuMTEtLjA1Mi4xMDYtLjA1Mi4xMDEtLjA1Mi4wOTYtLjA1Mi4wOTItLjA1Mi4wODgtLjA1Mi4wODMtLjA1Mi4wNzktLjA1Mi4wNzQtLjA1MS4wNy0uMDUyLjA2NS0uMDUxLjA2LS4wNS4wNTYtLjA1LjA1MS0uMDUuMDIzLS4wMjUuMDIzLS4wMjQuMDIxLS4wMjQuMDItLjAyNS4wMTktLjAyNC4wMTgtLjAyNC4wMTctLjAyMy4wMTUtLjAyNC4wMTQtLjAyMy4wMTMtLjAyMy4wMTItLjAyMy4wMS0uMDIzLjAxLS4wMjIuMDA4LS4wMjIuMDA2LS4wMjMuMDA2LS4wMjEuMDA0LS4wMjIuMDA0LS4wMjEuMDAxLS4wMjEuMDAxLS4wMjEtLjAwMS0uMDIxLS4wMDEtLjAyMS0uMDA0LS4wMjEtLjAwNC0uMDIyLS4wMDYtLjAyMS0uMDA2LS4wMjMtLjAwOC0uMDIyLS4wMS0uMDIyLS4wMS0uMDIzLS4wMTItLjAyMy0uMDEzLS4wMjMtLjAxNC0uMDIzLS4wMTUtLjAyNC0uMDE3LS4wMjMtLjAxOC0uMDI0LS4wMTktLjAyNC0uMDItLjAyNS0uMDIxLS4wMjQtLjAyMy0uMDI0LS4wMjMtLjAyNS0uMDUxLS4wNS0uMDU2LS4wNS0uMDYtLjA1LS4wNjUtLjA1MS0uMDctLjA1Mi0uMDc0LS4wNTEtLjA3OS0uMDUyLS4wODMtLjA1Mi0uMDg4LS4wNTItLjA5Mi0uMDUyLS4wOTYtLjA1Mi0uMTAxLS4wNTItLjEwNi0uMDUyLS4xMS0uMDUyLS4xMTQtLjA1Mi0uMTE4LS4wNTEtLjEyMy0uMDUxLS4xMjYtLjA1MS0uMTMxLS4wNS0uMTM2LS4wNS0uMTM5LS4wNDktLjE0My0uMDQ4LS4xNDgtLjA0OC0uMTUyLS4wNDgtLjE1NS0uMDQ2LS4xNi0uMDQ2LS4xNjMtLjA0NS0uMTY4LS4wNDMtLjE3Mi0uMDQzLS4xNzUtLjA0Mi0uMTc5LS4wNDEtLjE4My0uMDQtLjE4Ny0uMDM4LS4xOTEtLjAzOC0uMTk0LS4wMzYtLjE5OC0uMDM0LS4yMDItLjAzMy0uMjA1LS4wMzItLjIxLS4wMzEtLjIxMi0uMDI4LS4yMTYtLjAyNy0uMjItLjAyNi0uMjI0LS4wMjMtLjIyNi0uMDIyLS4yMzEtLjAyMS0uMjMzLS4wMTgtLjIzNy0uMDE2LS4yNDEtLjAxNC0uMjQ0LS4wMTItLjI0Ny0uMDExLS4yNS0uMDA4LS4yNTQtLjAwNS0uMjU3LS4wMDQtLjI2LS4wMDEtLjI2LjAwMXoiIHRyYW5zZm9ybT0ic2NhbGUoLjUpIi8+PC9zeW1ib2w+PC9kZWZzPjxkZWZzPjxzeW1ib2wgaGVpZ2h0PSIyNCIgd2lkdGg9IjI0IiBpZD0iY2xvY2siPjxwYXRoIGQ9Ik0xMiAyYzUuNTE0IDAgMTAgNC40ODYgMTAgMTBzLTQuNDg2IDEwLTEwIDEwLTEwLTQuNDg2LTEwLTEwIDQuNDg2LTEwIDEwLTEwem0wLTJjLTYuNjI3IDAtMTIgNS4zNzMtMTIgMTJzNS4zNzMgMTIgMTIgMTIgMTItNS4zNzMgMTItMTItNS4zNzMtMTItMTItMTJ6bTUuODQ4IDEyLjQ1OWMuMjAyLjAzOC4yMDIuMzMzLjAwMS4zNzItMS45MDcuMzYxLTYuMDQ1IDEuMTExLTYuNTQ3IDEuMTExLS43MTkgMC0xLjMwMS0uNTgyLTEuMzAxLTEuMzAxIDAtLjUxMi43Ny01LjQ0NyAxLjEyNS03LjQ0NS4wMzQtLjE5Mi4zMTItLjE4MS4zNDMuMDE0bC45ODUgNi4yMzggNS4zOTQgMS4wMTF6IiB0cmFuc2Zvcm09InNjYWxlKC41KSIvPjwvc3ltYm9sPjwvZGVmcz48ZGVmcz48bWFya2VyIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIiBtYXJrZXJIZWlnaHQ9IjEyIiBtYXJrZXJXaWR0aD0iMTIiIG1hcmtlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgcmVmWT0iNSIgcmVmWD0iNy45IiBpZD0iYXJyb3doZWFkIj48cGF0aCBkPSJNIC0xIDAgTCAxMCA1IEwgMCAxMCB6Ii8+PC9tYXJrZXI+PC9kZWZzPjxkZWZzPjxtYXJrZXIgcmVmWT0iNC41IiByZWZYPSI0IiBvcmllbnQ9ImF1dG8iIG1hcmtlckhlaWdodD0iOCIgbWFya2VyV2lkdGg9IjE1IiBpZD0iY3Jvc3NoZWFkIj48cGF0aCBzdHlsZT0ic3Ryb2tlLWRhc2hhcnJheTogMCwgMDsiIGQ9Ik0gMSwyIEwgNiw3IE0gNiwyIEwgMSw3IiBzdHJva2Utd2lkdGg9IjFwdCIgc3Ryb2tlPSIjMDAwMDAwIiBmaWxsPSJub25lIi8+PC9tYXJrZXI+PC9kZWZzPjxkZWZzPjxtYXJrZXIgb3JpZW50PSJhdXRvIiBtYXJrZXJIZWlnaHQ9IjI4IiBtYXJrZXJXaWR0aD0iMjAiIHJlZlk9IjciIHJlZlg9IjE1LjUiIGlkPSJmaWxsZWQtaGVhZCI+PHBhdGggZD0iTSAxOCw3IEw5LDEzIEwxNCw3IEw5LDEgWiIvPjwvbWFya2VyPjwvZGVmcz48ZGVmcz48bWFya2VyIG9yaWVudD0iYXV0byIgbWFya2VySGVpZ2h0PSI0MCIgbWFya2VyV2lkdGg9IjYwIiByZWZZPSIxNSIgcmVmWD0iMTUiIGlkPSJzZXF1ZW5jZW51bWJlciI+PGNpcmNsZSByPSI2IiBjeT0iMTUiIGN4PSIxNSIvPjwvbWFya2VyPjwvZGVmcz48dGV4dCBzdHlsZT0iZm9udC1zaXplOiAxNnB4OyBmb250LXdlaWdodDogNDAwOyIgZHk9IjFlbSIgY2xhc3M9Im1lc3NhZ2VUZXh0IiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgeT0iODAiIHg9IjE3NCI+SFRUUFMgUmVxdWVzdDwvdGV4dD48bGluZSBzdHlsZT0iZmlsbDogbm9uZTsiIG1hcmtlci1lbmQ9InVybCgjYXJyb3doZWFkKSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjIiIGNsYXNzPSJtZXNzYWdlTGluZTAiIHkyPSIxMTkiIHgyPSIyNzEiIHkxPSIxMTkiIHgxPSI3NiIvPjx0ZXh0IHN0eWxlPSJmb250LXNpemU6IDE2cHg7IGZvbnQtd2VpZ2h0OiA0MDA7IiBkeT0iMWVtIiBjbGFzcz0ibWVzc2FnZVRleHQiIGFsaWdubWVudC1iYXNlbGluZT0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiB5PSIxMzQiIHg9IjM3NCI+Rm9yd2FyZCBSZXF1ZXN0PC90ZXh0PjxsaW5lIHN0eWxlPSJmaWxsOiBub25lOyIgbWFya2VyLWVuZD0idXJsKCNhcnJvd2hlYWQpIiBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMiIgY2xhc3M9Im1lc3NhZ2VMaW5lMCIgeTI9IjE3MyIgeDI9IjQ3MSIgeTE9IjE3MyIgeDE9IjI3NiIvPjx0ZXh0IHN0eWxlPSJmb250LXNpemU6IDE2cHg7IGZvbnQtd2VpZ2h0OiA0MDA7IiBkeT0iMWVtIiBjbGFzcz0ibWVzc2FnZVRleHQiIGFsaWdubWVudC1iYXNlbGluZT0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiB5PSIxODgiIHg9IjQ3NiI+VExTIFRlcm1pbmF0aW9uPC90ZXh0PjxwYXRoIHN0eWxlPSJmaWxsOiBub25lOyIgbWFya2VyLWVuZD0idXJsKCNhcnJvd2hlYWQpIiBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMiIgY2xhc3M9Im1lc3NhZ2VMaW5lMCIgZD0iTSA0NzYsMjI3IEMgNTM2LDIxNyA1MzYsMjU3IDQ3NiwyNDciLz48dGV4dCBzdHlsZT0iZm9udC1zaXplOiAxNnB4OyBmb250LXdlaWdodDogNDAwOyIgZHk9IjFlbSIgY2xhc3M9Im1lc3NhZ2VUZXh0IiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgeT0iMjcyIiB4PSI0NzYiPlJvdXRlIE1hdGNoaW5nPC90ZXh0PjxwYXRoIHN0eWxlPSJmaWxsOiBub25lOyIgbWFya2VyLWVuZD0idXJsKCNhcnJvd2hlYWQpIiBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMiIgY2xhc3M9Im1lc3NhZ2VMaW5lMCIgZD0iTSA0NzYsMzExIEMgNTM2LDMwMSA1MzYsMzQxIDQ3NiwzMzEiLz48dGV4dCBzdHlsZT0iZm9udC1zaXplOiAxNnB4OyBmb250LXdlaWdodDogNDAwOyIgZHk9IjFlbSIgY2xhc3M9Im1lc3NhZ2VUZXh0IiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgeT0iMzU2IiB4PSI1NzYiPkFwcGx5IE1pZGRsZXdhcmU8L3RleHQ+PGxpbmUgc3R5bGU9ImZpbGw6IG5vbmU7IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93aGVhZCkiIHN0cm9rZT0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIyIiBjbGFzcz0ibWVzc2FnZUxpbmUwIiB5Mj0iMzk1IiB4Mj0iNjc1IiB5MT0iMzk1IiB4MT0iNDc2Ii8+PHRleHQgc3R5bGU9ImZvbnQtc2l6ZTogMTZweDsgZm9udC13ZWlnaHQ6IDQwMDsiIGR5PSIxZW0iIGNsYXNzPSJtZXNzYWdlVGV4dCIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHk9IjQxMCIgeD0iNzgyIj5Gb3J3YXJkIHRvIFNlcnZpY2U8L3RleHQ+PGxpbmUgc3R5bGU9ImZpbGw6IG5vbmU7IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93aGVhZCkiIHN0cm9rZT0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIyIiBjbGFzcz0ibWVzc2FnZUxpbmUwIiB5Mj0iNDQ5IiB4Mj0iODg0IiB5MT0iNDQ5IiB4MT0iNjgwIi8+PHRleHQgc3R5bGU9ImZvbnQtc2l6ZTogMTZweDsgZm9udC13ZWlnaHQ6IDQwMDsiIGR5PSIxZW0iIGNsYXNzPSJtZXNzYWdlVGV4dCIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHk9IjQ2NCIgeD0iOTk4Ij5Mb2FkIEJhbGFuY2UgdG8gUG9kPC90ZXh0PjxsaW5lIHN0eWxlPSJmaWxsOiBub25lOyIgbWFya2VyLWVuZD0idXJsKCNhcnJvd2hlYWQpIiBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMiIgY2xhc3M9Im1lc3NhZ2VMaW5lMCIgeTI9IjUwMyIgeDI9IjExMDYiIHkxPSI1MDMiIHgxPSI4ODkiLz48dGV4dCBzdHlsZT0iZm9udC1zaXplOiAxNnB4OyBmb250LXdlaWdodDogNDAwOyIgZHk9IjFlbSIgY2xhc3M9Im1lc3NhZ2VUZXh0IiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgeT0iNTE4IiB4PSIxMDAxIj5SZXNwb25zZTwvdGV4dD48bGluZSBzdHlsZT0iZmlsbDogbm9uZTsiIG1hcmtlci1lbmQ9InVybCgjYXJyb3doZWFkKSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjIiIGNsYXNzPSJtZXNzYWdlTGluZTAiIHkyPSI1NTciIHgyPSI4OTIiIHkxPSI1NTciIHgxPSIxMTA5Ii8+PHRleHQgc3R5bGU9ImZvbnQtc2l6ZTogMTZweDsgZm9udC13ZWlnaHQ6IDQwMDsiIGR5PSIxZW0iIGNsYXNzPSJtZXNzYWdlVGV4dCIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHk9IjU3MiIgeD0iNzg1Ij5SZXNwb25zZTwvdGV4dD48bGluZSBzdHlsZT0iZmlsbDogbm9uZTsiIG1hcmtlci1lbmQ9InVybCgjYXJyb3doZWFkKSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjIiIGNsYXNzPSJtZXNzYWdlTGluZTAiIHkyPSI2MTEiIHgyPSI2ODMiIHkxPSI2MTEiIHgxPSI4ODciLz48dGV4dCBzdHlsZT0iZm9udC1zaXplOiAxNnB4OyBmb250LXdlaWdodDogNDAwOyIgZHk9IjFlbSIgY2xhc3M9Im1lc3NhZ2VUZXh0IiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgeT0iNjI2IiB4PSI1NzkiPlJlc3BvbnNlPC90ZXh0PjxsaW5lIHN0eWxlPSJmaWxsOiBub25lOyIgbWFya2VyLWVuZD0idXJsKCNhcnJvd2hlYWQpIiBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMiIgY2xhc3M9Im1lc3NhZ2VMaW5lMCIgeTI9IjY2NSIgeDI9IjQ3OSIgeTE9IjY2NSIgeDE9IjY3OCIvPjx0ZXh0IHN0eWxlPSJmb250LXNpemU6IDE2cHg7IGZvbnQtd2VpZ2h0OiA0MDA7IiBkeT0iMWVtIiBjbGFzcz0ibWVzc2FnZVRleHQiIGFsaWdubWVudC1iYXNlbGluZT0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiB5PSI2ODAiIHg9IjM3NyI+SFRUUFMgUmVzcG9uc2U8L3RleHQ+PGxpbmUgc3R5bGU9ImZpbGw6IG5vbmU7IiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93aGVhZCkiIHN0cm9rZT0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIyIiBjbGFzcz0ibWVzc2FnZUxpbmUwIiB5Mj0iNzE5IiB4Mj0iMjc5IiB5MT0iNzE5IiB4MT0iNDc0Ii8+PHRleHQgc3R5bGU9ImZvbnQtc2l6ZTogMTZweDsgZm9udC13ZWlnaHQ6IDQwMDsiIGR5PSIxZW0iIGNsYXNzPSJtZXNzYWdlVGV4dCIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHk9IjczNCIgeD0iMTc3Ij5SZXNwb25zZTwvdGV4dD48bGluZSBzdHlsZT0iZmlsbDogbm9uZTsiIG1hcmtlci1lbmQ9InVybCgjYXJyb3doZWFkKSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjIiIGNsYXNzPSJtZXNzYWdlTGluZTAiIHkyPSI3NzMiIHgyPSI3OSIgeTE9Ijc3MyIgeDE9IjI3NCIvPjwvc3ZnPg=="/></p>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¶</a></h2>
+<h3 id="helm-chart-configuration">Helm Chart Configuration<a class="headerlink" href="#helm-chart-configuration" title="Permanent link">¶</a></h3>
+<p><strong>Chart Location</strong>: <a href="../../../../ops/helm/030-ingress-controllers/ingress-traefik/"><code>ops/helm/030-ingress-controllers/ingress-traefik/</code></a></p>
+<p><strong>Key Configuration Areas</strong>:</p>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Example Traefik values configuration</span>
+<span class="nt">traefik</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Enable dashboard and API</span>
+<span class="w">  </span><span class="nt">api</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">dashboard</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">insecure</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">  </span><span class="c1"># Secure dashboard access</span>
+
+<span class="w">  </span><span class="c1"># Define entrypoints</span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">web</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8000</span>
+<span class="w">      </span><span class="nt">exposedPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TCP</span>
+<span class="w">    </span><span class="nt">websecure</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
+<span class="w">      </span><span class="nt">exposedPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">443</span>
+<span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TCP</span>
+<span class="w">      </span><span class="nt">tls</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">  </span><span class="c1"># Resource allocation</span>
+<span class="w">  </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">requests</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100m</span>
+<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50Mi</span>
+<span class="w">    </span><span class="nt">limits</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300m</span>
+<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">150Mi</span>
+
+<span class="w">  </span><span class="c1"># High availability</span>
+<span class="w">  </span><span class="nt">deployment</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+
+<span class="w">  </span><span class="c1"># Observability</span>
+<span class="w">  </span><span class="nt">metrics</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">prometheus</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">tracing</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">accessLog</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div></td></tr></table></div>
+<h3 id="service-configuration">Service Configuration<a class="headerlink" href="#service-configuration" title="Permanent link">¶</a></h3>
+<p><strong>Kubernetes Service Types</strong>:
+- <strong>LoadBalancer</strong>: For external traffic routing
+- <strong>ClusterIP</strong>: For internal dashboard access<br/>
+- <strong>NodePort</strong>: For debugging and direct access</p>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Example service configuration</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ingress-traefik</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LoadBalancer</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik</span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">web</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">web</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">websecure</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">443</span>
+<span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">websecure</span>
+</code></pre></div></td></tr></table></div>
+<h2 id="routing-configuration">Routing Configuration<a class="headerlink" href="#routing-configuration" title="Permanent link">¶</a></h2>
+<h3 id="ingressroute-resources">IngressRoute Resources<a class="headerlink" href="#ingressroute-resources" title="Permanent link">¶</a></h3>
+<p>Traefik uses <strong>IngressRoute</strong> CRDs for advanced routing configuration:</p>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Example application routing</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.containo.us/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IngressRoute</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo-service</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example-services</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">entryPoints</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">websecure</span>
+<span class="w">  </span><span class="nt">routes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Host(`echo.webgrip.example`)</span>
+<span class="w">      </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rule</span>
+<span class="w">      </span><span class="nt">services</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo-service</span>
+<span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">      </span><span class="nt">middlewares</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default-headers</span>
+<span class="w">          </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ingress-traefik</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate-limit</span>
+<span class="w">          </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ingress-traefik</span>
+<span class="w">  </span><span class="nt">tls</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo-tls-cert</span>
+</code></pre></div></td></tr></table></div>
+<h3 id="routing-rules">Routing Rules<a class="headerlink" href="#routing-rules" title="Permanent link">¶</a></h3>
+<p><strong>Match Expressions</strong>:
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Host-based routing</span>
+<span class="nt">match</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Host(`api.example.com`)</span>
+
+<span class="c1"># Path-based routing  </span>
+<span class="nt">match</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Host(`example.com`) &amp;&amp; Path(`/api`)</span>
+
+<span class="c1"># Header-based routing</span>
+<span class="nt">match</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Header(`Authorization`, `Bearer *`)</span>
+
+<span class="c1"># Method-based routing</span>
+<span class="nt">match</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Method(`POST`) &amp;&amp; Path(`/webhook`)</span>
+
+<span class="c1"># Complex routing</span>
+<span class="nt">match</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Host(`api.example.com`) &amp;&amp; (Path(`/v1`) || Path(`/v2`))</span>
+</code></pre></div></td></tr></table></div></p>
+<p><strong>Priority Handling</strong>:
+Routes are evaluated by priority (higher numbers first):
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">routes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Host(`api.example.com`) &amp;&amp; Path(`/health`)</span>
+<span class="w">    </span><span class="nt">priority</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span><span class="w">  </span><span class="c1"># Specific route - higher priority</span>
+<span class="w">    </span><span class="nt">services</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">health-service</span>
+<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Host(`api.example.com`)</span><span class="w">  </span>
+<span class="w">    </span><span class="nt">priority</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span><span class="w">   </span><span class="c1"># General route - lower priority</span>
+<span class="w">    </span><span class="nt">services</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api-service</span>
+<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+</code></pre></div></td></tr></table></div></p>
+<h2 id="middleware">Middleware<a class="headerlink" href="#middleware" title="Permanent link">¶</a></h2>
+<h3 id="custom-middleware">Custom Middleware<a class="headerlink" href="#custom-middleware" title="Permanent link">¶</a></h3>
+<p><strong>Configuration</strong>: <a href="../../../../ops/helm/030-ingress-controllers/ingress-traefik-custom-middlewares/"><code>ops/helm/030-ingress-controllers/ingress-traefik-custom-middlewares/</code></a></p>
+<p>Custom middleware provides platform-wide functionality:</p>
+<h4 id="default-headers-middleware">Default Headers Middleware<a class="headerlink" href="#default-headers-middleware" title="Permanent link">¶</a></h4>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.containo.us/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Middleware</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default-headers</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ingress-traefik</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">headers</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">customRequestHeaders</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">X-Forwarded-Proto</span><span class="p">:</span><span class="w"> </span><span class="s">"https"</span>
+<span class="w">    </span><span class="nt">customResponseHeaders</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">X-Frame-Options</span><span class="p">:</span><span class="w"> </span><span class="s">"SAMEORIGIN"</span>
+<span class="w">      </span><span class="nt">X-Content-Type-Options</span><span class="p">:</span><span class="w"> </span><span class="s">"nosniff"</span>
+<span class="w">      </span><span class="nt">X-XSS-Protection</span><span class="p">:</span><span class="w"> </span><span class="s">"1;</span><span class="nv"> </span><span class="s">mode=block"</span>
+<span class="w">      </span><span class="nt">Referrer-Policy</span><span class="p">:</span><span class="w"> </span><span class="s">"strict-origin-when-cross-origin"</span>
+<span class="w">    </span><span class="nt">contentSecurityPolicy</span><span class="p">:</span><span class="w"> </span><span class="s">"default-src</span><span class="nv"> </span><span class="s">'self'"</span>
+</code></pre></div></td></tr></table></div>
+<h4 id="rate-limiting-middleware">Rate Limiting Middleware<a class="headerlink" href="#rate-limiting-middleware" title="Permanent link">¶</a></h4>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.containo.us/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Middleware</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate-limit</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ingress-traefik</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">rateLimit</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">average</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span><span class="w">    </span><span class="c1"># 100 requests per second</span>
+<span class="w">    </span><span class="nt">burst</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span><span class="w">      </span><span class="c1"># Allow burst up to 200</span>
+<span class="w">    </span><span class="nt">period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1m</span><span class="w">      </span><span class="c1"># Time window</span>
+</code></pre></div></td></tr></table></div>
+<h4 id="authentication-middleware">Authentication Middleware<a class="headerlink" href="#authentication-middleware" title="Permanent link">¶</a></h4>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.containo.us/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Middleware</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">basic-auth</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ingress-traefik</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">basicAuth</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">secret</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">auth-secret</span><span class="w">  </span><span class="c1"># Contains username:password hash</span>
+<span class="w">    </span><span class="nt">realm</span><span class="p">:</span><span class="w"> </span><span class="s">"WebGrip</span><span class="nv"> </span><span class="s">Platform"</span>
+</code></pre></div></td></tr></table></div>
+<h3 id="middleware-chaining">Middleware Chaining<a class="headerlink" href="#middleware-chaining" title="Permanent link">¶</a></h3>
+<p>Middleware can be chained for complex processing:</p>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Apply multiple middleware in order</span>
+<span class="nt">middlewares</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate-limit</span><span class="w">           </span><span class="c1"># Applied first</span>
+<span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ingress-traefik</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">basic-auth</span><span class="w">          </span><span class="c1"># Applied second  </span>
+<span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ingress-traefik</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default-headers</span><span class="w">     </span><span class="c1"># Applied third</span>
+<span class="w">    </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ingress-traefik</span>
+</code></pre></div></td></tr></table></div>
+<h2 id="tls-and-certificate-management">TLS and Certificate Management<a class="headerlink" href="#tls-and-certificate-management" title="Permanent link">¶</a></h2>
+<h3 id="integration-with-cert-manager">Integration with cert-manager<a class="headerlink" href="#integration-with-cert-manager" title="Permanent link">¶</a></h3>
+<p><strong>Certificate Automation</strong>: Traefik integrates with <a href="../certificate-management/">cert-manager</a> for automatic certificate provisioning.</p>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Automatic certificate provisioning</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.containo.us/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IngressRoute</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">secure-app</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">entryPoints</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">websecure</span>
+<span class="w">  </span><span class="nt">routes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Host(`app.example.com`)</span>
+<span class="w">      </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rule</span>
+<span class="w">      </span><span class="nt">services</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app-service</span>
+<span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">  </span><span class="nt">tls</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># cert-manager will automatically create this secret</span>
+<span class="w">    </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app-tls-cert</span>
+<span class="w">    </span><span class="c1"># Specify the certificate issuer</span>
+<span class="w">    </span><span class="nt">certResolver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">letsencrypt-prod</span>
+</code></pre></div></td></tr></table></div>
+<h3 id="tls-configuration">TLS Configuration<a class="headerlink" href="#tls-configuration" title="Permanent link">¶</a></h3>
+<p><strong>TLS Options</strong>:
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.containo.us/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TLSOption</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ingress-traefik</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">minVersion</span><span class="p">:</span><span class="w"> </span><span class="s">"VersionTLS12"</span>
+<span class="w">  </span><span class="nt">maxVersion</span><span class="p">:</span><span class="w"> </span><span class="s">"VersionTLS13"</span>
+<span class="w">  </span><span class="nt">cipherSuites</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</span>
+<span class="w">  </span><span class="nt">curvePreferences</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">secp521r1</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">secp384r1</span>
+<span class="w">  </span><span class="nt">sniStrict</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div></td></tr></table></div></p>
+<h2 id="load-balancing">Load Balancing<a class="headerlink" href="#load-balancing" title="Permanent link">¶</a></h2>
+<h3 id="load-balancing-algorithms">Load Balancing Algorithms<a class="headerlink" href="#load-balancing-algorithms" title="Permanent link">¶</a></h3>
+<p><strong>Available Algorithms</strong>:
+- <strong>Round Robin</strong> (default): Distributes requests evenly
+- <strong>Least Connections</strong>: Routes to backend with fewest active connections
+- <strong>Weighted Round Robin</strong>: Assigns different weights to backends
+- <strong>IP Hash</strong>: Routes based on client IP for session persistence</p>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Example weighted load balancing</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app-v1</span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">    </span><span class="nt">weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span><span class="w">    </span><span class="c1"># 80% of traffic</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app-v2</span><span class="w">  </span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">    </span><span class="nt">weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span><span class="w">    </span><span class="c1"># 20% of traffic (canary)</span>
+</code></pre></div></td></tr></table></div>
+<h3 id="health-checks">Health Checks<a class="headerlink" href="#health-checks" title="Permanent link">¶</a></h3>
+<p><strong>Backend Health Monitoring</strong>:
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Health check configuration</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app-service</span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">    </span><span class="nt">healthCheck</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/health</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+<span class="w">      </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</code></pre></div></td></tr></table></div></p>
+<p><strong>Health Check Behavior</strong>:
+- <strong>Healthy</strong>: Backend receives traffic
+- <strong>Unhealthy</strong>: Backend removed from load balancing rotation
+- <strong>Recovery</strong>: Automatic re-inclusion when health checks pass</p>
+<h2 id="observability">Observability<a class="headerlink" href="#observability" title="Permanent link">¶</a></h2>
+<h3 id="metrics-collection">Metrics Collection<a class="headerlink" href="#metrics-collection" title="Permanent link">¶</a></h3>
+<p><strong>Prometheus Integration</strong>: Traefik exposes metrics for Prometheus collection</p>
+<p><strong>Key Metrics Available</strong>:
+| Metric | Description | Use Case |
+|--------|-------------|----------|
+| <code>traefik_service_requests_total</code> | Total requests per service | Traffic volume analysis |
+| <code>traefik_service_request_duration_seconds</code> | Request duration histogram | Latency monitoring |
+| <code>traefik_service_retries_total</code> | Backend retry attempts | Reliability monitoring |
+| <code>traefik_entrypoint_requests_total</code> | Requests per entrypoint | Entry point analysis |
+| <code>traefik_config_reloads_total</code> | Configuration reload count | Configuration stability |</p>
+<h3 id="dashboard-access">Dashboard Access<a class="headerlink" href="#dashboard-access" title="Permanent link">¶</a></h3>
+<p><strong>Traefik Dashboard</strong>: <a href="../../../../Makefile"><code>make view-traefik</code></a></p>
+<p>The dashboard provides:
+- <strong>Real-time Traffic</strong>: Current request flow and routing
+- <strong>Service Health</strong>: Backend service status and health checks
+- <strong>Route Configuration</strong>: Active routes and middleware chains
+- <strong>Metrics Overview</strong>: Request rates, response times, and error rates</p>
+<p><strong>Dashboard Features</strong>:
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Access dashboard locally</span>
+kubectl<span class="w"> </span>port-forward<span class="w"> </span>-n<span class="w"> </span>ingress-traefik<span class="w"> </span>svc/traefik-dashboard<span class="w"> </span><span class="m">9000</span>:9000
+
+<span class="c1"># Dashboard available at: http://localhost:9000</span>
+</code></pre></div></td></tr></table></div></p>
+<h3 id="access-logging">Access Logging<a class="headerlink" href="#access-logging" title="Permanent link">¶</a></h3>
+<p><strong>Log Format</strong>: JSON structured logging for easy parsing</p>
+<div class="language-json highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-15T10:30:00Z"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"level"</span><span class="p">:</span><span class="w"> </span><span class="s2">"info"</span><span class="p">,</span><span class="w"> </span>
+<span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"access"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"downstream_remote_addr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"192.168.1.100"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"request_method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"request_uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/users"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"request_protocol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"HTTP/2.0"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"request_host"</span><span class="p">:</span><span class="w"> </span><span class="s2">"api.example.com"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"response_status"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"response_size"</span><span class="p">:</span><span class="w"> </span><span class="mi">1024</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"duration"</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"upstream_addr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.244.1.50:8080"</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+<h2 id="performance-optimization">Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">¶</a></h2>
+<h3 id="connection-management">Connection Management<a class="headerlink" href="#connection-management" title="Permanent link">¶</a></h3>
+<p><strong>Connection Pooling</strong>:
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Optimize backend connections</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app-service</span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">    </span><span class="nt">passHostHeader</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">responseForwarding</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">flushInterval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100ms</span>
+</code></pre></div></td></tr></table></div></p>
+<h3 id="caching">Caching<a class="headerlink" href="#caching" title="Permanent link">¶</a></h3>
+<p><strong>Response Caching</strong>: Configure caching middleware for static content</p>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.containo.us/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Middleware</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cache-control</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">headers</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">customResponseHeaders</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">Cache-Control</span><span class="p">:</span><span class="w"> </span><span class="s">"public,</span><span class="nv"> </span><span class="s">max-age=3600"</span><span class="w">  </span><span class="c1"># 1 hour cache</span>
+</code></pre></div></td></tr></table></div>
+<h3 id="compression">Compression<a class="headerlink" href="#compression" title="Permanent link">¶</a></h3>
+<p><strong>Automatic Compression</strong>: Enable gzip compression for responses</p>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Enable compression middleware</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.containo.us/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Middleware</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compression</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">compress</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w">  </span><span class="c1"># Enable with default settings</span>
+</code></pre></div></td></tr></table></div>
+<h2 id="high-availability">High Availability<a class="headerlink" href="#high-availability" title="Permanent link">¶</a></h2>
+<h3 id="deployment-strategy">Deployment Strategy<a class="headerlink" href="#deployment-strategy" title="Permanent link">¶</a></h3>
+<p><strong>Multi-Replica Deployment</strong>:
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">deployment</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span><span class="w">  </span><span class="c1"># Minimum 2 replicas for HA</span>
+
+<span class="c1"># Pod anti-affinity for node distribution</span>
+<span class="nt">affinity</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">podAntiAffinity</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">preferredDuringSchedulingIgnoredDuringExecution</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">      </span><span class="nt">podAffinityTerm</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">labelSelector</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">matchExpressions</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">app.kubernetes.io/name</span>
+<span class="w">            </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">In</span>
+<span class="w">            </span><span class="nt">values</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik</span>
+<span class="w">        </span><span class="nt">topologyKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes.io/hostname</span>
+</code></pre></div></td></tr></table></div></p>
+<h3 id="circuit-breaker">Circuit Breaker<a class="headerlink" href="#circuit-breaker" title="Permanent link">¶</a></h3>
+<p><strong>Automatic Failure Handling</strong>:
+<div class="language-yaml highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.containo.us/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Middleware</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">circuit-breaker</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">circuitBreaker</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">expression</span><span class="p">:</span><span class="w"> </span><span class="s">"NetworkErrorRatio()</span><span class="nv"> </span><span class="s">&gt;</span><span class="nv"> </span><span class="s">0.3</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">ResponseCodeRatio(500,</span><span class="nv"> </span><span class="s">600,</span><span class="nv"> </span><span class="s">0,</span><span class="nv"> </span><span class="s">600)</span><span class="nv"> </span><span class="s">&gt;</span><span class="nv"> </span><span class="s">0.3"</span>
+<span class="w">    </span><span class="nt">checkPeriod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3s</span>
+<span class="w">    </span><span class="nt">fallbackDuration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="w">    </span><span class="nt">recoveryDuration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+</code></pre></div></td></tr></table></div></p>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">¶</a></h2>
+<h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">¶</a></h3>
+<p><strong>1. Service Not Accessible</strong>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Check IngressRoute status</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>ingressroute<span class="w"> </span>-A
+
+<span class="c1"># Verify service endpoints</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>endpoints<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;<span class="w"> </span>&lt;service-name&gt;
+
+<span class="c1"># Check Traefik logs</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </span>ingress-traefik<span class="w"> </span>deployment/traefik
+</code></pre></div></td></tr></table></div></p>
+<p><strong>2. Certificate Issues</strong>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Check certificate status</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>certificates<span class="w"> </span>-A
+
+<span class="c1"># Check cert-manager logs</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </span>cert-manager<span class="w"> </span>deployment/cert-manager
+
+<span class="c1"># Verify TLS secret</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;<span class="w"> </span>&lt;tls-secret-name&gt;
+</code></pre></div></td></tr></table></div></p>
+<p><strong>3. Routing Problems</strong>
+<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c1"># Check route configuration</span>
+kubectl<span class="w"> </span>describe<span class="w"> </span>ingressroute<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;<span class="w"> </span>&lt;route-name&gt;
+
+<span class="c1"># View Traefik configuration</span>
+curl<span class="w"> </span>http://localhost:9000/api/http/routers
+
+<span class="c1"># Check middleware configuration</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>middleware<span class="w"> </span>-A
+</code></pre></div></td></tr></table></div></p>
+<h3 id="debugging-tools">Debugging Tools<a class="headerlink" href="#debugging-tools" title="Permanent link">¶</a></h3>
+<p><strong>Built-in Tools</strong>:
+- <strong>API Explorer</strong>: Access Traefik API for configuration inspection
+- <strong>Debug Logging</strong>: Enable debug mode for detailed request tracing
+- <strong>Metrics Endpoint</strong>: Prometheus metrics for performance analysis</p>
+<p><strong>External Tools</strong>:
+- <strong>curl</strong>: Test routing and headers
+- <strong>kubectl</strong>: Kubernetes resource inspection
+- <strong>Prometheus</strong>: Metrics collection and alerting</p>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">¶</a></h2>
+<p>Explore related platform components:</p>
+<div class="grid cards">
+<ul>
+<li>🔒 <strong><a href="../certificate-management/">Certificate Management</a></strong><p>Learn about automatic TLS certificate provisioning with cert-manager</p>
+</li>
+</ul>
+<ul>
+<li>📊 <strong><a href="monitoring-observability.md">Monitoring &amp; Observability</a></strong><p>Understand metrics collection, dashboards, and alerting</p>
+</li>
+</ul>
+<ul>
+<li>🌐 <strong><a href="../../cluster-architecture/network-architecture/">Network Architecture</a></strong><p>Review the complete network architecture and traffic flow</p>
+</li>
+</ul>
+<ul>
+<li>🛡️ <strong><a href="../../cluster-architecture/security-model/">Security Model</a></strong><p>Understand security controls and access management</p>
+</li>
+</ul>
+</div>
+<hr/>
+<blockquote>
+<p><strong>⚡ Performance Tuning</strong>: Traefik configuration changes can significantly impact performance. Test changes in staging and monitor metrics before applying to production.</p>
+</blockquote>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<nav aria-label="Footer" class="md-footer__inner md-grid">
+<a aria-label="Previous: Security Model" class="md-footer__link md-footer__link--prev" href="../../cluster-architecture/security-model/">
+<div class="md-footer__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</div>
+<div class="md-footer__title">
+<span class="md-footer__direction">
+                Previous
+              </span>
+<div class="md-ellipsis">
+                Security Model
+              </div>
+</div>
+</a>
+<a aria-label="Next: Certificate Management" class="md-footer__link md-footer__link--next" href="../certificate-management/">
+<div class="md-footer__title">
+<span class="md-footer__direction">
+                Next
+              </span>
+<div class="md-ellipsis">
+                Certificate Management
+              </div>
+</div>
+<div class="md-footer__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+</div>
+</a>
+</nav>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+<div class="md-copyright__highlight">
+      organisation © 2013 - 2025 Building Better Developers  - <a href="#__consent">Change cookie settings</a>
+</div>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/organisation" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 496 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<div class="md-progress" data-md-component="progress" role="progressbar"></div>
+<div class="md-consent" data-md-component="consent" hidden="" id="__consent">
+<div class="md-consent__overlay"></div>
+<aside class="md-consent__inner">
+<form class="md-consent__form md-grid md-typeset" name="consent">
+<h4>Cookie consent</h4>
+<p>We use cookies to gather insights into our site's traffic and to ensure you're able to leave feedback. If you do not wish to leave feedback or be tracked, feel free to reject the cookies :)
+Thank you for visiting!</p>
+<input class="md-toggle" id="__settings" type="checkbox"/>
+<div class="md-consent__settings">
+<ul class="task-list">
+<li class="task-list-item">
+<label class="task-list-control">
+<input checked="" name="analytics" type="checkbox"/>
+<span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+</li>
+<li class="task-list-item">
+<label class="task-list-control">
+<input checked="" name="github" type="checkbox"/>
+<span class="task-list-indicator"></span>
+          Github
+        </label>
+</li>
+</ul>
+</div>
+<div class="md-consent__controls">
+<button class="md-button md-button--primary">Accept</button>
+<label class="md-button" for="__settings">Manage settings</label>
+<button class="md-button md-button--primary" type="reset">Reject</button>
+</div>
+</form>
+</aside>
+</div>
+<script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout((function(){document.querySelector("[data-md-component=consent]").hidden=!1}),250);var form=document.forms.consent;for(var action of["submit","reset"])form.addEventListener(action,(function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map((function(e){return[e,!0]})))),location.hash="",location.reload()}))</script>
+<script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "search.share", "navigation.instant", "navigation.instant.progress", "navigation.instant.preview", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.tabs.sections", "navigation.tabs.expand", "navigation.prune", "toc.follow", "toc.integrate", "navigation.top", "navigation.footer", "content.action.edit"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+<script src="../../assets/javascripts/bundle.f1b6f286.min.js"></script>
+<script src="../../javascripts/feedback.js"></script>
+<script src="../../assets/external/unpkg.com/mermaid@11/dist/mermaid.min.js"></script>
+</body>
+</html>

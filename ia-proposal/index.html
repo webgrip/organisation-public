@@ -1,0 +1,580 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Documentation for WebGrip's public APIs and services." name="description"/>
+<link href="../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.6.5" name="generator"/>
+<title>Information Architecture Proposal - WebGrip Public TechDocs</title>
+<link href="../assets/stylesheets/main.8608ea7d.min.css" rel="stylesheet"/>
+
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet">
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#information-architecture-proposal">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="WebGrip Public TechDocs" class="md-header__button md-logo" data-md-component="logo" href=".." title="WebGrip Public TechDocs">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            WebGrip Public TechDocs
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Information Architecture Proposal
+            
+          </span>
+</div>
+</div>
+</div>
+<label class="md-header__button md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input aria-label="Search" autocapitalize="off" autocomplete="off" autocorrect="off" class="md-search__input" data-md-component="search-query" name="query" placeholder="Search" required="" spellcheck="false" type="text"/>
+<label class="md-search__icon md-icon" for="__search">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</label>
+<nav aria-label="Search" class="md-search__options">
+<a aria-label="Share" class="md-search__icon md-icon" data-clipboard="" data-clipboard-text="" data-md-component="search-share" href="javascript:void(0)" tabindex="-1" title="Share">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"></path></svg>
+</a>
+<button aria-label="Clear" class="md-search__icon md-icon" tabindex="-1" title="Clear" type="reset">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+</button>
+</nav>
+<div class="md-search__suggest" data-md-component="search-suggest"></div>
+</form>
+<div class="md-search__output">
+<div class="md-search__scrollwrap" data-md-scrollfix="" tabindex="0">
+<div class="md-search-result" data-md-component="search-result">
+<div class="md-search-result__meta">
+            Initializing search
+          </div>
+<ol class="md-search-result__list" role="presentation"></ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="..">
+        
+  
+    
+  
+  Home
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../overview/">
+        
+  
+    
+  
+  Overview
+
+      </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../cluster-architecture/infrastructure-overview/">
+          
+  
+  Cluster Architecture
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../platform-components/ingress-load-balancing/">
+          
+  
+  Platform Components
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../service-catalog/backstage-integration/">
+          
+  
+  Service Catalog
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../operations-runbooks/deployment-procedures/">
+          
+  
+  Operations Runbooks
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../developer-workflows/onboarding-guide/">
+          
+  
+  Developer Workflows
+
+        </a>
+</li>
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../governance-standards/architecture-decisions/">
+          
+  
+  Governance &amp; Standards
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="WebGrip Public TechDocs" class="md-nav__button md-logo" data-md-component="logo" href=".." title="WebGrip Public TechDocs">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+</a>
+    WebGrip Public TechDocs
+  </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="..">
+<span class="md-ellipsis">
+    Home
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../overview/">
+<span class="md-ellipsis">
+    Overview
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../cluster-architecture/infrastructure-overview/">
+<span class="md-ellipsis">
+    Cluster Architecture
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../platform-components/ingress-load-balancing/">
+<span class="md-ellipsis">
+    Platform Components
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../service-catalog/backstage-integration/">
+<span class="md-ellipsis">
+    Service Catalog
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../operations-runbooks/deployment-procedures/">
+<span class="md-ellipsis">
+    Operations Runbooks
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../developer-workflows/onboarding-guide/">
+<span class="md-ellipsis">
+    Developer Workflows
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+<a class="md-nav__link" href="../governance-standards/architecture-decisions/">
+<span class="md-ellipsis">
+    Governance &amp; Standards
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<article class="md-content__inner md-typeset">
+<h1 id="information-architecture-proposal">Information Architecture Proposal<a class="headerlink" href="#information-architecture-proposal" title="Permanent link">¶</a></h1>
+<p>Based on analysis of the WebGrip Organisation Public Repository, I propose three alternative information architectures for our TechDocs site. This repository serves as the foundational infrastructure platform for the organization, focusing on Kubernetes operations, Backstage catalog management, and CI/CD automation.</p>
+<h2 id="repository-analysis-summary">Repository Analysis Summary<a class="headerlink" href="#repository-analysis-summary" title="Permanent link">¶</a></h2>
+<p><strong>Repository Type</strong>: Infrastructure Operations + Platform Engineering + Organization Catalog
+<strong>Primary Users</strong>: Platform engineers, SREs, infrastructure teams, developers deploying to the platform
+<strong>Core Technologies</strong>: Kubernetes, Helm, Backstage, GitHub Actions, SOPS/Age, Grafana, Traefik</p>
+<p><strong>Key Repository Seams Identified</strong>:
+- <strong>Organization</strong>: Backstage domains, systems, components, groups (catalog/)
+- <strong>Infrastructure</strong>: Kubernetes cluster components via Helm charts (ops/helm/)
+- <strong>Operations</strong>: CI/CD workflows, secret management, monitoring (workflows, ops/secrets)
+- <strong>Platform Services</strong>: Ingress, certificates, runners, observability
+- <strong>Governance</strong>: ADRs, security, compliance</p>
+<h2 id="alternative-1-organization-first-architecture">Alternative 1: Organization-First Architecture<a class="headerlink" href="#alternative-1-organization-first-architecture" title="Permanent link">¶</a></h2>
+<p><strong>Rationale</strong>: Start with Backstage organizational structure, then drill into technical implementation. This approach mirrors how teams think about ownership and responsibilities.</p>
+<p><strong>Navigation Structure</strong>:
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span></pre></div></td><td class="code"><div><pre><span></span><code>├── Overview
+├── Organization
+│   ├── Domains &amp; Systems
+│   ├── Components &amp; Services  
+│   ├── Teams &amp; Ownership
+│   └── Resource Catalog
+├── Platform Infrastructure
+│   ├── Kubernetes Architecture
+│   ├── Core Services
+│   ├── Networking &amp; Ingress
+│   └── Monitoring Stack
+├── Operations &amp; Workflows
+│   ├── CI/CD Pipelines
+│   ├── Secret Management
+│   ├── Application Lifecycle
+│   └── Platform Maintenance
+├── Developer Experience
+│   ├── Getting Started
+│   ├── Deployment Patterns
+│   ├── Troubleshooting
+│   └── Contributing
+└── Governance
+    ├── Architecture Decisions (ADRs)
+    ├── Security &amp; Compliance
+    └── Standards &amp; Conventions
+</code></pre></div></td></tr></table></div></p>
+<p><strong>Feeds from Repository</strong>:
+- Organization → <code>catalog/</code> (domains, systems, components, groups)
+- Platform Infrastructure → <code>ops/helm/</code> (all charts), <code>grafana-dashboards/</code>
+- Operations → <code>.github/workflows/</code>, <code>ops/secrets/</code>, <code>Makefile</code>
+- Developer Experience → <code>README.md</code>, workflow templates
+- Governance → <code>docs/adrs/</code>, security annotations</p>
+<p><strong>Strengths</strong>: Clear ownership boundaries, mirrors Backstage structure, good for organizational alignment
+<strong>Weaknesses</strong>: Technical details scattered across organizational boundaries</p>
+<h2 id="alternative-2-infrastructure-first-architecture">Alternative 2: Infrastructure-First Architecture<a class="headerlink" href="#alternative-2-infrastructure-first-architecture" title="Permanent link">¶</a></h2>
+<p><strong>Rationale</strong>: Start with Kubernetes cluster architecture and technical systems, then layer organizational context. Best for platform engineers who think in technical layers.</p>
+<p><strong>Navigation Structure</strong>:
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code>├── Overview
+├── Cluster Architecture
+│   ├── Infrastructure Overview
+│   ├── Network Architecture
+│   ├── Security Model
+│   └── Resource Management
+├── Platform Components
+│   ├── Ingress &amp; Load Balancing
+│   ├── Certificate Management
+│   ├── Monitoring &amp; Observability
+│   ├── CI/CD Infrastructure
+│   └── Secret Management
+├── Service Catalog
+│   ├── Backstage Integration
+│   ├── Domains &amp; Systems
+│   ├── Component Registry
+│   └── API Contracts
+├── Operations Runbooks
+│   ├── Deployment Procedures
+│   ├── Monitoring &amp; Alerting
+│   ├── Incident Response
+│   ├── Backup &amp; Recovery
+│   └── Maintenance Tasks
+├── Developer Workflows
+│   ├── Onboarding Guide
+│   ├── Application Templates
+│   ├── CI/CD Patterns
+│   └── Local Development
+└── Governance &amp; Standards
+    ├── Architecture Decisions (ADRs)
+    ├── Security Policies
+    └── Operational Standards
+</code></pre></div></td></tr></table></div></p>
+<p><strong>Feeds from Repository</strong>:
+- Cluster Architecture → <code>ops/helm/</code> (infrastructure charts), <code>catalog/systems/</code>
+- Platform Components → <code>ops/helm/</code> (by component type), <code>grafana-dashboards/</code>
+- Service Catalog → <code>catalog/</code> (all entities)
+- Operations → <code>Makefile</code>, <code>.github/workflows/</code>, <code>ops/secrets/</code>
+- Developer Workflows → workflow templates, <code>README.md</code>
+- Governance → <code>docs/adrs/</code>, security configs</p>
+<p><strong>Strengths</strong>: Technical clarity, matches operational mindset, clear service boundaries
+<strong>Weaknesses</strong>: Organizational context less prominent, steeper learning curve for non-platform engineers</p>
+<h2 id="alternative-3-workflow-first-architecture">Alternative 3: Workflow-First Architecture<a class="headerlink" href="#alternative-3-workflow-first-architecture" title="Permanent link">¶</a></h2>
+<p><strong>Rationale</strong>: Organize around common user workflows and tasks. Task-oriented approach that matches how people actually use the platform.</p>
+<p><strong>Navigation Structure</strong>:
+<div class="language-text highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span></pre></div></td><td class="code"><div><pre><span></span><code>├── Overview
+├── Getting Started
+│   ├── Platform Overview
+│   ├── Access &amp; Prerequisites
+│   ├── First Deployment
+│   └── Key Concepts
+├── Application Lifecycle
+│   ├── Creating New Applications
+│   ├── Deployment Patterns
+│   ├── Configuration Management
+│   ├── Monitoring &amp; Observability
+│   └── Troubleshooting
+├── Platform Management
+│   ├── Infrastructure Components
+│   ├── Service Maintenance
+│   ├── Scaling &amp; Capacity
+│   ├── Security Operations
+│   └── Disaster Recovery
+├── Organization &amp; Catalog
+│   ├── Service Discovery
+│   ├── Team Structure
+│   ├── Component Ownership
+│   └── API Documentation
+├── Advanced Topics
+│   ├── Custom Components
+│   ├── CI/CD Customization
+│   ├── Integration Patterns
+│   └── Performance Optimization
+└── Reference
+    ├── Architecture Decisions (ADRs)
+    ├── API References
+    ├── Configuration Schemas
+    └── Troubleshooting Index
+</code></pre></div></td></tr></table></div></p>
+<p><strong>Feeds from Repository</strong>:
+- Getting Started → <code>README.md</code>, requirements, basic workflows
+- Application Lifecycle → <code>.github/workflows/</code>, templates, <code>ops/helm/950-example-services/</code>
+- Platform Management → <code>ops/helm/</code> (core infrastructure), <code>Makefile</code>, monitoring
+- Organization &amp; Catalog → <code>catalog/</code> (all entities)
+- Advanced Topics → Complex helm charts, custom workflows
+- Reference → <code>docs/adrs/</code>, schemas, troubleshooting guides</p>
+<p><strong>Strengths</strong>: User-centric, task-oriented, excellent for onboarding, practical focus
+<strong>Weaknesses</strong>: Potential duplication across workflows, harder to maintain technical coherence</p>
+<h2 id="recommendation-infrastructure-first-architecture">Recommendation: Infrastructure-First Architecture<a class="headerlink" href="#recommendation-infrastructure-first-architecture" title="Permanent link">¶</a></h2>
+<p><strong>Selected</strong>: <strong>Alternative 2: Infrastructure-First Architecture</strong></p>
+<p><strong>Justification for this Repository</strong>:</p>
+<ol>
+<li><strong>Primary Audience</strong>: Platform engineers and SREs who think in technical layers and system boundaries</li>
+<li><strong>Repository Purpose</strong>: This is an infrastructure operations repository, not an application development repository</li>
+<li><strong>Technical Coherence</strong>: The Helm chart organization (by functional area) maps well to the infrastructure-first approach</li>
+<li><strong>Operational Clarity</strong>: Platform components are the primary abstraction layer that users interact with</li>
+<li><strong>Scalability</strong>: As the platform grows, new infrastructure components can be easily slotted into existing categories</li>
+<li><strong>Troubleshooting</strong>: When things break, operators think in terms of "which component failed" rather than "which workflow failed"</li>
+</ol>
+<p><strong>Key Benefits for WebGrip</strong>:
+- <strong>Clear Technical Boundaries</strong>: Each major platform component gets dedicated documentation space
+- <strong>Operational Focus</strong>: Aligns with how platform teams operate and maintain systems<br/>
+- <strong>Backstage Integration</strong>: Service catalog section provides organizational context without losing technical focus
+- <strong>Ownership Model</strong>: Technical component ownership maps to team responsibilities
+- <strong>Growth Pattern</strong>: New platform capabilities can be easily added to existing technical categories</p>
+<p><strong>Tradeoffs Accepted</strong>:
+- <strong>Steeper Learning Curve</strong>: New developers may need more guidance to find workflow-specific information
+- <strong>Organizational Context</strong>: Team/domain information is less prominent but still accessible via Service Catalog section</p>
+<p><strong>Validation Approach</strong>:
+The infrastructure-first approach aligns with the repository's Helm chart organization pattern and the technical focus of the existing Backstage catalog entities. This IA will provide clear technical documentation while maintaining links to organizational structure through the Service Catalog section.</p>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">¶</a></h2>
+<ol>
+<li>Generate <code>mkdocs.yml</code> navigation based on the Infrastructure-First architecture</li>
+<li>Map specific repository locations to each documentation section</li>
+<li>Begin content creation starting with Cluster Architecture and Platform Components</li>
+<li>Ensure cross-references between technical components and organizational entities (Backstage catalog)</li>
+</ol>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+<div class="md-copyright__highlight">
+      organisation © 2013 - 2025 Building Better Developers  - <a href="#__consent">Change cookie settings</a>
+</div>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/organisation" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 496 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<div class="md-progress" data-md-component="progress" role="progressbar"></div>
+<div class="md-consent" data-md-component="consent" hidden="" id="__consent">
+<div class="md-consent__overlay"></div>
+<aside class="md-consent__inner">
+<form class="md-consent__form md-grid md-typeset" name="consent">
+<h4>Cookie consent</h4>
+<p>We use cookies to gather insights into our site's traffic and to ensure you're able to leave feedback. If you do not wish to leave feedback or be tracked, feel free to reject the cookies :)
+Thank you for visiting!</p>
+<input class="md-toggle" id="__settings" type="checkbox"/>
+<div class="md-consent__settings">
+<ul class="task-list">
+<li class="task-list-item">
+<label class="task-list-control">
+<input checked="" name="analytics" type="checkbox"/>
+<span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+</li>
+<li class="task-list-item">
+<label class="task-list-control">
+<input checked="" name="github" type="checkbox"/>
+<span class="task-list-indicator"></span>
+          Github
+        </label>
+</li>
+</ul>
+</div>
+<div class="md-consent__controls">
+<button class="md-button md-button--primary">Accept</button>
+<label class="md-button" for="__settings">Manage settings</label>
+<button class="md-button md-button--primary" type="reset">Reject</button>
+</div>
+</form>
+</aside>
+</div>
+<script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout((function(){document.querySelector("[data-md-component=consent]").hidden=!1}),250);var form=document.forms.consent;for(var action of["submit","reset"])form.addEventListener(action,(function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map((function(e){return[e,!0]})))),location.hash="",location.reload()}))</script>
+<script id="__config" type="application/json">{"base": "..", "features": ["search.suggest", "search.highlight", "search.share", "navigation.instant", "navigation.instant.progress", "navigation.instant.preview", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.tabs.sections", "navigation.tabs.expand", "navigation.prune", "toc.follow", "toc.integrate", "navigation.top", "navigation.footer", "content.action.edit"], "search": "../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+<script src="../assets/javascripts/bundle.f1b6f286.min.js"></script>
+<script src="../javascripts/feedback.js"></script>
+<script src="../assets/external/unpkg.com/mermaid@11/dist/mermaid.min.js"></script>
+</body>
+</html>
