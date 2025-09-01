@@ -42,3 +42,34 @@ metadata:
 spec:
   targets:
     - ./catalog/resources/staging-doks-cluster.yaml
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: organisation-public
+  namespace: webgrip
+  title: WebGrip Organisation Public
+  description: |
+    Public repository containing the foundational infrastructure configuration, 
+    Backstage catalog definitions, and platform operations for the WebGrip organisation.
+  labels:
+    tier: "1"
+  annotations:
+    github.com/project-slug: webgrip/organisation-public
+    backstage.io/techdocs-ref: dir:./docs/techdocs
+    simpleicons.org/icon-slug: kubernetes
+  tags:
+    - infrastructure
+    - platform
+    - kubernetes
+    - backstage
+  links:
+    - url: https://github.com/webgrip/organisation-public
+      title: Repository
+      icon: github
+      type: website
+spec:
+  type: platform
+  owner: group:webgrip/infrastructure
+  lifecycle: production
+  system: kubernetes-system

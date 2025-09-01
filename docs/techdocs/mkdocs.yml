@@ -28,6 +28,38 @@ extra_javascript:
 
 nav:
   - Home: index.md
+  - Overview: overview.md
+  - Cluster Architecture:
+    - Infrastructure Overview: cluster-architecture/infrastructure-overview.md
+    - Network Architecture: cluster-architecture/network-architecture.md
+    - Security Model: cluster-architecture/security-model.md
+    - Resource Management: cluster-architecture/resource-management.md
+  - Platform Components:
+    - Ingress & Load Balancing: platform-components/ingress-load-balancing.md
+    - Certificate Management: platform-components/certificate-management.md
+    - Monitoring & Observability: platform-components/monitoring-observability.md
+    - CI/CD Infrastructure: platform-components/cicd-infrastructure.md
+    - Secret Management: platform-components/secret-management.md
+  - Service Catalog:
+    - Backstage Integration: service-catalog/backstage-integration.md
+    - Domains & Systems: service-catalog/domains-systems.md
+    - Component Registry: service-catalog/component-registry.md
+    - API Contracts: service-catalog/api-contracts.md
+  - Operations Runbooks:
+    - Deployment Procedures: operations-runbooks/deployment-procedures.md
+    - Monitoring & Alerting: operations-runbooks/monitoring-alerting.md
+    - Incident Response: operations-runbooks/incident-response.md
+    - Backup & Recovery: operations-runbooks/backup-recovery.md
+    - Maintenance Tasks: operations-runbooks/maintenance-tasks.md
+  - Developer Workflows:
+    - Onboarding Guide: developer-workflows/onboarding-guide.md
+    - Application Templates: developer-workflows/application-templates.md
+    - CI/CD Patterns: developer-workflows/cicd-patterns.md
+    - Local Development: developer-workflows/local-development.md
+  - Governance & Standards:
+    - Architecture Decisions (ADRs): governance-standards/architecture-decisions.md
+    - Security Policies: governance-standards/security-policies.md
+    - Operational Standards: governance-standards/operational-standards.md
 
 # https://www.mkdocs.org/user-guide/configuration
 plugins:
