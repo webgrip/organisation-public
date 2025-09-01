@@ -1,72 +1,149 @@
-# Create Helm charts (app + secrets) matching our org pattern
+# Generate Helm charts (app + secrets) that follow our pattern — with **complete** `values.yaml` ready to fill
 
-## Summary
+## Goal
 
-Create two Helm charts:
+Create two Helm charts that conform to our house style and can be deployed immediately after filling a few required fields:
 
-1. **Main chart**: `<stack>-application` — deploys our org image(s) for the app, wiring ingress, service, resources, persistence, and (optional) Redis dependency.
-2. **Secrets chart**: `<stack>-application-secrets` — holds Kubernetes secrets and **must be deployed first**.
+1. **Main chart**: `ops/helm/<stack>-application`
+2. **Secrets chart**: `ops/secrets/<stack>-application-secrets` (installed **first**)
 
-The output must mirror the YAML shape shown below (anchors, sections, dependency layout), while enforcing our policies:
+This task **must**:
 
-* Images **must** be our org images (built in `ops/`); tags are **pinned** (no `:latest`) **everywhere except the Helm value for the deployed image**, which may be `latest` per our rollout convention.
-* Values must include `_shared_config` with `&hostname` and `&url` anchors, namespace, env, ingress, resources, persistence, and Redis settings.
-* Charts must declare dependencies **only** on official or active community-maintained charts (never the bwj app template).
-* **Research online** to locate the official/community chart for the chosen app; record the repository URL and version in the PR.
+* Use an **official or actively maintained community chart** as a dependency (found on Artifact Hub) — never the bwj app template.
+* Generate a **complete** `values.yaml` for our main chart that lists **every configurable value the dependency exposes**—pre-filled with upstream defaults where they exist, and **clearly marked** placeholders (`# REQUIRED`) where the user must supply a value.
+* Keep our existing organization image policy: the org-owned image (built from `ops/`) is referenced in `values.yaml`; CI/ops pin image tags, while in Helm **`image.tag: "latest"`** is permitted to represent “current org release”.
 
 ---
 
-## Deliverables
+## What you will deliver
 
 * `ops/helm/<stack>-application/Chart.yaml`
-* `ops/helm/<stack>-application/values.yaml`
+* `ops/helm/<stack>-application/values.yaml` (or `values.yml`)
 * `ops/secrets/<stack>-application-secrets/Chart.yaml`
-* `ops/secrets/<stack>-application-secrets/values.yaml`
+* `ops/secrets/<stack>-application-secrets/values.yaml` (or `values.yml`)
 
-Each file must validate with `helm lint`.
+All files must pass `helm lint` and a dry run (`helm install --dry-run --debug`).
 
 ---
 
-## Required structure (fill in placeholders)
+## How to gather the source of truth (no guessing)
 
-> Replace `<stack>` with the stack name (e.g., `invoiceninja-application`, `firefly-application`, `searxng-application`).
-> Replace `<org-repo>` with your org image (e.g., `webgrip/<stack>`).
-> Replace dependency names/versions/repositories with the correct ones for the chosen app.
+1. **Find the chart** on Artifact Hub (e.g., Invoice Ninja: `invoiceninja/invoiceninja`). Record the **repository URL** and a **pinned version**.
+2. **Pull the real defaults** for that version:
 
-### `ops/helm/<stack>-application/values.yaml`
+   ```
+   helm repo add <name> <url>
+   helm repo update
+   helm show values <name>/<chart> --version <X.Y.Z> > /tmp/upstream-values.yaml
+   ```
+3. **Use `/tmp/upstream-values.yaml` as the contract**. Every key you override or surface must **match the dependency’s schema and nesting**. Do not rename keys. Do not invent new ones.
+
+---
+
+## Rules for the main chart (`ops/helm/<stack>-application`)
+
+### `Chart.yaml`
+
+* `apiVersion: v2`, `type: application`.
+* `name: <stack>` (e.g., `searxng-application`, `invoiceninja-application`).
+* `version`: start at `0.1.0` (our chart version).
+* `appVersion`: set to the **application** version string you are targeting.
+* `dependencies`:
+
+  * The **upstream app chart** you found (pinned version, OCI/HTTP repo URL).
+  * `common-helpers` from `oci://ghcr.io/webgrip/common-charts` (pinned).
+  * Optional extras (e.g., Bitnami `redis`) only if the app uses them (pinned).
+
+### `values.yaml` (must be **complete**)
+
+* Top-level standard fields we require:
+
+  * `namespace: <stack>`
+  * `_shared_config.hostname: &hostname <FQDN>` and `_shared_config.url: &url https://<FQDN>` (YAML anchors)
+* A single top-level section named exactly after the dependency’s root key (e.g., `invoiceninja`, `searxng`, `firefly`). **All overridden/important values must live under this key**.
+* **Image settings** under that key, using our org image:
+
+  * `image.repository: <org-repo>` (e.g., `webgrip/<stack>`)
+  * `image.tag: "latest"` (Helm values only — CI/ops remain pinned)
+  * `image.pullPolicy: Always`
+* **Resources**: provide sane defaults (`requests`/`limits`), editable by users.
+* **Service & ports**: copy the exact keys and defaults from upstream (`containerPorts.*`, `service.port`, probe ports).
+* **Ingress**: our standard ingress block using Traefik + cert-manager; hosts use `*hostname` and TLS secret `letsencrypt-<stack>`.
+* **Persistence**: keep the upstream structure and names; set our defaults (e.g., `storageClass: do-block-storage`, sizes).
+* **Environment/config**: include the upstream’s documented config knobs (names as-is).
+* **Redis block**: include **only if the upstream chart supports/uses it**; otherwise omit or ensure `enabled: false`.
+
+#### Very important: include **placeholders** for anything not auto-filled
+
+* For every upstream key that has **no default** or requires a site-specific value (secrets, credentials, URLs, mail settings, etc.), put a placeholder and a clear comment:
+
+  ```
+  someCriticalKey: ""   # REQUIRED: set this to <describe expectation>
+  ```
+* For every secret value, do **not** put plaintext. Instead, wire it like:
+
+  ```
+  someSecret:
+    valueFrom:
+      secretKeyRef:
+        name: <stack>-secrets
+        key: someSecret
+  ```
+* **Do not omit** any important knobs from the upstream chart simply because we are not changing them. If a value is likely to be changed by operators (env, ports, persistence, replicas, probes, mail, cache/session/queue drivers, etc.), surface it with the upstream default and a brief comment.
+
+---
+
+## Secrets chart (`ops/secrets/<stack>-application-secrets`) — install **first**
+
+### `Chart.yaml`
+
+* Minimal app chart descriptor. Use `version: 0.1.0`.
+
+### `values.yaml`
+
+* `namespace: <stack>`
+* A list of key/value pairs for secrets used by the main chart.
+* Put **placeholders** or use your SOPS workflow — never commit real secrets.
+* The main chart must reference these via `valueFrom.secretKeyRef`.
+
+---
+
+## Image & tagging policy (don’t drift)
+
+* The **org image** referenced in the main chart’s `values.yaml` is the image we build from `ops/` Dockerfiles.
+* CI and Dockerfiles must use **pinned** upstream bases and pinned org tags.
+* In **Helm values only**, `image.tag: "latest"` is allowed to represent “current org release”.
+
+---
+
+## Structure you must produce (shape only; fill with real keys from upstream)
 
 ```yaml
 namespace: <stack>
 
 _shared_config:
-  hostname: &hostname <hostname.fqdn>
-  url: &url https://<hostname.fqdn>
+  hostname: &hostname <FQDN>     # REQUIRED: set your DNS name
+  url: &url https://<FQDN>       # REQUIRED: keep protocol + host
 
-<app-key>:
+<app-key>:                       # exact root key from upstream chart
   image:
-    repository: <org-repo>
-    tag: "latest"
+    repository: <org-repo>       # REQUIRED: org image (ours), not upstream
+    tag: "latest"                # Helm value only; CI/ops use pinned tags
     pullPolicy: Always
-  global:
-    fallbackDefaults:
-      pvcSize: 1Gi
-      storageClass: do-block-storage
 
+  # Copy these sections and key names from upstream values.yaml, not from memory:
   resources:
-    limits:
-      cpu: 500m
-      memory: 512Mi
     requests:
       cpu: 250m
       memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
 
   service:
-    main:
-      ports:
-        main:
-          enabled: true
-          port: 8080
-          protocol: http
+    # mirror upstream structure and defaults (ports, names, types)
+    # REQUIRED: ensure the port here matches what ingress targets
+    # ...
 
   ingress:
     main:
@@ -74,7 +151,6 @@ _shared_config:
       ingressClassName: ingress-traefik
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-traefik
-        # traefik.ingress.kubernetes.io/router.middlewares: "<optional-middleware-refs>"
       hosts:
         - host: *hostname
           paths:
@@ -82,137 +158,66 @@ _shared_config:
               pathType: Prefix
               service:
                 name: <stack>
-                port: 8080
+                port: <UPSTREAM_SERVICE_PORT>  # REQUIRED: match upstream
       tls:
         - secretName: letsencrypt-<stack>
           hosts:
             - *hostname
 
   persistence:
-    config:
-      enabled: true
-      size: 1Gi
-      storageClass: do-block-storage
+    # keep upstream structure (e.g., public/storage sections)
+    # provide our defaults for class/size
+    # ...
 
   env:
     TZ: Europe/Amsterdam
     INSTANCE_NAME: <stack>
     BASE_URL: *url
+    # Include all important upstream-config keys the operator may change.
+    # REQUIRED: mark items the user must fill in:
+    # someCriticalKey: ""  # REQUIRED: describe what to put here
+    # someSecret:
+    #   valueFrom:
+    #     secretKeyRef:
+    #       name: <stack>-secrets
+    #       key: someSecret
 
-    # Add app-specific variables here (exact keys required by the app).
-    # All sensitive values must be referenced from the secrets chart:
-    SOME_APP_SECRET:
-      valueFrom:
-        secretKeyRef:
-          name: <stack>-secrets
-          key: some-app-secret
-```
-
-> Notes:
->
-> * `<app-key>` must match the subchart or top-level key consumed by the dependency (e.g., `searxng`, `firefly`, `invoiceninja`).
-> * If your app needs Redis, add the env key pointing to the in-cluster Redis service FQDN.
-
-### Optional Redis (include only if needed)
-
-```yaml
+# Include only if the upstream chart supports it and we enable it:
 redis:
-  architecture: replication
-  auth:
-    enabled: false
-  master:
-    persistence:
-      enabled: true
-      size: 1Gi
-  replica:
-    replicaCount: 0
-```
-
-### `ops/helm/<stack>-application/Chart.yaml`
-
-```yaml
-apiVersion: v2
-name: <stack>
-description: "Helm Chart for deploying <stack> on Kubernetes."
-type: application
-version: 0.2.0
-appVersion: "<APP_VERSION_PINNED>"
-
-dependencies:
-  # Primary app chart if you consume an official/community-maintained chart:
-  - name: <app-key>
-    version: <APP_CHART_VERSION_PINNED>
-    repository: <OCI_OR_HELM_REPOSITORY_URL>
-  # Our shared helpers:
-  - name: common-helpers
-    repository: oci://ghcr.io/webgrip/common-charts
-    version: 1.0.13
-  # Optional auxiliary services such as redis or postgres (remove if not required):
-  - name: redis
-    version: <REDIS_CHART_VERSION_PINNED>
-    repository: oci://registry-1.docker.io/bitnamicharts
+  # mirror upstream defaults and structure or set enabled: false
+  # ...
 ```
 
 ---
 
-## Secrets chart (deployed first)
+## Clear instructions for the user (to avoid surprises)
 
-### `ops/secrets/<stack>-application-secrets/Chart.yaml`
+* Open `ops/helm/<stack>-application/values.yaml`.
+* Search for **`# REQUIRED`** and fill in the placeholders (FQDN, secrets, emails, passwords, mailer settings, etc.).
+* If your application needs Redis (or any optional dependency), set `enabled: true` in the corresponding section and verify the service/port keys match the upstream chart.
+* Install order:
 
-```yaml
-apiVersion: v2
-name: <stack>-secrets
-description: "Helm chart to store secrets for <stack>."
-type: application
-version: 0.1.0
-```
-
-### `ops/secrets/<stack>-application-secrets/values.yaml`
-
-```yaml
-namespace: <stack>
-
-# List each secret as key: value (or wire SOPS separately).
-# Do not commit real secrets. Use CI to inject or use SOPS/age in a private path.
-some-app-secret: "<PLACEHOLDER_OR_ENCRYPTED_VALUE>"
-```
-
-> This chart creates a Secret named `<stack>-secrets` in the `<stack>` namespace (or as defined in your templates), and the main chart must reference keys via `valueFrom.secretKeyRef`.
+  1. `helm upgrade --install <stack>-secrets ops/secrets/<stack>-application-secrets -n <stack> --create-namespace`
+  2. `helm upgrade --install <stack> ops/helm/<stack>-application -n <stack>`
 
 ---
 
-## Research & selection rules (must follow)
+## Acceptance checklist
 
-* **Locate official or active community-maintained charts** for the chosen app (never the bwj app template).
-* Validate “active” by checking **recent commits/releases** and open issues/PRs. Prefer OCI registries with signed artifacts when available.
-* Record in the PR description for each dependency: **chart name**, **version**, **repository URL**, and **why it qualifies** (official or active community-maintained).
-* Pin **chart versions** in `Chart.yaml` and **our app image tags** in your `ops/` Dockerfiles (no floating tags).
-* Use our org images in values (repository `<org-repo>`). Our Dockerfiles in `ops/` must `FROM` pinned upstream images.
-
----
-
-## Constraints & rules
-
-* **Pinned image tags everywhere** in `ops/` builds and CI; **the only exception** is the Helm value `image.tag: "latest"` for the deployed app image, which maps to our org’s “current” tag policy.
-* **Do not** depend on bwj app template. Use **official** or **active community** charts only.
-* **Ingress**: class `ingress-traefik`, issuer `letsencrypt-traefik`; TLS secret `letsencrypt-<stack>`.
-* **Namespace** equals `<stack>`.
-* **Env**: must include `TZ`, `INSTANCE_NAME`, `BASE_URL`; add only keys recognized by the app.
-* **Persistence**: default `do-block-storage`, `1Gi` unless the app requires more.
-* **Redis**: include section only if used by the app and wire env accordingly.
-* Everything must pass `helm lint` and `helm install --dry-run --debug`.
+* [ ] Dependency is the **official or active community chart** (pinned version, repo URL recorded).
+* [ ] `values.yaml` is **complete**: all relevant upstream keys are present with defaults or `# REQUIRED` placeholders. No invented keys.
+* [ ] Our image repository is set (org image), `image.tag` is `"latest"` **only in Helm values**, and comments clarify that CI/ops use pinned tags.
+* [ ] Ingress/Service/Ports match the upstream chart’s ports; TLS and class follow our standard.
+* [ ] Persistence and (if used) Redis blocks mirror the upstream chart’s structure and include our defaults.
+* [ ] Secrets chart exists, is installed first, and all sensitive values in the main chart reference it via `secretKeyRef`.
+* [ ] `helm lint` and `helm install --dry-run --debug` both pass.
 
 ---
 
-## Acceptance criteria
+## PR notes
 
-* [ ] Charts and values exactly follow the structure above (anchors, sections, keys).
-* [ ] Dependencies point to **official or active community-maintained** charts, with repo URLs and pinned versions captured in the PR.
-* [ ] Image repository points to our org; `image.tag` in values is `"latest"` per policy, but our `ops/` images and CI are strictly pinned.
-* [ ] Ingress/Service/Resources/Persistence are present and sane; Redis included only when required.
-* [ ] Secrets chart deploys first; main chart references secrets via `valueFrom.secretKeyRef`.
-* [ ] `helm lint` passes for both charts; dry-run install succeeds with placeholders.
+Attach:
 
----
-
-**Notes for the PR:** include links to the chosen charts’ repositories/OCI indexes, the pinned versions, and a one-liner on their activity (last release/commit).
+* The Artifact Hub link for the chosen chart.
+* `helm show values …` output for the pinned version (as an artifact or gist) to prove key names.
+* A short list of **`# REQUIRED`** fields the operator must fill before install.
