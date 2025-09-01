@@ -1,4 +1,23 @@
 apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: webgrip-organisation-public
+  namespace: webgrip
+  title: WebGrip Organisation Public
+  description: Base structure and platform foundation for the WebGrip organisation
+  annotations:
+    backstage.io/techdocs-ref: dir:./docs/techdocs
+    github.com/project-slug: webgrip/organisation-public
+  tags:
+    - platform
+    - infrastructure
+    - operations
+spec:
+  type: service
+  owner: group:infrastructure
+  lifecycle: production
+---
+apiVersion: backstage.io/v1alpha1
 kind: Location
 metadata:
   name: webgrip-domains

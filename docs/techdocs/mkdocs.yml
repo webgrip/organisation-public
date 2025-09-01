@@ -1,5 +1,5 @@
-site_name: "WebGrip Public TechDocs"
-site_description: "Documentation for WebGrip's public APIs and services."
+site_name: "WebGrip Organisation Public"
+site_description: "Repository knowledge base (architecture, data, runtime, operations, onboarding)"
 
 theme:
   name: "material"
@@ -28,24 +28,49 @@ extra_javascript:
 
 nav:
   - Home: index.md
+  - Overview:
+    - Project Overview: overview/project_overview.md
+    - Getting Started: overview/getting_started.md
+    - Repository Structure: overview/repository_structure.md
+  - Platform Architecture:
+    - Infrastructure Overview: platform/infrastructure_overview.md
+    - Kubernetes Components: platform/kubernetes_components.md
+    - Networking & Ingress: platform/networking_ingress.md
+    - Monitoring & Observability: platform/monitoring_observability.md
+  - Operations:
+    - CI/CD Workflows: operations/cicd_workflows.md
+    - Deployment Guide: operations/deployment_guide.md
+    - Secrets Management: operations/secrets_management.md
+    - Tools & Commands: operations/tools_commands.md
+  - Catalog Structure:
+    - Domains: catalog/domains.md
+    - Systems: catalog/systems.md
+    - Components: catalog/components.md
+    - Resources: catalog/resources.md
+  - Development:
+    - Local Setup: development/local_setup.md
+    - Contributing: development/contributing.md
+    - Testing: development/testing.md
+  - ADRs:
+    - Overview: adrs/overview.md
+    - All Decisions: adrs/all_decisions.md
+  - Reference:
+    - Glossary: reference/glossary.md
+    - Troubleshooting: reference/troubleshooting.md
+    - Maintenance: reference/maintenance.md
 
 # https://www.mkdocs.org/user-guide/configuration
 plugins:
   - techdocs-core:
       use_material_search: true
-  - search:
-      min-search-length: 2
-      prebuild_index: true
-      indexing: full
+  - search
   - mermaid2:
       arguments:
         securityLevel: "loose"
   - macros
-  - privacy
 
 markdown_extensions:
   - markdown_inline_mermaid
-  - markdown_inline_graphviz
 
 extra:
   # analytics:

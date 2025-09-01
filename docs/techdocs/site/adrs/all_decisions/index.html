@@ -1,0 +1,1489 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Repository knowledge base (architecture, data, runtime, operations, onboarding)">
+      
+      
+      
+      
+        <link rel="prev" href="../overview/">
+      
+      
+        <link rel="next" href="../../reference/maintenance/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.8">
+    
+    
+      
+        <title>All Decisions - WebGrip Organisation Public</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.8608ea7d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#all-decisions" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="WebGrip Organisation Public" class="md-header__button md-logo" aria-label="WebGrip Organisation Public" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            WebGrip Organisation Public
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              All Decisions
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../overview/project_overview/" class="md-tabs__link">
+          
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../platform/infrastructure_overview/" class="md-tabs__link">
+          
+  
+  Platform Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operations/cicd_workflows/" class="md-tabs__link">
+          
+  
+  Operations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../catalog/domains/" class="md-tabs__link">
+          
+  
+  Catalog Structure
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/local_setup.md" class="md-tabs__link">
+          
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../overview/" class="md-tabs__link">
+          
+  
+  ADRs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/glossary.md" class="md-tabs__link">
+          
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="WebGrip Organisation Public" class="md-nav__button md-logo" aria-label="WebGrip Organisation Public" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    WebGrip Organisation Public
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../overview/project_overview/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../platform/infrastructure_overview/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Platform Architecture
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../operations/cicd_workflows/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Operations
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../catalog/domains/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Catalog Structure
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../development/local_setup.md" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    ADRs
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            ADRs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    All Decisions
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    All Decisions
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#adr-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      ADR Index
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ADR Index">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#template-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Template &amp; Standards
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#active-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Active Decisions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#proposed-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proposed Decisions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#superseded-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Superseded Decisions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rejected-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rejected Decisions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adr-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      ADR Statistics
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expected-future-adrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expected Future ADRs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Expected Future ADRs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#infrastructure-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Infrastructure Decisions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Decisions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitoring-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      Monitoring &amp; Observability
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cicd-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      CI/CD Decisions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adr-review-schedule" class="md-nav__link">
+    <span class="md-ellipsis">
+      ADR Review Schedule
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ADR Review Schedule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quarterly-reviews" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quarterly Reviews
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#triggers-for-adr-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Triggers for ADR Updates
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adr-metrics-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      ADR Metrics &amp; Analytics
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ADR Metrics &amp; Analytics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#decision-quality-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decision Quality Metrics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#process-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Process Metrics
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing-to-adrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contributing to ADRs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contributing to ADRs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-new-adrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating New ADRs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adr-review-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      ADR Review Process
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#maintaining-existing-adrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Maintaining Existing ADRs
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#search-and-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      Search and Discovery
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Search and Discovery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#finding-relevant-adrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Finding Relevant ADRs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration Points
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../reference/glossary.md" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Reference
+    
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="all-decisions">All Decisions<a class="headerlink" href="#all-decisions" title="Permanent link">&para;</a></h1>
+<p>This page provides a comprehensive index of all Architectural Decision Records (ADRs) in the WebGrip organisation.</p>
+<h2 id="adr-index">ADR Index<a class="headerlink" href="#adr-index" title="Permanent link">&para;</a></h2>
+<h3 id="template-standards">Template &amp; Standards<a class="headerlink" href="#template-standards" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ADR</th>
+<th>Title</th>
+<th>Status</th>
+<th>Date</th>
+<th>Tags</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../docs/adrs/0000-template.md">ADR-0000</a></td>
+<td>Template</td>
+<td>Template</td>
+<td>-</td>
+<td>Template, Standards</td>
+</tr>
+</tbody>
+</table>
+<h3 id="active-decisions">Active Decisions<a class="headerlink" href="#active-decisions" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Current Status</strong>: Only the template ADR exists. Future architectural decisions will be documented here as they are made.</p>
+</blockquote>
+<h3 id="proposed-decisions">Proposed Decisions<a class="headerlink" href="#proposed-decisions" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Note</strong>: No ADRs are currently in "Proposed" status. New proposals will appear here for review.</p>
+</blockquote>
+<h3 id="superseded-decisions">Superseded Decisions<a class="headerlink" href="#superseded-decisions" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Note</strong>: No ADRs have been superseded yet. Historical decisions will be listed here when they are replaced.</p>
+</blockquote>
+<h3 id="rejected-decisions">Rejected Decisions<a class="headerlink" href="#rejected-decisions" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p><strong>Note</strong>: No ADRs have been rejected yet. Rejected alternatives will be documented here for reference.</p>
+</blockquote>
+<h2 id="adr-statistics">ADR Statistics<a class="headerlink" href="#adr-statistics" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Template</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Proposed</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Accepted</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Rejected</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Deprecated</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Superseded</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>1</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="expected-future-adrs">Expected Future ADRs<a class="headerlink" href="#expected-future-adrs" title="Permanent link">&para;</a></h2>
+<p>Based on the platform architecture and technology choices observed in the repository, the following ADRs are likely needed:</p>
+<h3 id="infrastructure-decisions">Infrastructure Decisions<a class="headerlink" href="#infrastructure-decisions" title="Permanent link">&para;</a></h3>
+<p><strong>ADR-0001: Kubernetes Platform Selection</strong>
+- Decision between EKS, DOKS, and other managed Kubernetes services
+- Rationale for multi-cloud approach (AWS + DigitalOcean)
+- Cost, performance, and operational considerations</p>
+<p><strong>ADR-0002: Traefik vs. Nginx Ingress Controller</strong>
+- Evaluation of ingress controller options
+- Feature comparison and performance analysis
+- Integration with certificate management</p>
+<p><strong>ADR-0003: Helm vs. Kustomize for Configuration Management</strong>
+- Infrastructure as Code approach selection
+- Template complexity vs. maintainability trade-offs
+- Secrets management integration</p>
+<h3 id="security-decisions">Security Decisions<a class="headerlink" href="#security-decisions" title="Permanent link">&para;</a></h3>
+<p><strong>ADR-0004: Age + SOPS for Secrets Management</strong>
+- Comparison with HashiCorp Vault, Sealed Secrets, etc.
+- Operational complexity vs. security requirements
+- Integration with CI/CD pipelines</p>
+<p><strong>ADR-0005: Certificate Management Strategy</strong>
+- Let's Encrypt vs. custom CA vs. external certificate providers
+- Automation requirements and certificate lifecycle
+- Compliance and security considerations</p>
+<h3 id="monitoring-observability">Monitoring &amp; Observability<a class="headerlink" href="#monitoring-observability" title="Permanent link">&para;</a></h3>
+<p><strong>ADR-0006: Grafana Stack Architecture</strong>
+- Monitoring platform selection and configuration
+- Prometheus vs. alternative metrics systems
+- Dashboard standardization and governance</p>
+<p><strong>ADR-0007: Logging Strategy</strong>
+- Centralized logging vs. distributed logging
+- Log retention and compliance requirements
+- Integration with monitoring and alerting</p>
+<h3 id="cicd-decisions">CI/CD Decisions<a class="headerlink" href="#cicd-decisions" title="Permanent link">&para;</a></h3>
+<p><strong>ADR-0008: GitHub Actions Runner Controller (ARC)</strong>
+- Self-hosted vs. GitHub-hosted runners
+- Cost optimization and security considerations
+- Scaling and performance requirements</p>
+<p><strong>ADR-0009: GitOps vs. Push-based Deployment</strong>
+- Deployment strategy and automation approach
+- Security and audit trail requirements
+- Developer experience and operational complexity</p>
+<h2 id="adr-review-schedule">ADR Review Schedule<a class="headerlink" href="#adr-review-schedule" title="Permanent link">&para;</a></h2>
+<h3 id="quarterly-reviews">Quarterly Reviews<a class="headerlink" href="#quarterly-reviews" title="Permanent link">&para;</a></h3>
+<p><strong>Q1 Review (January-March)</strong>:
+- Review all "Accepted" ADRs for continued relevance
+- Validate ongoing guardrails and monitoring
+- Update consequences and lessons learned</p>
+<p><strong>Q2 Review (April-June)</strong>:
+- Architecture evolution assessment
+- Technology landscape changes
+- Cross-ADR dependency analysis</p>
+<p><strong>Q3 Review (July-September)</strong>:
+- Performance and scalability validation
+- Security and compliance updates
+- Operational experience assessment</p>
+<p><strong>Q4 Review (October-December)</strong>:
+- Annual architecture health check
+- ADR process improvement
+- Strategic planning alignment</p>
+<h3 id="triggers-for-adr-updates">Triggers for ADR Updates<a class="headerlink" href="#triggers-for-adr-updates" title="Permanent link">&para;</a></h3>
+<p><strong>Technology Updates</strong>:
+- Major version updates of core platform components
+- End-of-life announcements for current technologies
+- New technology adoption in the ecosystem</p>
+<p><strong>Performance Issues</strong>:
+- SLA/SLO violations related to architectural decisions
+- Scalability bottlenecks requiring architectural changes
+- Cost optimization opportunities</p>
+<p><strong>Security Changes</strong>:
+- New security threats or vulnerabilities
+- Compliance requirement changes
+- Security incident learnings</p>
+<p><strong>Operational Changes</strong>:
+- Team structure or ownership changes
+- Process improvements or automation
+- Tool consolidation or standardization</p>
+<h2 id="adr-metrics-analytics">ADR Metrics &amp; Analytics<a class="headerlink" href="#adr-metrics-analytics" title="Permanent link">&para;</a></h2>
+<h3 id="decision-quality-metrics">Decision Quality Metrics<a class="headerlink" href="#decision-quality-metrics" title="Permanent link">&para;</a></h3>
+<p><strong>Decision Success Rate</strong>:
+- Percentage of ADRs still valid after 1 year
+- Number of superseded vs. deprecated decisions
+- Implementation success rate</p>
+<p><strong>Decision Impact</strong>:
+- Performance improvements from architectural decisions
+- Cost savings or increases from technology choices
+- Developer productivity impact</p>
+<p><strong>Decision Speed</strong>:
+- Time from problem identification to ADR approval
+- Review cycle time for proposed ADRs
+- Implementation time from ADR approval</p>
+<h3 id="process-metrics">Process Metrics<a class="headerlink" href="#process-metrics" title="Permanent link">&para;</a></h3>
+<p><strong>ADR Coverage</strong>:
+- Percentage of major architectural decisions documented
+- Cross-reference coverage between code and ADRs
+- Stakeholder participation in ADR reviews</p>
+<p><strong>ADR Quality</strong>:
+- Completeness of ADR sections
+- Validation method effectiveness
+- Long-term accuracy of predictions</p>
+<h2 id="contributing-to-adrs">Contributing to ADRs<a class="headerlink" href="#contributing-to-adrs" title="Permanent link">&para;</a></h2>
+<h3 id="creating-new-adrs">Creating New ADRs<a class="headerlink" href="#creating-new-adrs" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Copy Template</strong>: Start with <a href="../../docs/adrs/0000-template.md">ADR template</a></li>
+<li><strong>Assign Number</strong>: Use next sequential number (ADR-NNNN)</li>
+<li><strong>Complete Sections</strong>: Fill all required sections thoroughly</li>
+<li><strong>Gather Input</strong>: Collect stakeholder feedback and review</li>
+<li><strong>Submit PR</strong>: Create pull request with ADR for review</li>
+<li><strong>Update Index</strong>: Add to this index upon approval</li>
+</ol>
+<h3 id="adr-review-process">ADR Review Process<a class="headerlink" href="#adr-review-process" title="Permanent link">&para;</a></h3>
+<p><strong>Technical Review</strong>:
+- Architecture team review for technical accuracy
+- Cross-team impact assessment
+- Performance and scalability validation</p>
+<p><strong>Business Review</strong>:
+- Stakeholder alignment and business impact
+- Resource and timeline implications
+- Risk assessment and mitigation</p>
+<p><strong>Final Approval</strong>:
+- Decision approval by designated authority
+- Status update to "Accepted"
+- Publication and communication</p>
+<h3 id="maintaining-existing-adrs">Maintaining Existing ADRs<a class="headerlink" href="#maintaining-existing-adrs" title="Permanent link">&para;</a></h3>
+<p><strong>Regular Updates</strong>:
+- Quarterly review of validation methods
+- Update consequences based on real-world experience
+- Revision log updates for significant changes</p>
+<p><strong>Status Changes</strong>:
+- Deprecation when decisions become obsolete
+- Supersession when new decisions replace old ones
+- Amendment for minor corrections or clarifications</p>
+<h2 id="search-and-discovery">Search and Discovery<a class="headerlink" href="#search-and-discovery" title="Permanent link">&para;</a></h2>
+<h3 id="finding-relevant-adrs">Finding Relevant ADRs<a class="headerlink" href="#finding-relevant-adrs" title="Permanent link">&para;</a></h3>
+<p><strong>By Technology</strong>:
+- Search for specific technologies in ADR content
+- Filter by tags and categories
+- Cross-reference with component documentation</p>
+<p><strong>By Domain</strong>:
+- Operations domain architectural decisions
+- Telemetry domain architectural decisions
+- Security and compliance decisions</p>
+<p><strong>By Impact</strong>:
+- Performance-related decisions
+- Cost-related decisions
+- Security-related decisions</p>
+<h3 id="integration-points">Integration Points<a class="headerlink" href="#integration-points" title="Permanent link">&para;</a></h3>
+<p><strong>TechDocs Integration</strong>:
+- ADRs referenced from relevant documentation pages
+- Decision rationale included in implementation guides
+- Cross-links between ADRs and platform components</p>
+<p><strong>Backstage Integration</strong>:
+- ADR annotations on relevant components
+- Service catalog links to architectural decisions
+- Decision history for each platform component</p>
+<p><strong>Code Integration</strong>:
+- ADR references in code comments
+- Configuration files citing decision rationale
+- Architecture diagrams linked to decisions</p>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Create First ADR</strong>: Document an architectural decision using the <a href="../../docs/adrs/0000-template.md">template</a></li>
+<li><strong>Review Process</strong>: Understand <a href="../overview/">ADR overview</a> and creation process</li>
+<li><strong>Platform Decisions</strong>: Review <a href="../../platform/infrastructure_overview/">platform architecture</a> for decision context</li>
+<li><strong>Contributing</strong>: Follow <a href="../development/contributing.md">contributing guidelines</a> for ADR submissions</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../overview/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Overview
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../reference/maintenance/" class="md-footer__link md-footer__link--next" aria-label="Next: Maintenance">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Maintenance
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      organisation © 2013 - 2025 Building Better Developers  - <a href="#__consent">Change cookie settings</a>
+
+    </div>
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/organisation" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+
+
+
+
+<h4>Cookie consent</h4>
+<p>We use cookies to gather insights into our site's traffic and to ensure you're able to leave feedback. If you do not wish to leave feedback or be tracked, feel free to reject the cookies :)
+Thank you for visiting!</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="analytics" checked>
+          <span class="task-list-indicator"></span>
+          Google Analytics
+        </label>
+      </li>
+    
+      
+      
+        
+        
+      
+      <li class="task-list-item">
+        <label class="task-list-control">
+          <input type="checkbox" name="github" checked>
+          <span class="task-list-indicator"></span>
+          Github
+        </label>
+      </li>
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Accept</button>
+    
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Manage settings</label>
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Reject</button>
+    
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout((function(){document.querySelector("[data-md-component=consent]").hidden=!1}),250);var form=document.forms.consent;for(var action of["submit","reset"])form.addEventListener(action,(function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map((function(e){return[e,!0]})))),location.hash="",location.reload()}))</script>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["search.suggest", "search.highlight", "search.share", "navigation.instant", "navigation.instant.progress", "navigation.instant.preview", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.tabs.sections", "navigation.tabs.expand", "navigation.prune", "toc.follow", "toc.integrate", "navigation.top", "navigation.footer", "content.action.edit"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+        <script src="../../javascripts/feedback.js"></script>
+      
+    
+  </body>
+</html>
