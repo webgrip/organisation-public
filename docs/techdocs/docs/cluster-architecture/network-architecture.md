@@ -158,6 +158,8 @@ flowchart TB
 | **Service CIDR** | `10.96.0.0/12` | Service virtual IPs |
 | **Node CIDR** | `10.0.0.0/16` | Node infrastructure IPs |
 
+> **Assumption**: CIDR ranges are typical Kubernetes defaults. Actual ranges should be verified in cluster configuration with `kubectl cluster-info dump | grep -i cidr` or by checking cluster provider settings.
+
 > **📝 Assumption**: CIDR ranges are typical defaults. Actual ranges should be verified in cluster configuration.
 
 ### 4. Service Network
