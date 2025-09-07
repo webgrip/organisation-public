@@ -1,0 +1,12 @@
+{{- if .Values.middlewares.retry.enabled }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ .Values.middlewares.retry.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  retry:
+    attempts: {{ default 3 .Values.middlewares.retry.attempts }}
+    perTryTimeout: {{ default "2s" .Values.middlewares.retry.perTryTimeout | quote }}
+{{- end }}

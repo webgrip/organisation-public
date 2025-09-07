@@ -10,7 +10,6 @@ middlewares:
         - "0.0.0.0/0"
         - "::/0"
 
-
   basicAuth:
     enabled: true
     name: ryan-basic-auth
@@ -21,3 +20,27 @@ middlewares:
     name: my-ratelimit
     average: 100
     burst: 200
+
+  securityHeaders:
+    enabled: true
+    name: webgrip-security-headers
+    stsSeconds: 31536000
+    stsIncludeSubdomains: true
+    stsPreload: true
+    referrerPolicy: "no-referrer-when-downgrade"
+    permissionsPolicy: "geolocation=(), microphone=(), camera=()"
+    # contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; frame-ancestors 'self';"
+    contentTypeNosniff: true
+    browserXssFilter: true
+    frameDeny: true
+    forceSTSHeader: true
+    # customFrameOptionsValue: "SAMEORIGIN"
+    # customHeaders: {}
+    # customHeaders:
+    #   X-Custom-Header: "value"
+
+  retry:
+    enabled: true
+    name: webgrip-retry
+    attempts: 3
+    perTryTimeout: "2s"
