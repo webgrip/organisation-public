@@ -4,10 +4,7 @@ middlewares:
   ipAllowLists:
     - name: ryan-home-ip-allow-list
       sourceRanges:
-        - "188.89.91.129/32"
-    - name: office-ip-allow-list
-      sourceRanges:
-        - "92.68.230.153/32"
+        - "143.179.179.216/32"
     - name: allow-all
       sourceRanges:
         - "0.0.0.0/0"
