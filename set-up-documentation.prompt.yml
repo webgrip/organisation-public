@@ -165,3 +165,6 @@ messages:
       The application for which you need to generate documenation is:
       {{app_name}}
 model: openai/gpt-4o
+testData:
+  - app_name: n8n-application
+evaluators: []
