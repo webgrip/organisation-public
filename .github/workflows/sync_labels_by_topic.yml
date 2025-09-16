@@ -25,12 +25,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Sync labels across org repos with matching topics
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
             const org = "${{ github.repository_owner }}";
-            const dryRun = core.getBooleanInput('dry_run');
+            const isDryRun = core.getBooleanInput('dry_run');
 
             // ---- Helpers ----
             const MGMT_MARKER = process.env.MGMT_MARKER;
@@ -39,7 +39,7 @@ jobs:
               return base ? `${base} ${MGMT_MARKER}` : MGMT_MARKER;
             };
             const hasMarker = (desc) => (desc || '').includes(MGMT_MARKER);
-            const normHex = (c) => {
+            const normalizeHex = (c) => {
               const x = String(c || '').replace(/^#/, '').trim();
               if (!/^[0-9a-fA-F]{6}$/.test(x)) throw new Error(`Invalid color: "${c}"`);
               return x.toLowerCase();
@@ -73,7 +73,7 @@ jobs:
               });
               for (const r of results) {
                 if (r.archived || r.disabled) continue; // skip archived/disabled
-                reposMap.set(r.full_name.toLowerCase(), { owner: r.owner.login, repo: r.name });
+                reposMap.set(r.full_name, { owner: r.owner.login, repo: r.name });
               }
             }
 
@@ -89,7 +89,12 @@ jobs:
             const perRepoSummaries = [];
 
             // ---- Process each repo ----
-            for (const [fullName, { owner, repo }] of reposMap.entries()) {
+            // Batch processing to avoid rate limits
+            const reposArray = Array.from(reposMap.entries());
+            const BATCH_SIZE = 5; // adjust as needed
+            const BATCH_DELAY_MS = 5000; // 5 seconds between batches
+
+            async function processRepo(fullName, { owner, repo }) {
               core.startGroup(`Repo: ${owner}/${repo}`);
 
               // Get all topics for this repo (so we can take the union for all matching keys)
@@ -130,7 +135,7 @@ jobs:
               if (desired.size === 0) {
                 core.info('No configured topics present; skipping.');
                 core.endGroup();
-                continue;
+                return null;
               }
 
               // Existing labels
@@ -200,15 +205,47 @@ jobs:
                 }
               }
 
-              perRepoSummaries.push({
+              core.endGroup();
+
+              return {
                 repo: `${owner}/${repo}`,
                 topics: repoTopics,
                 ensured,
                 updated,
                 removed
-              });
+              };
+            }
 
-              core.endGroup();
+            async function sleep(ms) {
+              return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            for (let i = 0; i < reposArray.length; i += BATCH_SIZE) {
+              const batch = reposArray.slice(i, i + BATCH_SIZE);
+              const results = await Promise.all(batch.map(([fullName, repoObj]) =>
+                processRepo(fullName, repoObj).catch(err => {
+                  core.error(`Error processing ${repoObj.owner}/${repoObj.repo}: ${err.message}`);
+                  return null;
+                })
+              ));
+              for (const summary of results) {
+                if (summary) perRepoSummaries.push(summary);
+              }
+
+              // Check rate limit and delay if needed
+              const rate = await github.rest.rateLimit.get();
+              const remaining = rate.data.resources.core.remaining;
+              const reset = rate.data.resources.core.reset;
+              core.info(`GitHub API remaining: ${remaining}`);
+              if (remaining < 20) {
+                const now = Math.floor(Date.now() / 1000);
+                const waitSec = Math.max(reset - now, 1);
+                core.warning(`Approaching rate limit, sleeping for ${waitSec} seconds`);
+                await sleep(waitSec * 1000);
+              } else if (i + BATCH_SIZE < reposArray.length) {
+                core.info(`Sleeping ${BATCH_DELAY_MS / 1000}s before next batch...`);
+                await sleep(BATCH_DELAY_MS);
+              }
             }
 
             // ---- Summary ----
@@ -226,6 +263,6 @@ jobs:
             }
 
             await core.summary
-              .addHeading(`Org Labels by Topics — ${dryRun ? 'PLAN' : 'APPLY'}`)
+              .addHeading(`Org Labels by Topics — ${isDryRun ? 'PLAN' : 'APPLY'}`)
               .addTable(table)
               .write();
