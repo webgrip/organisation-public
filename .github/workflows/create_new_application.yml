@@ -69,8 +69,8 @@ jobs:
 
   setup-issues:
     name: ${{ inputs.application_name }}
-    uses: webgrip/workflows/.github/workflows/setup-repository-issues.yml@main
-    needs: create-repo-from-template
+    uses: webgrip/workflows/.github/workflows/setup-repository-prompt-issues.yml@main
+    needs: bootstrap-copilot
     with:
       repo_name: ${{ inputs.application_name }}
     secrets:
