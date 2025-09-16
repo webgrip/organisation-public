@@ -1,4 +1,4 @@
-name: Sync Labels by Topics
+name: "🔃🏷️ Sync Labels by Topics"
 
 on:
   workflow_dispatch:
