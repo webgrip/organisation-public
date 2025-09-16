@@ -1,0 +1,110 @@
+{
+  "prune": true,
+  "general": [
+    {
+      "name": "security",
+      "color": "d73a4a",
+      "description": "Security-related work (managed by topics)"
+    },
+    {
+      "name": "ci",
+      "color": "0e8a16",
+      "description": "Continuous integration (managed by topics)"
+    },
+    {
+      "name": "ai",
+      "color": "5319e7",
+      "description": "AI/ML work (managed by topics)"
+    }
+  ],
+  "topics": {
+    "application": [
+      {
+        "name": "api",
+        "color": "0e8a16",
+        "description": "API work"
+      },
+      {
+        "name": "ui",
+        "color": "1d76db",
+        "description": "Frontend/UI"
+      },
+      {
+        "name": "release",
+        "color": "0b5fff",
+        "description": "Release management"
+      }
+    ],
+    "(github) action": [
+      {
+        "name": "ci",
+        "color": "0e8a16",
+        "description": "Continuous integration (topic override)"
+      },
+      {
+        "name": "actions",
+        "color": "0052cc",
+        "description": "GitHub Actions"
+      },
+      {
+        "name": "workflow",
+        "color": "0366d6",
+        "description": "Workflow logic"
+      },
+      {
+        "name": "runner",
+        "color": "6f42c1",
+        "description": "Runners/ARC"
+      }
+    ],
+    "operations": [
+      {
+        "name": "infra",
+        "color": "1d76db",
+        "description": "Infrastructure"
+      },
+      {
+        "name": "kubernetes",
+        "color": "326ce5",
+        "description": "Cluster/K8s"
+      },
+      {
+        "name": "deploy",
+        "color": "0052cc",
+        "description": "Deployments"
+      },
+      {
+        "name": "monitoring",
+        "color": "fbca04",
+        "description": "Monitoring/metrics"
+      },
+      {
+        "name": "incident",
+        "color": "b60205",
+        "description": "Incidents/alerts"
+      }
+    ],
+    "trunk-based-development": [
+      {
+        "name": "tbd",
+        "color": "5319e7",
+        "description": "Trunk-based development"
+      },
+      {
+        "name": "continuous-delivery",
+        "color": "0e8a16",
+        "description": "CD practices"
+      },
+      {
+        "name": "short-lived-branches",
+        "color": "d93f0b",
+        "description": "Short-lived branches"
+      },
+      {
+        "name": "feature-flags",
+        "color": "0b5fff",
+        "description": "Feature flagging"
+      }
+    ]
+  }
+}

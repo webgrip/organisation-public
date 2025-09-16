@@ -1,0 +1,158 @@
+name: Sync Labels by Topics
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "1 0 * * *" # daily at 00:01
+  repository_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out (to read config)
+        uses: actions/checkout@v4
+
+      - name: Sync labels from topics via config
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            const CONFIG_PATH = '.github/labels-by-topic.json';
+            const MGMT_MARKER = '(managed by topics)';
+
+            function withMarker(desc) {
+              const base = (desc || '').trim();
+              return base ? `${base} ${MGMT_MARKER}` : MGMT_MARKER;
+            }
+            function hasMarker(desc) {
+              return (desc || '').includes(MGMT_MARKER);
+            }
+            function normalizeHex(color) {
+              const c = String(color || '').replace(/^#/, '').trim();
+              if (!/^[0-9a-fA-F]{6}$/.test(c)) throw new Error(`Invalid color: "${color}"`);
+              return c.toLowerCase();
+            }
+
+            // 1) Load config
+            if (!fs.existsSync(CONFIG_PATH)) {
+              core.setFailed(`Missing ${CONFIG_PATH}.`);
+              process.exit(1);
+            }
+            let cfg;
+            try { cfg = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8')); }
+            catch (e) { core.setFailed(`Invalid JSON in ${CONFIG_PATH}: ${e.message}`); process.exit(1); }
+
+            const prune = !!cfg.prune;
+            const topicMap = cfg.topics || {};
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            // 2) Read repo topics (lowercased for matching)
+            const topicsResp = await github.request('GET /repos/{owner}/{repo}/topics', {
+              owner, repo,
+              headers: { accept: 'application/vnd.github+json' }
+            });
+            const repoTopics = (topicsResp.data.names || []).map(t => t.toLowerCase());
+
+            // 3) Build desired labels = union of labels from all present topics
+            const desiredByName = new Map();
+            for (const t of repoTopics) {
+              // match keys case-insensitively
+              const key = Object.keys(topicMap).find(k => k.toLowerCase() === t);
+              if (!key) continue;
+              const items = topicMap[key] || [];
+              for (const lbl of items) {
+                if (!lbl || !lbl.name) continue;
+                const name = String(lbl.name);
+                const color = normalizeHex(lbl.color || 'cccccc');
+                const description = withMarker(lbl.description || '');
+                // If duplicate names appear across topics, last one wins (change if you prefer first-wins)
+                desiredByName.set(name.toLowerCase(), { name, color, description });
+              }
+            }
+
+            // 4) Get existing labels
+            const existing = await github.paginate(github.rest.issues.listLabelsForRepo, {
+              owner, repo, per_page: 100
+            });
+            const existingByLower = new Map(existing.map(l => [l.name.toLowerCase(), l]));
+
+            // 5) Create or update desired labels
+            const ensured = [];
+            for (const [k, d] of desiredByName) {
+              const found = existingByLower.get(k);
+              if (!found) {
+                core.info(`Creating label: ${d.name}`);
+                await github.rest.issues.createLabel({
+                  owner, repo,
+                  name: d.name,
+                  color: d.color,
+                  description: d.description
+                }).catch(async (err) => {
+                  // Case-insensitive "already exists" -> update
+                  if (err.status === 422 && /already exists/i.test(err.message)) {
+                    const match = existing.find(l => l.name.toLowerCase() === k);
+                    if (match) {
+                      await github.rest.issues.updateLabel({
+                        owner, repo,
+                        name: match.name,
+                        new_name: d.name,
+                        color: d.color,
+                        description: d.description
+                      });
+                    } else { throw err; }
+                  } else { throw err; }
+                });
+                ensured.push(d.name);
+              } else {
+                const needsRename = found.name !== d.name;
+                const needsColor  = (found.color || '').toLowerCase() !== d.color;
+                const needsDesc   = (found.description || '') !== d.description;
+                if (needsRename || needsColor || needsDesc) {
+                  core.info(`Updating label: ${found.name} -> ${d.name}`);
+                  await github.rest.issues.updateLabel({
+                    owner, repo,
+                    name: found.name,
+                    new_name: d.name,
+                    color: d.color,
+                    description: d.description
+                  });
+                } else {
+                  core.info(`Label up-to-date: ${found.name}`);
+                }
+                ensured.push(d.name);
+              }
+            }
+
+            // 6) Prune: remove previously-managed labels no longer desired
+            const removed = [];
+            if (prune) {
+              const desiredSetLower = new Set([...desiredByName.values()].map(v => v.name.toLowerCase()));
+              for (const l of existing) {
+                const isManaged = hasMarker(l.description || '');
+                const isDesired = desiredSetLower.has(l.name.toLowerCase());
+                if (isManaged && !isDesired) {
+                  core.info(`Deleting stale managed label: ${l.name}`);
+                  await github.rest.issues.deleteLabel({ owner, repo, name: l.name });
+                  removed.push(l.name);
+                }
+              }
+            }
+
+            // 7) Summary
+            await core.summary
+              .addHeading('Labels by Topics — Sync')
+              .addTable([
+                [{data: 'Repo'},               {data: `${owner}/${repo}`}],
+                [{data: 'Repo Topics'},        {data: repoTopics.join(', ') || '(none)'}],
+                [{data: 'Ensured/Updated'},    {data: ensured.join(', ') || '(none)'}],
+                [{data: 'Removed (managed)'},  {data: removed.join(', ') || '(none)'}]
+              ])
+              .write();
