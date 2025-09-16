@@ -69,10 +69,12 @@ jobs:
 
   setup-issues:
     name: ${{ inputs.application_name }}
-    uses: webgrip/workflows/.github/workflows/setup-repository-prompt-issues.yml@main
+    uses: webgrip/workflows/.github/workflows/github-issues-create-by-prompt.yml@main
     needs: bootstrap-copilot
     with:
-      repo_name: ${{ inputs.application_name }}
+      prompt-repository: webgrip/agentic-workflows
+      prompt-paths: '[".github/prompts/set-up-documentation.prompt.yml",".github/prompts/set-up-docker.prompt.yml",".github/prompts/set-up-helm.prompt.yml"]'
+      target-repository: ${{ github.repository_owner }}/${{ inputs.application_name }}
     secrets:
       WEBGRIP_CI_CLIENT_ID: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
       WEBGRIP_CI_APP_PRIVATE_KEY: ${{ secrets.WEBGRIP_CI_APP_PRIVATE_KEY }}
