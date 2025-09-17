@@ -4,11 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Plan only (no changes)"
         type: boolean
+        description: "Plan only (no changes)"
         default: false
+        required: false
   schedule:
-    - cron: "23 4 * * 1" # optional: Mondays 04:23 UTC
+    - cron: "0 1 * * *"
 
 permissions:
   contents: read
@@ -16,7 +17,7 @@ permissions:
 
 jobs:
   sync:
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
     env:
       CONFIG_PATH: .github/labels-by-topic.json
       MGMT_MARKER: "(managed by topics)"
