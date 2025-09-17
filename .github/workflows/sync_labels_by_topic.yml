@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        type: boolean
+        type: string
         description: "Plan only (no changes)"
-        default: false
+        default: 'false'
         required: false
   schedule:
     - cron: "0 1 * * *"
