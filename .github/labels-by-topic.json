@@ -97,7 +97,13 @@
       "description": "Release management"
     }
   ],
-  "general": [],
+  "general": [
+    {
+      "name": "needs-triage",
+      "color": "d876e3",
+      "description": "Needs triage"
+    }
+  ],
   "topics": {
     "application": [
       {
