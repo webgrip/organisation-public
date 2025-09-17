@@ -19,9 +19,19 @@ jobs:
       - name: Check out (to read config)
         uses: actions/checkout@v4
 
+      - name: Mint GitHub App installation token for webgrip-ci
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.WEBGRIP_CI_CLIENT_ID }}
+          private-key: ${{ secrets.WEBGRIP_CI_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
       - name: Sync labels across org repos with matching topics
         uses: actions/github-script@v8
         with:
+          # Use the installation token minted earlier so the script runs with app installation permissions
+          github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const fs = require('fs');
             const org = "${{ github.repository_owner }}";
