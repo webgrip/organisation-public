@@ -2,12 +2,6 @@ name: "🔃🏷️ Sync Labels by Topics"
 
 on:
   workflow_dispatch:
-    inputs:
-      dry_run:
-        type: string
-        description: "Plan only (no changes)"
-        default: 'false'
-        required: false
   schedule:
     - cron: "0 1 * * *"
 
@@ -31,7 +25,6 @@ jobs:
           script: |
             const fs = require('fs');
             const org = "${{ github.repository_owner }}";
-            const isDryRun = core.getBooleanInput('dry_run');
 
             // ---- Helpers ----
             const MGMT_MARKER = process.env.MGMT_MARKER;
@@ -40,7 +33,7 @@ jobs:
               return base ? `${base} ${MGMT_MARKER}` : MGMT_MARKER;
             };
             const hasMarker = (desc) => (desc || '').includes(MGMT_MARKER);
-            const normalizeHex = (c) => {
+            const normHex = (c) => {
               const x = String(c || '').replace(/^#/, '').trim();
               if (!/^[0-9a-fA-F]{6}$/.test(x)) throw new Error(`Invalid color: "${c}"`);
               return x.toLowerCase();
@@ -193,22 +186,20 @@ jobs:
                 const found = existingByLower.get(k);
                 if (!found) {
                   core.info(`Create: ${d.name}`);
-                  if (!dryRun) {
-                    await github.rest.issues.createLabel({
-                      owner, repo,
-                      name: d.name, color: d.color, description: d.description
-                    }).catch(async (err) => {
-                      if (err.status === 422 && /already exists/i.test(err.message)) {
-                        const match = existing.find(l => l.name.toLowerCase() === k);
-                        if (match) {
-                          await github.rest.issues.updateLabel({
-                            owner, repo,
-                            name: match.name, new_name: d.name, color: d.color, description: d.description
-                          });
-                        } else { throw err; }
+                  await github.rest.issues.createLabel({
+                    owner, repo,
+                    name: d.name, color: d.color, description: d.description
+                  }).catch(async (err) => {
+                    if (err.status === 422 && /already exists/i.test(err.message)) {
+                      const match = existing.find(l => l.name.toLowerCase() === k);
+                      if (match) {
+                        await github.rest.issues.updateLabel({
+                          owner, repo,
+                          name: match.name, new_name: d.name, color: d.color, description: d.description
+                        });
                       } else { throw err; }
-                    });
-                  }
+                    } else { throw err; }
+                  });
                   ensured.push(d.name);
                 } else {
                   const needsRename = found.name !== d.name;
@@ -216,12 +207,10 @@ jobs:
                   const needsDesc   = (found.description || '') !== d.description;
                   if (needsRename || needsColor || needsDesc) {
                     core.info(`Update: ${found.name} -> ${d.name}`);
-                    if (!dryRun) {
-                      await github.rest.issues.updateLabel({
-                        owner, repo,
-                        name: found.name, new_name: d.name, color: d.color, description: d.description
-                      });
-                    }
+                    await github.rest.issues.updateLabel({
+                      owner, repo,
+                      name: found.name, new_name: d.name, color: d.color, description: d.description
+                    });
                     updated.push(d.name);
                   } else {
                     core.info(`OK: ${found.name}`);
@@ -237,9 +226,7 @@ jobs:
                   const isDesired = desiredSetLower.has(l.name.toLowerCase());
                   if (isManaged && !isDesired) {
                     core.info(`Delete: ${l.name}`);
-                    if (!dryRun) {
-                      await github.rest.issues.deleteLabel({ owner, repo, name: l.name });
-                    }
+                    await github.rest.issues.deleteLabel({ owner, repo, name: l.name });
                     removed.push(l.name);
                   }
                 }
@@ -303,6 +290,6 @@ jobs:
             }
 
             await core.summary
-              .addHeading(`Org Labels by Topics — ${isDryRun ? 'PLAN' : 'APPLY'}`)
+              .addHeading(`Org Labels by Topics — APPLY`)
               .addTable(table)
               .write();
