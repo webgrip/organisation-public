@@ -45,6 +45,7 @@ jobs:
               return x.toLowerCase();
             };
 
+
             // Load config
             const configPath = process.env.CONFIG_PATH;
             if (!fs.existsSync(configPath)) {
@@ -58,9 +59,23 @@ jobs:
             const prune = !!cfg.prune;
             const topicMap = cfg.topics || {};
             const general = Array.isArray(cfg.general) ? cfg.general : [];
+            const orgConfig = Array.isArray(cfg.org) ? cfg.org : [];
 
             // Topic keys we care about (slugs)
             const topicKeys = Object.keys(topicMap).map(k => k.toLowerCase());
+
+            // ---- Fetch org default labels ----
+            let orgDefaultLabels = [];
+            try {
+              // https://docs.github.com/en/rest/issues/labels#list-organization-labels
+              orgDefaultLabels = await github.paginate(github.rest.orgs.listLabels, {
+                org,
+                per_page: 100
+              });
+            } catch (e) {
+              core.warning(`Could not fetch org default labels: ${e.message}`);
+              orgDefaultLabels = [];
+            }
 
             // ---- Find repos by topic (union) ----
             // We'll search once per topic and union the repos.
@@ -94,6 +109,7 @@ jobs:
             const BATCH_SIZE = 5; // adjust as needed
             const BATCH_DELAY_MS = 5000; // 5 seconds between batches
 
+
             async function processRepo(fullName, { owner, repo }) {
               core.startGroup(`Repo: ${owner}/${repo}`);
 
@@ -104,10 +120,33 @@ jobs:
               });
               const repoTopics = (topicsResp.data.names || []).map(t => t.toLowerCase());
 
-              // Desired labels = general + union of labels for any matching topic keys present
+              // Desired labels = org defaults + general + union of labels for any matching topic keys present
               const desired = new Map();
 
-              // general first
+
+                // org-level labels from config (always present, override fetched org labels)
+                for (const lbl of orgConfig) {
+                  if (!lbl || !lbl.name) continue;
+                  desired.set(lbl.name.toLowerCase(), {
+                    name: String(lbl.name),
+                    color: normHex(lbl.color || 'cccccc'),
+                    description: withMarker(lbl.description || '')
+                  });
+                }
+
+                // org default labels from GitHub (if not overridden by config)
+                for (const lbl of orgDefaultLabels) {
+                  if (!lbl || !lbl.name) continue;
+                  if (!desired.has(lbl.name.toLowerCase())) {
+                    desired.set(lbl.name.toLowerCase(), {
+                      name: String(lbl.name),
+                      color: normHex(lbl.color || 'cccccc'),
+                      description: withMarker(lbl.description || '')
+                    });
+                  }
+                }
+
+              // general next
               for (const lbl of general) {
                 if (!lbl || !lbl.name) continue;
                 desired.set(lbl.name.toLowerCase(), {
@@ -117,7 +156,7 @@ jobs:
                 });
               }
 
-              // topic labels override general on name collision
+              // topic labels override general/org on name collision
               for (const present of repoTopics) {
                 const key = topicKeys.find(k => k === present);
                 if (!key) continue;
@@ -131,9 +170,9 @@ jobs:
                 }
               }
 
-              // If no desired labels (e.g., repo only had unrelated topics), skip
+              // If no desired labels (should not happen now), skip
               if (desired.size === 0) {
-                core.info('No configured topics present; skipping.');
+                core.info('No configured topics or org labels present; skipping.');
                 core.endGroup();
                 return null;
               }
