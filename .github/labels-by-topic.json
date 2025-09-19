@@ -48,12 +48,12 @@
       "description": "Needs acceptance criteria"
     },
     {
-      "name": "needs: triage",
+      "name": "needs:triage",
       "color": "6f42c1",
       "description": "Needs triage"
     },
     {
-      "name": "needs: review",
+      "name": "needs:review",
       "color": "fbca04",
       "description": "Needs code or design review"
     },
