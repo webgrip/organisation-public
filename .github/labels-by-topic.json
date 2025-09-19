@@ -3,18 +3,8 @@
   "org": [],
   "general": [
     {
-      "name": "needs-triage",
-      "color": "d876e3",
-      "description": "Needs triage"
-    },
-    {
-      "name": "needs-review",
-      "color": "fbca04",
-      "description": "Needs code or design review"
-    },
-    {
       "name": "security",
-      "color": "d73a4a",
+      "color": "b60205",
       "description": "Security-related work"
     },
     {
@@ -31,6 +21,106 @@
       "name": "performance",
       "color": "f7c6c7",
       "description": "Performance improvement"
+    },
+    {
+      "name": "ready",
+      "color": "2ea44f",
+      "description": "Work is ready to be picked up"
+    },
+    {
+      "name": "not-ready",
+      "color": "fbca04",
+      "description": "Work is not ready yet"
+    },
+    {
+      "name": "done",
+      "color": "0e8a16",
+      "description": "Work completed"
+    },
+    {
+      "name": "blocked",
+      "color": "b60205",
+      "description": "Work blocked by external factor"
+    },
+    {
+      "name": "needs:acceptance-criteria",
+      "color": "6f42c1",
+      "description": "Needs acceptance criteria"
+    },
+    {
+      "name": "needs: triage",
+      "color": "6f42c1",
+      "description": "Needs triage"
+    },
+    {
+      "name": "needs: review",
+      "color": "fbca04",
+      "description": "Needs code or design review"
+    },
+    {
+      "name": "needs:design",
+      "color": "1d76db",
+      "description": "Needs design work"
+    },
+    {
+      "name": "needs:tests",
+      "color": "fbca04",
+      "description": "Needs tests"
+    },
+    {
+      "name": "needs:security-review",
+      "color": "b60205",
+      "description": "Needs security review"
+    },
+    {
+      "name": "needs:observability",
+      "color": "0052cc",
+      "description": "Needs observability/monitoring"
+    },
+    {
+      "name": "needs:runbook",
+      "color": "8a8f98",
+      "description": "Needs runbook / run instructions"
+    },
+    {
+      "name": "needs:owner",
+      "color": "6f42c1",
+      "description": "Needs an owner assigned"
+    },
+    {
+      "name": "risk:high",
+      "color": "b60205",
+      "description": "High risk"
+    },
+    {
+      "name": "risk:medium",
+      "color": "fbca04",
+      "description": "Medium risk"
+    },
+    {
+      "name": "risk:low",
+      "color": "2ea44f",
+      "description": "Low risk"
+    },
+    {
+      "name": "dod:D1",
+      "color": "8a8f98",
+      "description": "Definition of Done: D1"
+    },
+    {
+      "name": "dod:D2",
+      "color": "1d76db",
+      "description": "Definition of Done: D2"
+    },
+    {
+      "name": "dod:D3",
+      "color": "5319e7",
+      "description": "Definition of Done: D3"
+    },
+    {
+      "name": "dod:D4",
+      "color": "0052cc",
+      "description": "Definition of Done: D4"
     }
   ],
   "topics": {
