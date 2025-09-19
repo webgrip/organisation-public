@@ -58,6 +58,11 @@
       "description": "Needs code or design review"
     },
     {
+      "name": "needs:evaluation",
+      "color": "6f42c1",
+      "description": "Needs evaluation"
+    },
+    {
       "name": "needs:design",
       "color": "1d76db",
       "description": "Needs design work"
