@@ -33,7 +33,7 @@ gha-runner-scale-set:
       initContainers:
         - name: init-dind-externals
 #          image: ghcr.io/actions/actions-runner:latest
-          image: webgrip/github-runner:dc761f5bca4b9f7a689e5729dd24c39102320182
+          image: webgrip/github-runner:6fc4147d1caaee8dcaaac7a19d90488372dadfdc
           command: [ "cp", "-r", "-v", "/home/runner/externals/.", "/home/runner/tmpDir/" ]
           volumeMounts:
             - name: dind-externals
@@ -41,7 +41,7 @@ gha-runner-scale-set:
       containers:
         - name: runner
 #          image: ghcr.io/actions/actions-runner:latest
-          image: webgrip/github-runner:dc761f5bca4b9f7a689e5729dd24c39102320182
+          image: webgrip/github-runner:6fc4147d1caaee8dcaaac7a19d90488372dadfdc
           resources:
             requests:
               cpu: 250m
