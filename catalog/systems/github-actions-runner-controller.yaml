@@ -14,11 +14,11 @@ metadata:
 spec:
   owner: group:webgrip/infrastructure
   domain: webgrip/operations-domain
-relations:
-  - type: parentOf
-    target: webgrip/github-actions-scale-set-controller
-  - type: dependsOn
-    target: webgrip/kubernetes-system
+# relations:
+#   - type: parentOf
+#     target: webgrip/github-actions-scale-set-controller
+#   - type: dependsOn
+#     target: webgrip/kubernetes-system
 ---
 apiVersion: backstage.io/v1alpha1
 kind: System
@@ -34,9 +34,9 @@ metadata:
 spec:
   owner: group:webgrip/infrastructure
   domain: webgrip/operations-domain
-relations:
-  - type: parentOf
-    target: webgrip/github-actions-scale-set
+# relations:
+#   - type: parentOf
+#     target: webgrip/github-actions-scale-set
 ---
 apiVersion: backstage.io/v1alpha1
 kind: System
