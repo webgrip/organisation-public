@@ -21,7 +21,7 @@ spec:
   type: department
   profile:
     displayName: C-Level
-    email: R.Grippeling@hotmail.com
+    email: ryan@webgrip.nl
     picture: https://api.dicebear.com/7.x/identicon/svg?seed=Fluffy&backgroundColor=ffdfbf
-  children: ['group:webgrip/infrastructure']
-  members: ['Ryangr0']
+  children: ["group:webgrip/infrastructure"]
+  members: ["Ryangr0"]
